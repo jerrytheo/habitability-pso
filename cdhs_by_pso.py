@@ -35,3 +35,7 @@ def construct_cdhs_function(coeff1, coeff2, type_):
         return (coeff1 ** pos[0]) * (coeff2 ** pos[1]) - penalty_(pos)
 
     return cdhpf
+
+
+for row in exoplanets.iterrows():
+    print(row)

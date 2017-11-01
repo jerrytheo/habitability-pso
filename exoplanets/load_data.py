@@ -21,4 +21,6 @@ exoplanets.rename(columns={
     'P. Density (EU)': 'Density',
     'P. Ts Mean (K)': 'STemp',
     'P. Esc Vel (EU)': 'Escape'
-})
+}, inplace=True)
+
+print(exoplanets.columns)
