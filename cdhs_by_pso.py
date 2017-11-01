@@ -7,7 +7,7 @@ from pso import Swarm
 
 # Required constants.
 SCALE = 20
-NPART = 10
+NPART = 20
 
 
 # Drop rows with missing values.
@@ -37,10 +37,19 @@ def construct_cdhs_function(coeff1, coeff2, type_):
     return cdhpf
 
 
-for row in exoplanets.iterrows():
+for _, row in exoplanets.iterrows():
     # Estimating CDHSi at CRS.
     cdhsi_crs = construct_cdhs_function(coeff1=row['Radius'],
                                         coeff2=row['Density'],
                                         type_='CRS')
-    swarm = Swarm(npart=NPART, ndim=2, fitness_function=cdhsi_crs,
-                  learn_rate1=0.1, learn_rate2=0.1, max_velocity=1.0)
+    swarm = Swarm(npart=NPART,
+                  ndim=2,
+                  fitness_function=cdhsi_crs,
+                  min_=0,
+                  max_=1,
+                  learn_rate1=0.1,
+                  learn_rate2=0.1,
+                  max_velocity=1.0)
+    swarm.converge(max_iter=100, verbose=False)
+    print(swarm.best_particle.position)
+    break

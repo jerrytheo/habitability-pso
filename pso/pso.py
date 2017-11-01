@@ -26,8 +26,8 @@ class Particle:
         dv_g = self.c2 * uniform(0, 1) * (global_best - self.position)
 
         self.velocity += dv_l + dv_g
-        if self.velocity >= self.velocity_cap:
-            self.velocity = self.velocity_cap
+        check = self.velocity >= self.velocity_cap
+        self.velocity[check] = self.velocity_cap
 
         self.position += self.velocity
         curr_fitness = self.fitness()
@@ -42,43 +42,36 @@ class Swarm:
 
     def __init__(self, npart, *args, **kwargs):
         self.particles = [Particle(*args, **kwargs) for it in range(npart)]
+        self.best_particle = max(self, key=lambda p: p.best_fitness)
+        self.global_best = self.best_particle.best_fitness
 
     def __iter__(self):
         """Iterate over the particles."""
-        for p in self.particles:
-            yield p
+        for particle in self.particles:
+            yield particle
 
     def __len__(self):
         """Return number of particles."""
         return len(self.particles)
 
-    @property
-    def global_best(self):
-        """Returns the globally best fitness value."""
-        max(self, key=lambda p: p.best_fitness)
-
-    @property
-    def best_particle(self):
-        """Returns the first particle found with global_best fitness."""
-        global_best = self.global_best              # caching for the loop.
-        for p in self:
-            if p.best_fitness == global_best:
-                return p
-
     def update(self):
         """Update all particles of the swarm."""
-        for p in self:
-            p.update()
+        for particle in self:
+            particle.update(self.global_best)
+            if particle.best_fitness > self.global_best:
+                self.best_particle = particle
+                self.global_best = particle.best_fitness
 
-    def converge(self, max_iter=10000, threshold=0.001, verbose=True):
+    def converge(self, max_iter=10000, threshold=0.00001, verbose=True):
         """Find the maxima for the fitness function specified."""
         for it in range(max_iter):
+            progress = round((it/max_iter) * 20)
             old_best = self.global_best
             self.update()
             if abs_(old_best - self.global_best) < threshold:
                 break
+            print(it)
             if verbose:
-                progress = round((it/max_iter) * 20)
                 print('Iterations: [',
                       '=' * (progress-1),
                       '>',
