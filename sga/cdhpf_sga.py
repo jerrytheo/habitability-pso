@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.misc import derivative
+# from scipy.misc import derivative
 
 _threshold = 1e-4
 _learningr = 0.001
