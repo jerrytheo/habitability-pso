@@ -13,7 +13,7 @@ class Particle:
         self.fc = friction
 
         self.fitness = lambda: fitness_function(self.position)
-        self.position = uniform(min_, max_, ndim)
+        self.position = np.round(uniform(min_, max_, ndim), 1)
         self.velocity = uniform(-np.abs(max_-min_), np.abs(max_-min_), ndim)
 
         self.best = np.array(self.position)
@@ -30,7 +30,7 @@ class Particle:
         self.velocity[check] = np.sign(self.velocity[check]) * \
             self.velocity_cap
 
-        self.position += self.velocity
+        self.position = np.round(self.position + self.velocity, 1)
         curr_fitness = self.fitness()
         if curr_fitness > self.best_fitness:
             self.best = np.array(self.position)
@@ -65,12 +65,12 @@ class Swarm:
                 self.global_best = particle.best_fitness
 
     def converge(self, max_stable=100, max_iter=10000, threshold=0.00001,
-                 verbose=True):
+                 verbose=True, proglen=20):
         """Find the maxima for the fitness function specified."""
         stable_count = 0
         for it in range(max_iter):
             percent = round(it / max_iter * 100)
-            progress = (it*45)//max_iter + 1
+            progress = (it*proglen)//max_iter + 1
             old_best = self.global_best
             self.update()
             if np.abs(old_best - self.global_best) < threshold:
@@ -78,11 +78,7 @@ class Swarm:
                 if stable_count == max_stable:
                     return
             else:
-                stable_count = max_stable
+                stable_count = 0
             if verbose:
-                print('[',
-                      '=' * (progress),
-                      ' ' * (45-progress),
-                      ']',
-                      '  ({:3}%)'.format(percent),
-                      end='\r', sep='')
+                print('[', '=' * (progress), ' ' * (proglen-progress), ']',
+                      '  ({:3}%)'.format(percent), end='\r', sep='')
