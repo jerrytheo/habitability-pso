@@ -38,8 +38,8 @@ def penalty(pos, type_):
     elif type_ == 'DRS':
         q[4] = max(pos[0]+pos[1]-1 + e, 0)
 
-    theta = np.piecewise(q, [q == 0, q > 0], [0, 1000.])
-    gamma = np.piecewise(q, [q <= 1, q > 1], [1, 2])
+    theta = np.piecewise(q, [q == 0, q > 0], [0, 1e8])
+    gamma = np.piecewise(q, [q <= 1, q > 1], [1, np.prod(np.exp(pos))])
     return np.sum(theta*(q**gamma))
 
 
@@ -63,26 +63,32 @@ def converge_by_pso(restarts=3, **kwargs):
         converged = swarm.converge(verbose=False)
         if converged:
             return swarm
+    #  print(swarm.best_particle.best)
+    #  print(swarm.global_best)
+    #  print(penalty(swarm.best_particle.best, 'CRS'))
     return None
 
 
 # Message text.
-msg = '{:25}{:>5}{:>5}{:>8}{:>5}{:>5}{:>8}{:>8}{:>7.5}'
-err = '{:25}{:^51}'
-bar = '[{:66}]  ({:>3}%)'
+msg = '{:25}{:>5}{:>5}{:>10}{:>5}{:>5}{:>10}{:>10}{:>7.5}'
+err = '{:25}{:^57}'
+bar = '[{:72}]  ({:>3}%)'
 tot = len(exoplanets)
 
 # Estimating CDHS at CRS.
 print('')
-for constraint in ['CRS', 'DRS']:
-    print('=' * 76, end='\n\n')
+# for constraint in ['CRS', 'DRS']:
+for constraint in ['CRS']:
+    print('=' * 82, end='\n\n')
     print('#', constraint, end='\n\n')
     print(msg.format('Name', 'A', 'B', 'CDHSi',
                      'G', 'D', 'CDHSs', 'CDHS', 'Cls'))
-    print('-' * 76)
+    print('-' * 82)
 
     curr = 1
     for _, row in exoplanets.iterrows():
+        #  if row['Name'] != 'Kepler-57 c':
+        #      continue
         # CDHSi
         cdhpf_i = construct_cdhs_fn(row['Radius'], row['Density'], constraint)
         swarm_i = converge_by_pso(fn=cdhpf_i, **sw_kwargs)
@@ -114,4 +120,4 @@ for constraint in ['CRS', 'DRS']:
         print(bar.format('='*progress, (curr*100)//tot), end='\r')
         curr += 1
     print('\n')
-print('=' * 76, end='\n\n')
+print('=' * 82, end='\n\n')
