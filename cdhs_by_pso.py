@@ -7,7 +7,7 @@ from pso import Swarm
 
 # Parameters for the swarm.
 sw_kwargs = {
-    'npart': 1000,                 # Number of particles.
+    'npart': 100,                   # Number of particles.
     'ndim': 2,                      # Dimensions of input.
     'min_': 0,                      # Min. value for initial pos.
     'max_': 1,                      # Max. value for initial pos.
@@ -38,12 +38,12 @@ def penalty(pos, type_):
     elif type_ == 'DRS':
         q[4] = max(pos[0]+pos[1]-1 + e, 0)
 
-    theta = np.piecewise(q, [q == 0, q > 0, q > .5, q > 1.], [0, 5., 10., 15.])
+    theta = np.piecewise(q, [q == 0, q > 0], [0, 1000.])
     gamma = np.piecewise(q, [q <= 1, q > 1], [1, 2])
     return np.sum(theta*(q**gamma))
 
 
-def construct_cdhs_function(coeff1, coeff2, type_):
+def construct_cdhs_fn(coeff1, coeff2, type_):
     """Create the CDHS function by substituting the exoplanet
     parameters. Type could be CRS or DRS.
     """
@@ -56,15 +56,62 @@ def construct_cdhs_function(coeff1, coeff2, type_):
     return cdhpf
 
 
-msg = '{:25}{:>10}{:>10}{:>10}{:>20}'
-print(msg.format('Name', 'Alpha', 'Beta', 'Value', 'Class'))
-print(msg.format('----', '-----', '----', '-----', '-----'))
+def converge_by_pso(restarts=3, **kwargs):
+    """Wait for convergence by PSO."""
+    for _ in range(restarts):
+        swarm = Swarm(**kwargs)
+        converged = swarm.converge(verbose=False)
+        if converged:
+            return swarm
+    return None
 
-for _, row in exoplanets.iterrows():
-    # Estimating CDHSi at CRS.
-    cdhsi_crs = construct_cdhs_function(row['Radius'], row['Density'], 'CRS')
-    swarm = Swarm(fitness_function=cdhsi_crs, **sw_kwargs)
-    swarm.converge(max_iter=100, max_stable=10, verbose=True, proglen=65)
-    best = np.round(swarm.best_particle.best, 2)
-    global_ = round(swarm.global_best, 4)
-    print(msg.format(row['Name'], best[0], best[1], global_, row['Habitable']))
+
+# Message text.
+msg = '{:25}{:>5}{:>5}{:>8}{:>5}{:>5}{:>8}{:>8}{:>7.5}'
+err = '{:25}{:^51}'
+bar = '[{:66}]  ({:>3}%)'
+tot = len(exoplanets)
+
+# Estimating CDHS at CRS.
+print('')
+for constraint in ['CRS', 'DRS']:
+    print('=' * 76, end='\n\n')
+    print('#', constraint, end='\n\n')
+    print(msg.format('Name', 'A', 'B', 'CDHSi',
+                     'G', 'D', 'CDHSs', 'CDHS', 'Cls'))
+    print('-' * 76)
+
+    curr = 1
+    for _, row in exoplanets.iterrows():
+        # CDHSi
+        cdhpf_i = construct_cdhs_fn(row['Radius'], row['Density'], constraint)
+        swarm_i = converge_by_pso(fn=cdhpf_i, **sw_kwargs)
+        if not swarm_i:
+            print(err.format(row['Name'], '** CDHSi convergence failed. **'))
+            curr += 1
+            continue
+
+        A, B = np.round(swarm_i.best_particle.best, 2)
+        cdhs_i = round(swarm_i.global_best, 4)
+
+        # CDHSs
+        row['STemp'] = row['STemp'] / 288           # Normalizing to EU.
+        cdhpf_s = construct_cdhs_fn(row['Escape'], row['STemp'], constraint)
+        swarm_s = converge_by_pso(fn=cdhpf_s, **sw_kwargs)
+        if not swarm_s:
+            print(err.format(row['Name'], '** CDHSs convergence failed. **'))
+            curr += 1
+            continue
+
+        G, D = np.round(swarm_s.best_particle.best, 2)
+        cdhs_s = round(swarm_s.global_best, 4)
+
+        cdhs = np.round(cdhs_i*.99 + cdhs_s*.01, 4)
+        print(msg.format(row['Name'], A, B, cdhs_i, G, D, cdhs_s, cdhs,
+                         row['Habitable']))
+
+        progress = (curr*66) // tot
+        print(bar.format('='*progress, (curr*100)//tot), end='\r')
+        curr += 1
+    print('\n')
+print('=' * 76, end='\n\n')

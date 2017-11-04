@@ -6,13 +6,13 @@ class Particle:
 
     """A single particle of the swarm."""
 
-    def __init__(self, ndim, fitness_function, min_=0, max_=1, friction=1.0,
-                 learn_rate1=2.0, learn_rate2=2.0, max_velocity=None):
+    def __init__(self, ndim, fn, min_=0, max_=1, friction=1.0, learn_rate1=2.0,
+                 learn_rate2=2.0, max_velocity=None):
         self.c1 = learn_rate1
         self.c2 = learn_rate2
         self.fc = friction
 
-        self.fitness = lambda: fitness_function(self.position)
+        self.fitness = lambda: fn(self.position)
         self.position = np.round(uniform(min_, max_, ndim), 1)
         self.velocity = uniform(-np.abs(max_-min_), np.abs(max_-min_), ndim)
 
@@ -64,7 +64,7 @@ class Swarm:
                 self.best_particle = particle
                 self.global_best = particle.best_fitness
 
-    def converge(self, max_stable=100, max_iter=10000, threshold=0.00001,
+    def converge(self, max_stable=10, max_iter=100, threshold=0.0001,
                  verbose=True, proglen=20):
         """Find the maxima for the fitness function specified."""
         stable_count = 0
@@ -76,9 +76,10 @@ class Swarm:
             if np.abs(old_best - self.global_best) < threshold:
                 stable_count += 1
                 if stable_count == max_stable:
-                    return
+                    return True
             else:
                 stable_count = 0
             if verbose:
                 print('[', '=' * (progress), ' ' * (proglen-progress), ']',
                       '  ({:3}%)'.format(percent), end='\r', sep='')
+        return False
