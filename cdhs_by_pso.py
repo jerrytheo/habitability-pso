@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import csv
 import functools
 import numpy as np
 from exoplanets import exoplanets
@@ -63,9 +64,6 @@ def converge_by_pso(restarts=3, **kwargs):
         converged = swarm.converge(verbose=False)
         if converged:
             return swarm
-    #  print(swarm.best_particle.best)
-    #  print(swarm.global_best)
-    #  print(penalty(swarm.best_particle.best, 'CRS'))
     return None
 
 
@@ -75,20 +73,22 @@ err = '{:25}{:^57}'
 bar = '[{:72}]  ({:>3}%)'
 tot = len(exoplanets)
 
+results = {'CRS': [], 'DRS': []}
+
 # Estimating CDHS at CRS.
 print('')
-# for constraint in ['CRS', 'DRS']:
-for constraint in ['CRS']:
+for constraint in ['CRS', 'DRS']:
+    results = []
+    results.append(['Name', 'A', 'B', 'CDHSi', 'G', 'D', 'CDHSs',
+                    'CDHS', 'Cls'])
+
     print('=' * 82, end='\n\n')
     print('#', constraint, end='\n\n')
-    print(msg.format('Name', 'A', 'B', 'CDHSi',
-                     'G', 'D', 'CDHSs', 'CDHS', 'Cls'))
+    print(msg.format(*results[-1]))
     print('-' * 82)
 
     curr = 1
     for _, row in exoplanets.iterrows():
-        #  if row['Name'] != 'Kepler-57 c':
-        #      continue
         # CDHSi
         cdhpf_i = construct_cdhs_fn(row['Radius'], row['Density'], constraint)
         swarm_i = converge_by_pso(fn=cdhpf_i, **sw_kwargs)
@@ -113,11 +113,16 @@ for constraint in ['CRS']:
         cdhs_s = round(swarm_s.global_best, 4)
 
         cdhs = np.round(cdhs_i*.99 + cdhs_s*.01, 4)
-        print(msg.format(row['Name'], A, B, cdhs_i, G, D, cdhs_s, cdhs,
-                         row['Habitable']))
+        results.append([row['Name'], A, B, cdhs_i, G, D, cdhs_s, cdhs,
+                        row['Habitable']])
+        print(msg.format(*results[-1]))
 
         progress = (curr*66) // tot
         print(bar.format('='*progress, (curr*100)//tot), end='\r')
         curr += 1
     print('\n')
+
+    with open('res/pso_' + constraint.lower() + '.csv', 'w') as resfile:
+        csv.writer(resfile).writerows(results)
+
 print('=' * 82, end='\n\n')
