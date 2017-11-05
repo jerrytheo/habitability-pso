@@ -117,7 +117,7 @@ for constraint in ['CRS', 'DRS']:
                         row['Habitable']])
         print(msg.format(*results[-1]))
 
-        progress = (curr*66) // tot
+        progress = (curr*72) // tot
         print(bar.format('='*progress, (curr*100)//tot), end='\r')
         curr += 1
     print('\n')
