@@ -1,3 +1,0 @@
-fmincon function MATLAB -- find out.
-read the three papers
-implement the CD way of calculating habitability score.
