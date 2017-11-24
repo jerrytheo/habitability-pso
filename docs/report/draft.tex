@@ -1,0 +1,84 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+
+
+% Information for header.
+\title{Optimizing the Cobb Doughlas Habitability Production function using
+Particle Swarm Optimization}
+\author{Abhijit J.\ Theophilus}
+\date{\today}
+
+% Useful for initial drafts.
+\newenvironment{pointers}{%
+  \noindent Should include,
+  \begin{itemize}
+    \setlength{\itemsep}{-1pt}}{%
+\end{itemize}}
+
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+  Write a super cool abstract here.
+\end{abstract}
+
+
+\section{Introduction}
+What am I trying to do?\\
+
+\begin{pointers}
+\item What is CDHPF?\ Why use a metric?
+\item Previous attempts.
+\item What is PSO?\
+\item Why PSO?\
+\item Overview of paper.
+\end{pointers}
+
+
+\section{Cobb Douglas Habitability Score}
+\begin{pointers}
+\item A little background (expanding from Introduction).
+\item The equations.
+\item Method for calculating the score.
+\end{pointers}
+
+
+\section{Particle Swarm Optimization}
+\begin{pointers}
+\item Equations. Modification for max.
+\item Constrained optimization modifications.
+\item Any other changes made.
+\item Algorithm: Putting everything together.
+\end{pointers}
+
+
+\section{Experiment}
+\begin{pointers}
+\item Discussing the data set.
+\item Parameters for the constrained optimization.
+\item Implementation method.
+\item Ensuring convergence.
+\end{pointers}
+
+
+\section{Results}
+\begin{pointers}
+\item The values and proximity to earth's habitability score.
+\item Values that do not converge. Or were hard to converge.
+\item Speed of convergence graphs.
+\item Graph1: Iterations to convergence vs. Number of particles.
+\item Graph2: Distribution of number of iterations to convergence.
+\item Graph3: Iterations to convergence vs. Constraint parameters.
+\end{pointers}
+
+
+\section{Conclusions}
+\begin{pointers}
+\item Why is the speed so important?
+\item Parallelizable.
+\end{pointers}
+
+
+\end{document}
