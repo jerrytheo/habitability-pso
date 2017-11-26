@@ -2,9 +2,21 @@
 
 import csv
 import functools
+import logging
+from multiprocessing import Lock, Process
 import numpy as np
+
 from exoplanets import exoplanets
 from pso import Swarm
+
+
+# Constants.
+HEADERS = ('Name', 'A', 'B', 'CDHSi', 'G', 'D', 'CDHSs', 'CDHS', 'Cls')
+
+
+# Setting up logging.
+logging.basicConfig(format='[%(asctime)s]  %(message)s', level=logging.INFO)
+
 
 # Parameters for the swarm.
 sw_kwargs = {
@@ -23,6 +35,17 @@ sw_kwargs = {
 exoplanets.dropna(how='any', inplace=True)
 
 
+# Utility functions.
+def safe_log(logfunc, lock, pname, message):
+    """Multiprocess safe logging."""
+    lock.acquire()
+    try:
+        logfunc(pname+'  '+message)
+    finally:
+        lock.release()
+
+
+# Functions to set up the penalty.
 def penalty(pos, type_):
     """The penalty function for the Cobb Douglas function."""
     e = .1
@@ -57,6 +80,7 @@ def construct_cdhs_fn(coeff1, coeff2, type_):
     return cdhpf
 
 
+# Functions to evaluate the CDHS values for each exoplanet.
 def converge_by_pso(restarts=3, **kwargs):
     """Wait for convergence by PSO."""
     for _ in range(restarts):
@@ -67,27 +91,19 @@ def converge_by_pso(restarts=3, **kwargs):
     return None
 
 
-# Message text.
-msg = '{:25}{:>5}{:>5}{:>10}{:>5}{:>5}{:>10}{:>10}{:>7.5}'
-err = '{:25}{:^57}'
-bar = '[{:72}]  ({:>3}%)'
-tot = len(exoplanets)
+def evaluate_cdhs_values(lock, pname, **sw_kwargs):
+    """Estimate the CDHS values of each planet for both, the CRS and
+    the DRS constraints.
+    """
+    global exoplanets
+    num_exopl = len(exoplanets)
 
-results = {'CRS': [], 'DRS': []}
-
-
-def evaluate_cdhs_values():
-    global sw_kwargs
-    print('')
+    exoplanets = exoplanets[:20]
     for constraint in ['CRS', 'DRS']:
+        safe_log(logging.info, lock, pname,
+                 'Commencing '+constraint+' estimation.')
         results = []
-        results.append(['Name', 'A', 'B', 'CDHSi', 'G', 'D', 'CDHSs',
-                        'CDHS', 'Cls'])
-
-        print('=' * 82, end='\n\n')
-        print('#', constraint, end='\n\n')
-        print(msg.format(*results[-1]))
-        print('-' * 82)
+        results.append(HEADERS)
 
         curr = 1
         for _, row in exoplanets.iterrows():
@@ -96,8 +112,8 @@ def evaluate_cdhs_values():
                                         constraint)
             swarm_i = converge_by_pso(fn=cdhpf_i, **sw_kwargs)
             if not swarm_i:
-                print(err.format(row['Name'],
-                                 '** CDHSi convergence failed. **'))
+                safe_log(logging.ERROR, lock, pname,
+                         row['Name']+'did not converge for CDHSi.')
                 curr += 1
                 continue
 
@@ -110,8 +126,8 @@ def evaluate_cdhs_values():
                                         constraint)
             swarm_s = converge_by_pso(fn=cdhpf_s, **sw_kwargs)
             if not swarm_s:
-                print(err.format(row['Name'],
-                                 '** CDHSs convergence failed. **'))
+                safe_log(logging.ERROR, lock, pname,
+                         row['Name']+'did not converge for CDHSs.')
                 curr += 1
                 continue
 
@@ -121,21 +137,34 @@ def evaluate_cdhs_values():
             cdhs = np.round(cdhs_i*.99 + cdhs_s*.01, 4)
             results.append([row['Name'], A, B, cdhs_i, G, D, cdhs_s, cdhs,
                             row['Habitable']])
-            print(msg.format(*results[-1]))
 
-            progress = (curr*72) // tot
-            print(bar.format('='*progress, (curr*100)//tot), end='\r')
+            q, r = divmod(curr*100 // num_exopl, 10)
+            if r == 0 and q != 0:
+                safe_log(logging.info, lock, pname, str(q)+'% complete.')
             curr += 1
-        print('\n')
 
+        safe_log(logging.info, lock, pname,
+                 'Completed '+constraint+' estimation.')
         fpath = 'res/pso_{0}_{1}.csv'.format(constraint.lower(),
                                              sw_kwargs['npart'])
         with open(fpath, 'w') as resfile:
             csv.writer(resfile).writerows(results)
+        safe_log(logging.info, lock, pname, 'Written results.')
 
-    print('=' * 82, end='\n\n')
 
-
-# Execution begins here.
 if __name__ == '__main__':
-        evaluate_cdhs_values()
+    processes = []
+    lock = Lock()
+
+    logging.info('MAINPROG  Commencing program execution.')
+    for npart in range(10, 151, 10):
+        sw_kwargs['npart'] = npart
+        pname = 'NPART{:03}'.format(npart)
+        processes.append(Process(target=evaluate_cdhs_values,
+                                 args=(lock, pname,), kwargs=sw_kwargs))
+
+    for p in processes:
+        p.start()
+    for p in processes:
+        p.join()
+    logging.info('MAINPROG  Completed program execution.')
