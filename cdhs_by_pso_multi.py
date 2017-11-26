@@ -99,7 +99,6 @@ def evaluate_cdhs_values(lock, pname, **sw_kwargs):
     global exoplanets
     num_exopl = len(exoplanets)
 
-    exoplanets = exoplanets[:20]
     for constraint in ['CRS', 'DRS']:
         safe_log(logging.info, lock, pname,
                  'Commencing '+constraint+' estimation.')
