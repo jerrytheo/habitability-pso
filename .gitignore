@@ -2,3 +2,12 @@ __pycache__/
 .ropeproject/
 *.pyc
 *.swp
+
+# For latex
+*.aux
+*.dvi
+*.fdb_latexmk
+*.fls
+*.log
+*.pdf
+*.synctex.gz
