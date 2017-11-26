@@ -76,7 +76,7 @@ class Swarm:
             if np.abs(old_best - self.global_best) < threshold:
                 stable_count += 1
                 if stable_count == max_stable:
-                    return True
+                    return it
             else:
                 stable_count = 0
             if verbose:

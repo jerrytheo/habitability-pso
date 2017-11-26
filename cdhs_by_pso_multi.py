@@ -11,7 +11,8 @@ from pso import Swarm
 
 
 # Constants.
-HEADERS = ('Name', 'A', 'B', 'CDHSi', 'G', 'D', 'CDHSs', 'CDHS', 'Cls')
+HEADERS = ('Name', 'A', 'B', 'CDHSi', 'Conv_i',
+           'G', 'D', 'CDHSs', 'Conv_s', 'CDHS', 'Cls')
 
 
 # Setting up logging.
@@ -87,8 +88,8 @@ def converge_by_pso(restarts=3, **kwargs):
         swarm = Swarm(**kwargs)
         converged = swarm.converge(verbose=False)
         if converged:
-            return swarm
-    return None
+            return (converged, swarm)
+    return (0, None)
 
 
 def evaluate_cdhs_values(lock, pname, **sw_kwargs):
@@ -110,7 +111,7 @@ def evaluate_cdhs_values(lock, pname, **sw_kwargs):
             # CDHSi
             cdhpf_i = construct_cdhs_fn(row['Radius'], row['Density'],
                                         constraint)
-            swarm_i = converge_by_pso(fn=cdhpf_i, **sw_kwargs)
+            conv_i, swarm_i = converge_by_pso(fn=cdhpf_i, **sw_kwargs)
             if not swarm_i:
                 safe_log(logging.ERROR, lock, pname,
                          row['Name']+'did not converge for CDHSi.')
@@ -124,7 +125,7 @@ def evaluate_cdhs_values(lock, pname, **sw_kwargs):
             row['STemp'] = row['STemp'] / 288           # Normalizing to EU.
             cdhpf_s = construct_cdhs_fn(row['Escape'], row['STemp'],
                                         constraint)
-            swarm_s = converge_by_pso(fn=cdhpf_s, **sw_kwargs)
+            conv_s, swarm_s = converge_by_pso(fn=cdhpf_s, **sw_kwargs)
             if not swarm_s:
                 safe_log(logging.ERROR, lock, pname,
                          row['Name']+'did not converge for CDHSs.')
@@ -135,8 +136,8 @@ def evaluate_cdhs_values(lock, pname, **sw_kwargs):
             cdhs_s = round(swarm_s.global_best, 4)
 
             cdhs = np.round(cdhs_i*.99 + cdhs_s*.01, 4)
-            results.append([row['Name'], A, B, cdhs_i, G, D, cdhs_s, cdhs,
-                            row['Habitable']])
+            results.append([row['Name'], A, B, cdhs_i, conv_i,
+                            G, D, cdhs_s, conv_s, cdhs, row['Habitable']])
 
             q, r = divmod(curr*100 // num_exopl, 10)
             if r == 0 and q != 0:
@@ -157,7 +158,7 @@ if __name__ == '__main__':
     lock = Lock()
 
     logging.info('MAINPROG  Commencing program execution.')
-    for npart in range(10, 151, 10):
+    for npart in range(50, 151, 10):
         sw_kwargs['npart'] = npart
         pname = 'NPART{:03}'.format(npart)
         processes.append(Process(target=evaluate_cdhs_values,
