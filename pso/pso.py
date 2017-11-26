@@ -64,7 +64,7 @@ class Swarm:
                 self.best_particle = particle
                 self.global_best = particle.best_fitness
 
-    def converge(self, max_stable=10, max_iter=100, threshold=0.0001,
+    def converge(self, max_stable=50, max_iter=10000, threshold=0.0001,
                  verbose=True, proglen=20):
         """Find the maxima for the fitness function specified."""
         stable_count = 0

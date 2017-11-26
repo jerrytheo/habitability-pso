@@ -75,54 +75,67 @@ tot = len(exoplanets)
 
 results = {'CRS': [], 'DRS': []}
 
-# Estimating CDHS at CRS.
-print('')
-for constraint in ['CRS', 'DRS']:
-    results = []
-    results.append(['Name', 'A', 'B', 'CDHSi', 'G', 'D', 'CDHSs',
-                    'CDHS', 'Cls'])
+
+def evaluate_cdhs_values():
+    global sw_kwargs
+    print('')
+    for constraint in ['CRS', 'DRS']:
+        results = []
+        results.append(['Name', 'A', 'B', 'CDHSi', 'G', 'D', 'CDHSs',
+                        'CDHS', 'Cls'])
+
+        print('=' * 82, end='\n\n')
+        print('#', constraint, end='\n\n')
+        print(msg.format(*results[-1]))
+        print('-' * 82)
+
+        curr = 1
+        for _, row in exoplanets.iterrows():
+            # CDHSi
+            cdhpf_i = construct_cdhs_fn(row['Radius'], row['Density'],
+                                        constraint)
+            swarm_i = converge_by_pso(fn=cdhpf_i, **sw_kwargs)
+            if not swarm_i:
+                print(err.format(row['Name'],
+                                 '** CDHSi convergence failed. **'))
+                curr += 1
+                continue
+
+            A, B = np.round(swarm_i.best_particle.best, 2)
+            cdhs_i = round(swarm_i.global_best, 4)
+
+            # CDHSs
+            row['STemp'] = row['STemp'] / 288           # Normalizing to EU.
+            cdhpf_s = construct_cdhs_fn(row['Escape'], row['STemp'],
+                                        constraint)
+            swarm_s = converge_by_pso(fn=cdhpf_s, **sw_kwargs)
+            if not swarm_s:
+                print(err.format(row['Name'],
+                                 '** CDHSs convergence failed. **'))
+                curr += 1
+                continue
+
+            G, D = np.round(swarm_s.best_particle.best, 2)
+            cdhs_s = round(swarm_s.global_best, 4)
+
+            cdhs = np.round(cdhs_i*.99 + cdhs_s*.01, 4)
+            results.append([row['Name'], A, B, cdhs_i, G, D, cdhs_s, cdhs,
+                            row['Habitable']])
+            print(msg.format(*results[-1]))
+
+            progress = (curr*72) // tot
+            print(bar.format('='*progress, (curr*100)//tot), end='\r')
+            curr += 1
+        print('\n')
+
+        fpath = 'res/pso_{0}_{1}.csv'.format(constraint.lower(),
+                                             sw_kwargs['npart'])
+        with open(fpath, 'w') as resfile:
+            csv.writer(resfile).writerows(results)
 
     print('=' * 82, end='\n\n')
-    print('#', constraint, end='\n\n')
-    print(msg.format(*results[-1]))
-    print('-' * 82)
 
-    curr = 1
-    for _, row in exoplanets.iterrows():
-        # CDHSi
-        cdhpf_i = construct_cdhs_fn(row['Radius'], row['Density'], constraint)
-        swarm_i = converge_by_pso(fn=cdhpf_i, **sw_kwargs)
-        if not swarm_i:
-            print(err.format(row['Name'], '** CDHSi convergence failed. **'))
-            curr += 1
-            continue
 
-        A, B = np.round(swarm_i.best_particle.best, 2)
-        cdhs_i = round(swarm_i.global_best, 4)
-
-        # CDHSs
-        row['STemp'] = row['STemp'] / 288           # Normalizing to EU.
-        cdhpf_s = construct_cdhs_fn(row['Escape'], row['STemp'], constraint)
-        swarm_s = converge_by_pso(fn=cdhpf_s, **sw_kwargs)
-        if not swarm_s:
-            print(err.format(row['Name'], '** CDHSs convergence failed. **'))
-            curr += 1
-            continue
-
-        G, D = np.round(swarm_s.best_particle.best, 2)
-        cdhs_s = round(swarm_s.global_best, 4)
-
-        cdhs = np.round(cdhs_i*.99 + cdhs_s*.01, 4)
-        results.append([row['Name'], A, B, cdhs_i, G, D, cdhs_s, cdhs,
-                        row['Habitable']])
-        print(msg.format(*results[-1]))
-
-        progress = (curr*72) // tot
-        print(bar.format('='*progress, (curr*100)//tot), end='\r')
-        curr += 1
-    print('\n')
-
-    with open('res/pso_' + constraint.lower() + '.csv', 'w') as resfile:
-        csv.writer(resfile).writerows(results)
-
-print('=' * 82, end='\n\n')
+if __name__ == '__main__':
+    for i in range(10, 100, 10):
+        evaluate_cdhs_values()
