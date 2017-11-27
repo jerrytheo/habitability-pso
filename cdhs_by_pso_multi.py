@@ -140,7 +140,7 @@ def evaluate_cdhs_values(lock, pname, **sw_kwargs):
 
             q, r = divmod(curr*100 // num_exopl, 10)
             if r == 0 and q != 0:
-                safe_log(logging.info, lock, pname, str(q)+'% complete.')
+                safe_log(logging.info, lock, pname, str(q*10)+'% complete.')
             curr += 1
 
         safe_log(logging.info, lock, pname,
