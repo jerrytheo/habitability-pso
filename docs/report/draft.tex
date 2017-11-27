@@ -1,6 +1,7 @@
-\documentclass[10pt,a4paper]{article}
+\documentclass{article}
 
 \usepackage[utf8]{inputenc}
+\usepackage{mathtools}
 
 
 % Information for header.
@@ -16,39 +17,66 @@ Particle Swarm Optimization}
     \setlength{\itemsep}{-1pt}}{%
 \end{itemize}}
 
+% Useful replacements.
+\newcommand{\pso}{Particle Swarm Optimization}
 
 \begin{document}
 \maketitle
 
-\begin{abstract}
-  Write a super cool abstract here.
-\end{abstract}
-
-
 \section{Introduction}
-\begin{pointers}
-\item What is CDHPF\@? Why use a metric?
-\item Previous attempts.
-\item What is PSO\@?
-\item Why PSO\@?
-\item Overview of paper.
-\end{pointers}
+% Note to self, improve the flow of the report.
+% Find citations.
+Under most paradigms, optimization of a continuous function requires the calculation of a gradient. This might not
+always be feasible for non-polynomial functions in high-dimensional search spaces. This is further complicated when the
+optimization must be performed under constraints. \pso\ is a metaheuristic for continuous function optimization that does
+away with the need for a gradient. It employs a large number of particles that traverse the search space converging
+toward a global best solution encountered by at least one of the particles.
+
+\pso\ is a distributed method that requires simple mathematical operators and few lines of code, making it a lucrative
+solution where computation resources are at a premium. Its implementation is highly parallelizable. It scales with the
+dimensionality of the search space. Constrained optimization can be incorporated within the standard algorithm through
+the use of a penalty function.
+
+% Pull out citations from the Applications paper.
+\pso\ has been successfully adapted to a wide range of design optimization problems, e.g., networks and VLSI design.
+\pso\ has also found applications in machine learning under clustering, feature detection and classification.  As a
+modelling paradigm, it has been used for constructing customer satisfaction models, MIDI music models, friction models,
+etc.
+
+In this paper, \pso\ has been applied to estimate the Cobb Douglas Habitability Score of an exoplanet. The score is
+estimated by maximizing the Cobb-Douglas Habitability Production Function. The function considers four parameters,
+radius, mass, escape velocity and surface temperature, taken from the Exoplanets Catalog hosted by the Planetary
+Habitability Laboratory, UPR Arecibo. Since the Cobb-Douglas function is concave under certain constraints, the
+problem can be reduced to a convex optimization over the negative of the production function.
 
 
-\section{Cobb Douglas Habitability Score}
-\begin{pointers}
-\item A little background (expanding from Introduction).
-\item The equations.
-\item Method for calculating the score.
-\end{pointers}
+\section{Cobb-Douglas Habitability Score}
+
+\subsection{Cobb-Douglas Habitability Production Function}
+The general form of the Cobb-Douglas production function is given by,
+\begin{equation}
+  Y = k\cdot{(x_1)}^\alpha\cdot{(x_2)}^\beta,
+\end{equation}
+where $k$ is a constant that may be set according to requirement, $x_1$ and $x_2$ are the input parameters to the
+function, $Y$ is the total output production value, and $\alpha$ and $\beta$ are called the elasticity coefficients.
+
+
+  
+
+% \begin{pointers}
+% \item Describe the Cobb Douglas Habitability Score.
+% \item Describe CRS, DRS and IRS\@.
+% \item Splitting the CDHS score into two values.
+% \item State the equations.
+% \item Score is estimated by maximizing the CDHPF fn.
+% \end{pointers}
 
 
 \section{Particle Swarm Optimization}
 \begin{pointers}
 \item Equations. Modification for max.
 \item Constrained optimization modifications.
-\item Any other changes made.
-\item Algorithm: Putting everything together.
+\item Algorithm for PSO\@.
 \end{pointers}
 
 
