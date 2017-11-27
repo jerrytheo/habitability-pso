@@ -43,33 +43,51 @@ the use of a penalty function.
 modelling paradigm, it has been used for constructing customer satisfaction models, MIDI music models, friction models,
 etc.
 
-In this paper, \pso\ has been applied to estimate the Cobb Douglas Habitability Score of an exoplanet. The score is
-estimated by maximizing the Cobb-Douglas Habitability Production Function. The function considers four parameters,
-radius, mass, escape velocity and surface temperature, taken from the Exoplanets Catalog hosted by the Planetary
-Habitability Laboratory, UPR Arecibo. Since the Cobb-Douglas function is concave under certain constraints, the
-problem can be reduced to a convex optimization over the negative of the production function.
+In this paper, \pso\ has been applied to estimate the Cobb Douglas Habitability Score (CDHS) of an exoplanet. The score
+is estimated by maximizing the Cobb-Douglas Habitability Production Function (CD-HPF). The function considers four
+parameters, radius, mass, escape velocity and surface temperature, taken from the Exoplanets Catalog hosted by the
+Planetary Habitability Laboratory, UPR Arecibo. Since the Cobb-Douglas function is concave under certain constraints,
+the problem can be reduced to a convex optimization over the negative of the production function.
 
 
 \section{Cobb-Douglas Habitability Score}
+% Add the citations to Saha's papers.
 
-\subsection{Cobb-Douglas Habitability Production Function}
-The general form of the Cobb-Douglas production function is given by,
+\subsection{Cobb-Douglas Production Function}
+The general form of the Cobb-Douglas production function (CD-PF) is given by,
 \begin{equation}
   Y = k\cdot{(x_1)}^\alpha\cdot{(x_2)}^\beta,
 \end{equation}
 where $k$ is a constant that may be set according to requirement, $x_1$ and $x_2$ are the input parameters to the
 function, $Y$ is the total output production value, and $\alpha$ and $\beta$ are called the elasticity coefficients.
 
+The CDHS is estimated by maximizing the CD-PF when the returns to scale are either decreasing or constant. This is
+marked by two constraints on the elasticity coefficients,
+\begin{itemize}
+\setlength\itemsep{0pt}
+\item When $\alpha+\beta < 1$, the CD-PF observes decreasing returns to scale.
+\item When $\alpha+\beta = 1$, the CD-PF observes constant returns to scale.
+\end{itemize}
+Further, if $0 < \alpha, \beta < 1$, the CD-PF is concave, and therefore has a maxima. The CD-PF can be adapted as a
+Habitability Production Function by setting the input parameters to the measurable parameters of an exoplanet and using
+these to estimate the elasticity coefficients.
 
-  
+\subsection{Cobb-Douglas Habitability Score Estimation}
+Two types of Habitability Scores are calculated for each planet, the interior CDHS (CDHS\textsubscript{i}) and the
+surface CDHS (CDHS\textsubscript{s}), given by the following equations,
+\begin{subequations}
+  \begin{alignat}{4}
+    Y_1 &=\ {CDHS}_i\ &=\ &D^\alpha\ & \cdot\ &R^\beta\ &,\\
+    Y_2 &=\ {CDHS}_s\ &=\ &{V_e}^\gamma\ & \cdot\ &{T_s}^\delta\ &,
+  \end{alignat}
+\end{subequations}
+where, $D$, $R$, $V_e$ and $T_s$ are density, radius, escape velocity and surface temperature respectively. The final
+CDHS score is convex combination of the interior and surface CDHS values as given by,
+\begin{equation}
+  Y = w'\cdot Y_1 + w''\cdot Y_2,
+\end{equation}
 
-% \begin{pointers}
-% \item Describe the Cobb Douglas Habitability Score.
-% \item Describe CRS, DRS and IRS\@.
-% \item Splitting the CDHS score into two values.
-% \item State the equations.
-% \item Score is estimated by maximizing the CDHPF fn.
-% \end{pointers}
+% Algorithm for CDHS estimation and explanation.
 
 
 \section{Particle Swarm Optimization}
