@@ -145,8 +145,8 @@ def evaluate_cdhs_values(lock, pname, **sw_kwargs):
 
         safe_log(logging.info, lock, pname,
                  'Completed '+constraint+' estimation.')
-        fpath = 'res/pso_{0}_{1}.csv'.format(constraint.lower(),
-                                             sw_kwargs['npart'])
+        fpath = 'res/multiple/pso_{0}_{1}.csv'.format(constraint.lower(),
+                                                      sw_kwargs['npart'])
         with open(fpath, 'w') as resfile:
             csv.writer(resfile).writerows(results)
         safe_log(logging.info, lock, pname, 'Written results.')
