@@ -2,6 +2,8 @@
 
 \usepackage[utf8]{inputenc}
 \usepackage{mathtools}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 
 
 % Information for header.
@@ -19,6 +21,13 @@ Particle Swarm Optimization}
 
 % Useful replacements.
 \newcommand{\pso}{Particle Swarm Optimization}
+
+% For algorithms
+\floatname{algorithm}{Procedure}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+
 
 \begin{document}
 \maketitle
@@ -65,8 +74,8 @@ The CDHS is estimated by maximizing the CD-PF when the returns to scale are eith
 marked by two constraints on the elasticity coefficients,
 \begin{itemize}
 \setlength\itemsep{0pt}
-\item When $\alpha+\beta < 1$, the CD-PF observes decreasing returns to scale.
-\item When $\alpha+\beta = 1$, the CD-PF observes constant returns to scale.
+\item When $\alpha+\beta < 1$, the CD-PF observes decreasing returns to scale (DRS).
+\item When $\alpha+\beta = 1$, the CD-PF observes constant returns to scale (CRS).
 \end{itemize}
 Further, if $0 < \alpha, \beta < 1$, the CD-PF is concave, and therefore has a maxima. The CD-PF can be adapted as a
 Habitability Production Function by setting the input parameters to the measurable parameters of an exoplanet and using
@@ -87,8 +96,34 @@ CDHS score is convex combination of the interior and surface CDHS values as give
   Y = w'\cdot Y_1 + w''\cdot Y_2,
 \end{equation}
 
-% Algorithm for CDHS estimation and explanation.
-
+\begin{algorithm}
+  \begin{algorithmic}
+    \Require A dataset of exoplanets with density, radius, escape velocity and surface temperature in Earth Units.
+    \Ensure The $CDHS$ value for each exoplanet in the input dataset.
+    
+    \State $CDHS \gets \{\}$
+    \ForAll{exoplanets $e$}
+      \State $D \gets$ $e.density$
+      \State $R \gets$ $e.radius$
+      \State $V_e \gets$ $e.escape\_velocity$
+      \State $T_s \gets$ $e.surface\_temperature$
+      \\ 
+      \State $Y_1 \gets \max\ D^\alpha\cdot R^\beta,\quad \text{subject to:}\quad \alpha+\beta<1;\quad 0<\alpha,\beta<1$
+      \State $Y_2 \gets \max\ {V_e}^\gamma\cdot {T_s}^\delta,\quad \text{subject to:}\quad \gamma+\delta<1;\quad
+      0<\gamma,\delta<1$
+      \State $Y.{DRS} \gets w'\cdot Y_1\ +\ w''\cdot Y_2$
+      \\
+      \State $Y_1 \gets \max\ D^\alpha\cdot R^\beta,\quad \text{subject to:}\quad \alpha+\beta=1;\quad 0<\alpha,\beta<1$
+      \State $Y_2 \gets \max\ {V_e}^\gamma\cdot {T_s}^\delta,\quad \text{subject to:}\quad \gamma+\delta=1;\quad
+      0<\gamma,\delta<1$
+      \State $Y.{CRS} \gets w'\cdot Y_1\ +\ w''\cdot Y_2$
+      \\
+      \State append $Y$ to $CDHS$
+    \EndFor
+  \end{algorithmic}
+  \caption{Estimating CDHS values.}
+  \label{estCDHS}
+\end{algorithm}
 
 \section{Particle Swarm Optimization}
 \begin{pointers}
