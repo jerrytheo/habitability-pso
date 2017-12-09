@@ -35,7 +35,6 @@ class Particle:
         if curr_fitness > self.best_fitness:
             self.best = np.array(self.position)
             self.best_fitness = curr_fitness
-        # print(self.best, '\t\t', self.best_fitness)
 
 
 class Swarm:
@@ -44,21 +43,12 @@ class Swarm:
 
     def __init__(self, npart, *args, **kwargs):
         self.particles = [Particle(*args, **kwargs) for it in range(npart)]
-        self.best_particle = max(self, key=lambda p: p.best_fitness)
+        self.best_particle = max(self.particles, key=lambda p: p.best_fitness)
         self.global_best = self.best_particle.best_fitness
-
-    def __iter__(self):
-        """Iterate over the particles."""
-        for particle in self.particles:
-            yield particle
-
-    def __len__(self):
-        """Return number of particles."""
-        return len(self.particles)
 
     def update(self):
         """Update all particles of the swarm."""
-        for particle in self:
+        for particle in self.particles:
             particle.update(self.global_best)
             if particle.best_fitness > self.global_best:
                 self.best_particle = particle
@@ -71,14 +61,17 @@ class Swarm:
         for it in range(max_iter):
             percent = round(it / max_iter * 100)
             progress = (it*proglen)//max_iter + 1
+
             old_best = self.global_best
             self.update()
+            
             if np.abs(old_best - self.global_best) < threshold:
                 stable_count += 1
                 if stable_count == max_stable:
                     return it
             else:
                 stable_count = 0
+
             if verbose:
                 print('[', '=' * (progress), ' ' * (proglen-progress), ']',
                       '  ({:3}%)'.format(percent), end='\r', sep='')
