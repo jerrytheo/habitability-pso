@@ -4,7 +4,7 @@ import csv
 import numpy as np
 from exoplanets import exoplanets
 from pso import Swarm
-import sys
+#  import sys
 
 
 # Constants
@@ -44,16 +44,16 @@ def construct_ceesa_fn(planet, type_):
     parameters. Type could be CRS or DRS.
     """
     if type_ == 'DRS':
-        def ceesa(pos, rho, eta):
+        def ceesa(pos):
             """Calculate CEESA with DRS."""
-            return np.sum(planet * (pos**rho)) ** (eta/rho) - \
-                penalty_drs(pos, rho, eta)
+            return np.sum(planet * (pos[:5]**pos[5])) ** (pos[6]/pos[5]) - \
+                penalty_drs(pos[:5], pos[5], pos[6])
 
     elif type_ == 'CRS':
-        def ceesa(pos, rho, eta=1):
+        def ceesa(pos):
             """Calculate CEESA with CRS."""
-            return np.sum(planet * (pos**rho)) ** (1/rho) - \
-                penalty_crs(pos, rho)
+            return np.sum(planet * (pos[:5]**pos[5])) ** (1/pos[5]) - \
+                penalty_crs(pos[:5], pos[5])
 
     return ceesa
 
@@ -81,8 +81,8 @@ def evaluate_values(type_):
             continue
 
         # Calculate the score here.
-        opt_pos = [None]
-        hab_score = None
+        opt_pos = swarm.best_particle
+        hab_score = swarm.global_best
 
         results.append([row['Name'], row['Habitable'], opt_pos, hab_score])
         print(MESSAGE.format(*results[-1]))

@@ -59,12 +59,9 @@ class Swarm:
         """Find the maxima for the fitness function specified."""
         stable_count = 0
         for it in range(max_iter):
-            percent = round(it / max_iter * 100)
-            progress = (it*proglen)//max_iter + 1
-
             old_best = self.global_best
             self.update()
-            
+
             if np.abs(old_best - self.global_best) < threshold:
                 stable_count += 1
                 if stable_count == max_stable:
@@ -72,7 +69,4 @@ class Swarm:
             else:
                 stable_count = 0
 
-            if verbose:
-                print('[', '=' * (progress), ' ' * (proglen-progress), ']',
-                      '  ({:3}%)'.format(percent), end='\r', sep='')
         return False
