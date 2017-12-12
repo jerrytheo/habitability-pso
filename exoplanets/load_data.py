@@ -12,6 +12,7 @@ exoplanets = exoplanets[[
     'P. Density (EU)',
     'P. Ts Mean (K)',
     'P. Esc Vel (EU)',
+    'P. Eccentricity',
     'P. Habitable Class',
 ]]
 exoplanets['P. Esc Vel (EU)'] = np.round(
@@ -22,5 +23,6 @@ exoplanets.rename(columns={
     'P. Density (EU)': 'Density',
     'P. Ts Mean (K)': 'STemp',
     'P. Esc Vel (EU)': 'Escape',
+    'P. Eccentricity': 'Eccentricity',
     'P. Habitable Class': 'Habitable',
 }, inplace=True)

@@ -1,0 +1,1024 @@
+  1. "P. Name"
+
+	Type of data:          Text
+	Contains null values:  False
+	Unique values:         3689
+	Longest value:         23 characters
+	Most common values:    1RXS 1609 b (1x)
+	                       1SWASP J1407 b (1x)
+	                       2M 0103-55(AB) b (1x)
+	                       2M 0122-24 b (1x)
+	                       2M 0219-39 b (1x)
+
+  2. "P. Name Kepler"
+
+	Type of data:          Text
+	Contains null values:  True (excluded from calculations)
+	Unique values:         2321
+	Longest value:         17 characters
+	Most common values:    None (1369x)
+	                       Kepler-2 b (1x)
+	                       Kepler-3 b (1x)
+	                       Kepler-4 b (1x)
+	                       Kepler-5 b (1x)
+
+  3. "P. Name KOI"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         931
+	Smallest value:        0
+	Largest value:         3,663.01
+	Sum:                   962,511.81
+	Mean:                  1,033.847
+	Median:                834.04
+	StDev:                 745.439
+	Most common values:    None (2758x)
+	                       0 (2x)
+	                       2.01 (1x)
+	                       3.01 (1x)
+	                       7.01 (1x)
+
+  4. "P. Zone Class"
+
+	Type of data:          Text
+	Contains null values:  True (excluded from calculations)
+	Unique values:         4
+	Longest value:         4 characters
+	Most common values:    Hot (3115x)
+	                       Cold (312x)
+	                       Warm (226x)
+	                       None (36x)
+
+  5. "P. Mass Class"
+
+	Type of data:          Text
+	Contains null values:  True (excluded from calculations)
+	Unique values:         7
+	Longest value:         11 characters
+	Most common values:    Jovian (1173x)
+	                       Superterran (966x)
+	                       Neptunian (790x)
+	                       Terran (679x)
+	                       Subterran (71x)
+
+  6. "P. Composition Class"
+
+	Type of data:          Text
+	Contains null values:  True (excluded from calculations)
+	Unique values:         6
+	Longest value:         11 characters
+	Most common values:    gas (1957x)
+	                       rocky-iron (1618x)
+	                       rocky-water (40x)
+	                       None (38x)
+	                       water-gas (20x)
+
+  7. "P. Atmosphere Class"
+
+	Type of data:          Text
+	Contains null values:  True (excluded from calculations)
+	Unique values:         4
+	Longest value:         13 characters
+	Most common values:    metals-rich (2273x)
+	                       hydrogen-rich (969x)
+	                       no-atmosphere (374x)
+	                       None (73x)
+
+  8. "P. Habitable Class"
+
+	Type of data:          Text
+	Contains null values:  False
+	Unique values:         5
+	Longest value:         17 characters
+	Most common values:    non-habitable (3637x)
+	                       mesoplanet (28x)
+	                       psychroplanet (18x)
+	                       thermoplanet (3x)
+	                       hypopsychroplanet (3x)
+
+  9. "P. Min Mass (EU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         768
+	Smallest value:        0
+	Largest value:         29,759.18
+	Sum:                   1,643,939.21
+	Mean:                  1,586.814
+	Median:                399.01
+	StDev:                 3,438.759
+	Most common values:    None (2653x)
+	                       508.7 (8x)
+	                       604.09 (7x)
+	                       476.91 (7x)
+	                       635.88 (6x)
+
+ 10. "P. Mass (EU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         1411
+	Smallest value:        0
+	Largest value:         29,759.18
+	Sum:                   2,004,503.56
+	Mean:                  547.978
+	Median:                11.37
+	StDev:                 2,083.582
+	Most common values:    None (31x)
+	                       10.17 (26x)
+	                       2.97 (24x)
+	                       3.69 (22x)
+	                       5.4 (20x)
+
+ 11. "P. Max Mass (EU)"
+
+	Type of data:          Boolean
+	Contains null values:  True (excluded from calculations)
+	Unique values:         1
+	Most common values:    None (3689x)
+
+ 12. "P. Radius (EU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         947
+	Smallest value:        0.1
+	Largest value:         28
+	Sum:                   19,393.55
+	Mean:                  5.271
+	Median:                2.71
+	StDev:                 4.732
+	Most common values:    11.68 (65x)
+	                       1.99 (29x)
+	                       1.52 (23x)
+	                       1.43 (22x)
+	                       2.36 (21x)
+
+ 13. "P. Density (EU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         331
+	Smallest value:        0
+	Largest value:         573.18
+	Sum:                   5,104.55
+	Mean:                  1.398
+	Median:                0.85
+	StDev:                 12.984
+	Most common values:    0.2 (491x)
+	                       0.19 (336x)
+	                       0.97 (55x)
+	                       0.94 (45x)
+	                       1.02 (43x)
+
+ 14. "P. Gravity (EU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         754
+	Smallest value:        0.01
+	Largest value:         898.75
+	Sum:                   22,043.7
+	Mean:                  6.038
+	Median:                1.66
+	StDev:                 26.843
+	Most common values:    0.52 (44x)
+	                       0.51 (43x)
+	                       0.49 (40x)
+	                       None (38x)
+	                       0.48 (36x)
+
+ 15. "P. Esc Vel (EU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         892
+	Smallest value:        0.08
+	Largest value:         47.31
+	Sum:                   15,050.39
+	Mean:                  4.122
+	Median:                2.11
+	StDev:                 5.668
+	Most common values:    None (38x)
+	                       1.15 (35x)
+	                       1.33 (30x)
+	                       1.19 (30x)
+	                       1.22 (30x)
+
+ 16. "P. SFlux Min (EU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         3649
+	Smallest value:        0
+	Largest value:         607,265.9
+	Sum:                   3,050,150.724
+	Mean:                  834.971
+	Median:                56.6
+	StDev:                 14,045.056
+	Most common values:    None (36x)
+	                       16.15 (2x)
+	                       8.198 (2x)
+	                       809.971 (2x)
+	                       59.836 (2x)
+
+ 17. "P. SFlux Mean (EU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         3649
+	Smallest value:        0
+	Largest value:         607,266
+	Sum:                   3,090,645.745
+	Mean:                  846.057
+	Median:                59.887
+	StDev:                 14,046.108
+	Most common values:    None (36x)
+	                       16.15 (2x)
+	                       8.198 (2x)
+	                       809.971 (2x)
+	                       59.836 (2x)
+
+ 18. "P. SFlux Max (EU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         3649
+	Smallest value:        0
+	Largest value:         607,266.1
+	Sum:                   3,170,796.667
+	Mean:                  867.998
+	Median:                64.967
+	StDev:                 14,048.235
+	Most common values:    None (36x)
+	                       16.15 (2x)
+	                       8.198 (2x)
+	                       809.971 (2x)
+	                       59.836 (2x)
+
+ 19. "P. Teq Min (K)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         3245
+	Smallest value:        1.1
+	Largest value:         7,112
+	Sum:                   2,765,424.9
+	Mean:                  757.028
+	Median:                698.8
+	StDev:                 496.677
+	Most common values:    None (36x)
+	                       364.9 (5x)
+	                       857.5 (4x)
+	                       597.1 (4x)
+	                       477.8 (3x)
+
+ 20. "P. Teq Mean (K)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         3237
+	Smallest value:        1.1
+	Largest value:         7,112
+	Sum:                   2,802,704.8
+	Mean:                  767.234
+	Median:                706.8
+	StDev:                 496.681
+	Most common values:    None (36x)
+	                       857.5 (4x)
+	                       597.1 (4x)
+	                       477.8 (3x)
+	                       12.8 (3x)
+
+ 21. "P. Teq Max (K)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         3257
+	Smallest value:        1.1
+	Largest value:         7,112
+	Sum:                   2,876,426.8
+	Mean:                  787.415
+	Median:                723.3
+	StDev:                 498.249
+	Most common values:    None (36x)
+	                       407.9 (4x)
+	                       857.5 (4x)
+	                       597.1 (4x)
+	                       642.4 (3x)
+
+ 22. "P. Ts Min (K)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         1573
+	Smallest value:        72.9
+	Largest value:         7,142.5
+	Sum:                   1,495,618
+	Mean:                  888.662
+	Median:                831.3
+	StDev:                 434.19
+	Most common values:    None (2006x)
+	                       469.5 (4x)
+	                       775.3 (4x)
+	                       846.4 (3x)
+	                       380.9 (3x)
+
+ 23. "P. Ts Mean (K)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         1580
+	Smallest value:        72.9
+	Largest value:         7,142.5
+	Sum:                   1,500,922.9
+	Mean:                  891.814
+	Median:                833.7
+	StDev:                 433.748
+	Most common values:    None (2006x)
+	                       469.5 (4x)
+	                       775.3 (4x)
+	                       595.1 (3x)
+	                       854.1 (3x)
+
+ 24. "P. Ts Max (K)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         1579
+	Smallest value:        72.9
+	Largest value:         7,142.5
+	Sum:                   1,509,728.9
+	Mean:                  897.046
+	Median:                839.2
+	StDev:                 433.988
+	Most common values:    None (2006x)
+	                       469.5 (4x)
+	                       775.3 (4x)
+	                       831.2 (3x)
+	                       854.1 (3x)
+
+ 25. "P. Surf Press (EU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         915
+	Smallest value:        0
+	Largest value:         1,266,548.4
+	Sum:                   15,691,751.2
+	Mean:                  4,297.932
+	Median:                7.4
+	StDev:                 40,704.615
+	Most common values:    0.6 (109x)
+	                       0.7 (109x)
+	                       0.8 (95x)
+	                       0.9 (81x)
+	                       1.1 (72x)
+
+ 26. "P. Mag"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         1307
+	Smallest value:        -36.27
+	Largest value:         1.55
+	Sum:                   -86,136.35
+	Mean:                  -23.638
+	Median:                -23.595
+	StDev:                 3.79
+	Most common values:    None (45x)
+	                       -23.34 (13x)
+	                       -22.72 (12x)
+	                       -23.5 (12x)
+	                       -23 (12x)
+
+ 27. "P. Appar Size (deg)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         1141
+	Smallest value:        0.19
+	Largest value:         55.34
+	Sum:                   37,057.93
+	Mean:                  10.073
+	Median:                5.15
+	StDev:                 9.091
+	Most common values:    22.34 (38x)
+	                       3.79 (28x)
+	                       22.33 (25x)
+	                       2.89 (22x)
+	                       2.72 (22x)
+
+ 28. "P. Period (days)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         2529
+	Smallest value:        0.03
+	Largest value:         730,000
+	Sum:                   2,589,021.97
+	Mean:                  724.81
+	Median:                13.19
+	StDev:                 14,059.386
+	Most common values:    None (117x)
+	                       3.31 (8x)
+	                       3.55 (8x)
+	                       3.58 (7x)
+	                       3.7 (6x)
+
+ 29. "P. Sem Major Axis (AU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         1989
+	Smallest value:        0.001
+	Largest value:         6,900
+	Sum:                   40,060.579
+	Mean:                  10.94
+	Median:                0.11
+	StDev:                 184.273
+	Most common values:    None (27x)
+	                       0.08 (16x)
+	                       0.057 (13x)
+	                       0.048 (13x)
+	                       0.11 (13x)
+
+ 30. "P. Eccentricity"
+
+	Type of data:          Number
+	Contains null values:  False
+	Unique values:         88
+	Smallest value:        0
+	Largest value:         0.97
+	Sum:                   212.67
+	Mean:                  0.058
+	Median:                0
+	StDev:                 0.139
+	Most common values:    0 (2709x)
+	                       0.05 (48x)
+	                       0.03 (42x)
+	                       0.02 (40x)
+	                       0.1 (39x)
+
+ 31. "P. Mean Distance (AU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         405
+	Smallest value:        0
+	Largest value:         6,900
+	Sum:                   39,931.26
+	Mean:                  10.904
+	Median:                0.11
+	StDev:                 184.272
+	Most common values:    0.05 (293x)
+	                       0.04 (274x)
+	                       0.06 (240x)
+	                       0.07 (186x)
+	                       0.08 (174x)
+
+ 32. "P. Inclination (deg)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         149
+	Smallest value:        1.8
+	Largest value:         90
+	Sum:                   52,133.6
+	Mean:                  82.49
+	Median:                87.7
+	StDev:                 16.368
+	Most common values:    None (3057x)
+	                       89.8 (26x)
+	                       90 (25x)
+	                       89.7 (24x)
+	                       89.9 (23x)
+
+ 33. "P. Omega (deg)"
+
+	Type of data:          Number
+	Contains null values:  False
+	Unique values:         511
+	Smallest value:        0
+	Largest value:         360
+	Sum:                   137,106.6
+	Mean:                  37.166
+	Median:                0
+	StDev:                 88.484
+	Most common values:    0 (2949x)
+	                       360 (15x)
+	                       170 (5x)
+	                       155 (5x)
+	                       132 (5x)
+
+ 34. "S. Name"
+
+	Type of data:          Text
+	Contains null values:  False
+	Unique values:         2765
+	Longest value:         21 characters
+	Most common values:    Kepler-90 (7x)
+	                       TRAPPIST-1 (7x)
+	                       GJ 667 C (6x)
+	                       HD 10180 (6x)
+	                       HD 40307 (6x)
+
+ 35. "S. Name HD"
+
+	Type of data:          Text
+	Contains null values:  True (excluded from calculations)
+	Unique values:         373
+	Longest value:         11 characters
+	Most common values:    None (3216x)
+	                       HD 10180 (6x)
+	                       HD 40307 (6x)
+	                       HD 75732 (5x)
+	                       HD 218396 (4x)
+
+ 36. "S. Name HIP"
+
+	Type of data:          Text
+	Contains null values:  True (excluded from calculations)
+	Unique values:         388
+	Longest value:         11 characters
+	Most common values:    None (3176x)
+	                       HIP 7599 (6x)
+	                       HIP 27887 (6x)
+	                       HIP 43587 (5x)
+	                       HIP 94931 (5x)
+
+ 37. "S. Constellation"
+
+	Type of data:          Text
+	Contains null values:  False
+	Unique values:         88
+	Longest value:         3 characters
+	Most common values:    Cyg (1359x)
+	                       Lyr (872x)
+	                       Dra (146x)
+	                       Aqr (69x)
+	                       Sgr (64x)
+
+ 38. "S. Type"
+
+	Type of data:          Text
+	Contains null values:  True (excluded from calculations)
+	Unique values:         266
+	Longest value:         11 characters
+	Most common values:    G (1213x)
+	                       K (668x)
+	                       F (533x)
+	                       M (90x)
+	                       None (62x)
+
+ 39. "S. Mass (SU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         208
+	Smallest value:        0.02
+	Largest value:         4.5
+	Sum:                   3,569.76
+	Mean:                  0.978
+	Median:                0.97
+	StDev:                 0.327
+	Most common values:    1 (94x)
+	                       0.94 (94x)
+	                       0.95 (89x)
+	                       0.98 (77x)
+	                       1.02 (74x)
+
+ 40. "S. Radius (SU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         352
+	Smallest value:        0
+	Largest value:         51.1
+	Sum:                   5,301.2
+	Mean:                  1.469
+	Median:                0.98
+	StDev:                 3.012
+	Most common values:    None (81x)
+	                       0.9 (78x)
+	                       0.94 (70x)
+	                       1 (58x)
+	                       0.89 (57x)
+
+ 41. "S. Teff (K)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         1529
+	Smallest value:        0.1
+	Largest value:         33,000
+	Sum:                   19,896,289.5
+	Mean:                  5,505.337
+	Median:                5,617
+	StDev:                 1,422.316
+	Most common values:    None (75x)
+	                       5,940 (53x)
+	                       3,840 (33x)
+	                       5,150 (31x)
+	                       5,700 (15x)
+
+ 42. "S. Luminosity (SU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         2646
+	Smallest value:        0
+	Largest value:         621.02
+	Sum:                   16,488.198
+	Mean:                  4.491
+	Median:                0.906
+	StDev:                 27.62
+	Most common values:    None (18x)
+	                       1.598 (7x)
+	                       0.001 (7x)
+	                       0.557 (6x)
+	                       0.014 (6x)
+
+ 43. "S. [Fe/H]"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         368
+	Smallest value:        -1
+	Largest value:         0.56
+	Sum:                   -50.241
+	Mean:                  -0.025
+	Median:                -0.001
+	StDev:                 0.244
+	Most common values:    None (1698x)
+	                       0 (53x)
+	                       0.02 (35x)
+	                       0.18 (35x)
+	                       0.05 (33x)
+
+ 44. "S. Age (Gyrs)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         383
+	Smallest value:        0.001
+	Largest value:         80
+	Sum:                   9,438.611
+	Mean:                  4.229
+	Median:                4.07
+	StDev:                 2.776
+	Most common values:    None (1457x)
+	                       4.47 (82x)
+	                       4.37 (77x)
+	                       4.27 (75x)
+	                       4.57 (73x)
+
+ 45. "S. Appar Mag"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         153
+	Smallest value:        0.8
+	Largest value:         24
+	Sum:                   34,833.5
+	Mean:                  12.317
+	Median:                13.4
+	StDev:                 3.296
+	Most common values:    None (861x)
+	                       15 (100x)
+	                       15.3 (75x)
+	                       15.5 (69x)
+	                       14 (66x)
+
+ 46. "S. Distance (pc)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         1431
+	Smallest value:        1.29
+	Largest value:         8,500
+	Sum:                   1,514,524.25
+	Mean:                  598.863
+	Median:                448.57
+	StDev:                 810.315
+	Most common values:    None (1160x)
+	                       39.4 (13x)
+	                       200 (11x)
+	                       38 (11x)
+	                       300 (9x)
+
+ 47. "S. RA (hrs)"
+
+	Type of data:          Number
+	Contains null values:  False
+	Unique values:         2630
+	Smallest value:        0
+	Largest value:         23.998
+	Sum:                   61,961.893
+	Mean:                  16.796
+	Median:                19.23
+	StDev:                 5.419
+	Most common values:    18.962 (7x)
+	                       23.108 (7x)
+	                       17.316 (6x)
+	                       1.632 (6x)
+	                       5.901 (6x)
+
+ 48. "S. DEC (deg)"
+
+	Type of data:          Number
+	Contains null values:  False
+	Unique values:         2740
+	Smallest value:        -84.231
+	Largest value:         85.736
+	Sum:                   95,661.658
+	Mean:                  25.932
+	Median:                41.636
+	StDev:                 32.039
+	Most common values:    -34.99 (7x)
+	                       49.305 (7x)
+	                       -5.041 (7x)
+	                       -60.512 (6x)
+	                       -60.023 (6x)
+
+ 49. "S. Mag from Planet"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         231
+	Smallest value:        -41.3
+	Largest value:         -2.8
+	Sum:                   -111,201.9
+	Mean:                  -30.441
+	Median:                -31.2
+	StDev:                 3.826
+	Most common values:    -32.4 (68x)
+	                       -32.5 (65x)
+	                       -32.7 (64x)
+	                       -31.4 (64x)
+	                       -31.6 (62x)
+
+ 50. "S. Size from Planet (deg)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         3481
+	Smallest value:        0
+	Largest value:         100.958
+	Sum:                   24,765.717
+	Mean:                  6.895
+	Median:                4.809
+	StDev:                 7.01
+	Most common values:    None (97x)
+	                       0 (6x)
+	                       5.331 (6x)
+	                       0.001 (4x)
+	                       0 (4x)
+
+ 51. "S. No. Planets"
+
+	Type of data:          Number
+	Contains null values:  False
+	Unique values:         7
+	Smallest value:        1
+	Largest value:         7
+	Sum:                   6,455
+	Mean:                  1.75
+	Median:                1
+	StDev:                 1.132
+	Most common values:    1 (2147x)
+	                       2 (836x)
+	                       3 (387x)
+	                       4 (184x)
+	                       5 (85x)
+
+ 52. "S. No. Planets HZ"
+
+	Type of data:          Number
+	Contains null values:  False
+	Unique values:         5
+	Smallest value:        0
+	Largest value:         4
+	Sum:                   421
+	Mean:                  0.114
+	Median:                0
+	StDev:                 0.386
+	Most common values:    0 (3329x)
+	                       1 (319x)
+	                       2 (28x)
+	                       4 (7x)
+	                       3 (6x)
+
+ 53. "S. Hab Zone Min (AU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         1316
+	Smallest value:        0.001
+	Largest value:         20.197
+	Sum:                   3,469.914
+	Mean:                  0.963
+	Median:                0.721
+	StDev:                 1.345
+	Most common values:    None (84x)
+	                       0.522 (16x)
+	                       0.764 (15x)
+	                       0.582 (13x)
+	                       0.353 (12x)
+
+ 54. "S. Hab Zone Max (AU)"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         1851
+	Smallest value:        0.002
+	Largest value:         51.031
+	Sum:                   8,277.36
+	Mean:                  2.296
+	Median:                1.698
+	StDev:                 3.325
+	Most common values:    None (84x)
+	                       2.206 (10x)
+	                       1.635 (9x)
+	                       1.339 (9x)
+	                       0.601 (8x)
+
+ 55. "P. HZD"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         565
+	Smallest value:        -2.53
+	Largest value:         82,422.85
+	Sum:                   378,354.56
+	Mean:                  103.574
+	Median:                -2.19
+	StDev:                 2,191.191
+	Most common values:    -2.4 (94x)
+	                       -2.35 (93x)
+	                       -2.37 (85x)
+	                       -2.39 (83x)
+	                       -2.34 (83x)
+
+ 56. "P. HZC"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         935
+	Smallest value:        -2.17
+	Largest value:         46.94
+	Sum:                   13,137.93
+	Mean:                  3.598
+	Median:                2.44
+	StDev:                 5.042
+	Most common values:    -0.15 (294x)
+	                       -0.16 (293x)
+	                       -0.14 (211x)
+	                       -0.12 (200x)
+	                       -0.13 (199x)
+
+ 57. "P. HZA"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         962
+	Smallest value:        -1.56
+	Largest value:         464.12
+	Sum:                   14,809.35
+	Mean:                  4.096
+	Median:                -0.11
+	StDev:                 22.002
+	Most common values:    None (73x)
+	                       -0.73 (33x)
+	                       -0.83 (33x)
+	                       -0.69 (29x)
+	                       -0.75 (29x)
+
+ 58. "P. HZI"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         66
+	Smallest value:        0
+	Largest value:         0.83
+	Sum:                   789.34
+	Mean:                  0.218
+	Median:                0.24
+	StDev:                 0.107
+	Most common values:    0.3 (287x)
+	                       0.28 (274x)
+	                       0.29 (247x)
+	                       0.22 (220x)
+	                       0.23 (202x)
+
+ 59. "P. SPH"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         27
+	Smallest value:        0
+	Largest value:         1
+	Sum:                   15.87
+	Mean:                  0.009
+	Median:                0
+	StDev:                 0.084
+	Most common values:    None (1957x)
+	                       0 (1703x)
+	                       0.79 (2x)
+	                       0.98 (2x)
+	                       0.04 (2x)
+
+ 60. "P. Int ESI"
+
+	Type of data:          Boolean
+	Contains null values:  False
+	Unique values:         1
+	Most common values:    False (3689x)
+
+ 61. "P. Surf ESI"
+
+	Type of data:          Boolean
+	Contains null values:  False
+	Unique values:         1
+	Most common values:    False (3689x)
+
+ 62. "P. ESI"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         88
+	Smallest value:        0.03
+	Largest value:         0.9
+	Sum:                   968.75
+	Mean:                  0.265
+	Median:                0.27
+	StDev:                 0.133
+	Most common values:    0.29 (365x)
+	                       0.28 (250x)
+	                       0.3 (234x)
+	                       0.27 (203x)
+	                       0.26 (176x)
+
+ 63. "S. HabCat"
+
+	Type of data:          Boolean
+	Contains null values:  False
+	Unique values:         2
+	Most common values:    False (3441x)
+	                       True (248x)
+
+ 64. "P. Habitable"
+
+	Type of data:          Boolean
+	Contains null values:  False
+	Unique values:         2
+	Most common values:    False (3637x)
+	                       True (52x)
+
+ 65. "P. Hab Moon"
+
+	Type of data:          Boolean
+	Contains null values:  False
+	Unique values:         2
+	Most common values:    False (3649x)
+	                       True (40x)
+
+ 66. "P. Confirmed"
+
+	Type of data:          Boolean
+	Contains null values:  False
+	Unique values:         2
+	Most common values:    True (3668x)
+	                       False (21x)
+
+ 67. "P. Disc. Method"
+
+	Type of data:          Text
+	Contains null values:  False
+	Unique values:         11
+	Longest value:         15 characters
+	Most common values:    Transit (1398x)
+	                       Primary Transit (1385x)
+	                       Radial Velocity (710x)
+	                       Imaging (81x)
+	                       Microlensing (56x)
+
+ 68. "P. Disc. Year"
+
+	Type of data:          Number
+	Contains null values:  True (excluded from calculations)
+	Unique values:         26
+	Smallest value:        1,988
+	Largest value:         2,017
+	Sum:                   7,425,733
+	Mean:                  2,013.485
+	Median:                2,014
+	StDev:                 3.67
+	Most common values:    2,016 (1578x)
+	                       2,014 (839x)
+	                       2,011 (197x)
+	                       2,013 (189x)
+	                       2,012 (157x)
+
+Row count: 3689
