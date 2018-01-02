@@ -7,6 +7,7 @@ import numpy as np
 from pso import Swarm
 from os import path
 
+
 # Parameters for the swarm.
 SWARM_PARAMS = {
     'npart': 100,                   # Number of particles.
@@ -39,18 +40,20 @@ def converge_by_pso(restarts=3, **kwargs):
     return None
 
 
-def evaluate_cdhs_values(exoplanets, fpath):
+def evaluate_cdhs_values(exoplanets, fname):
     """Evaluates the CDHS values of each exoplanet and stores it in
-    the file given by os.path.join('res', fpath.format(constraint)).
+    the file given by os.path.join('res', fname.format(constraint)).
     """
     global SWARM_PARAMS
     total = len(exoplanets)
 
-    for constraint in ['CRS', 'DRS']:
+    for constraint in ['crs', 'drs']:
         results = []
         results.append(HEADERS)
 
+        print('\n' + ('=' * 82), end='')
         print('\n' + ('=' * 82), end='\n\n')
+
         print('#', constraint, end='\n\n')
         print(MESSAGE.format(*results[-1]))
         print('-' * 82)
@@ -88,21 +91,24 @@ def evaluate_cdhs_values(exoplanets, fpath):
             results.append((name, A, B, cdhs_i, G, D, cdhs_s, cdhs, habc))
             print(MESSAGE.format(*results[-1]))
 
-            progress = (_ * 72) // total
-            print(PROGRESS_BAR.format('='*progress, (_*100)//total), end='\r')
+            ii = _ + 1
+            progress = (ii * 72) // total
+            print(PROGRESS_BAR.format('='*progress, (ii*100)//total), end='\r')
 
         print('\n')
 
-        fpath = path.join('res', fpath.format(constraint))
+        fpath = path.join('res', fname.format(constraint))
         with open(fpath, 'w') as resfile:
             csv.writer(resfile).writerows(results)
 
+    print('=' * 82, end='\n')
     print('=' * 82, end='\n\n')
 
 
 # Execution begins here.
 if __name__ == '__main__':
     exoplanets.dropna(how='any', inplace=True)
-    exoplanets = exoplanets[1:20]
+    exoplanets.reset_index(drop=True, inplace=True)
+    exoplanets = exoplanets[:20]
 
-    evaluate_cdhs_values(exoplanets, 'pso_{0}.csv')
+    evaluate_cdhs_values(exoplanets, 'cdhs_{0}.csv')

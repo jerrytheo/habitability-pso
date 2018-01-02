@@ -38,9 +38,9 @@ def construct_cdhpf(coeff1, coeff2, constraint):
     """Create the CDHS function by substituting the exoplanet
     parameters. Constraint could be CRS or DRS.
     """
-    if constraint == 'CRS':
+    if constraint == 'crs':
         penalty = _penalty_crs
-    elif constraint == 'DRS':
+    elif constraint == 'drs':
         penalty = _penalty_drs
     else:
         raise ValueError('Do not understand constraint: ' + constraint)
