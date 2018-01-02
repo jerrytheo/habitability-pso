@@ -121,7 +121,6 @@ def evaluate_cdhs_values(lock, pname, **sw_kwargs):
             cdhs_i = round(swarm_i.global_best, 4)
 
             # CDHSs
-            row['STemp'] = row['STemp'] / 288           # Normalizing to EU.
             cdhpf_s = construct_cdhs_fn(row['Escape'], row['STemp'],
                                         constraint)
             conv_s, swarm_s = converge_by_pso(fn=cdhpf_s, **sw_kwargs)

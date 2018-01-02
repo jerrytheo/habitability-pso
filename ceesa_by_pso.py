@@ -4,7 +4,7 @@ import csv
 import numpy as np
 from exoplanets import exoplanets
 from pso import Swarm
-#  import sys
+# import sys
 
 
 # Constants
@@ -74,6 +74,7 @@ def evaluate_values(type_):
     print('\n' + MESSAGE.format(*results[-1]))
 
     for _, row in exoplanets.iterrows():
+        row = row[['Radius', 'Density', 'STemp', 'Escape', 'Eccentricity']]
         ceesa = construct_ceesa_fn(row, type_)
         swarm = converge_by_pso(fn=ceesa, **sw_kwargs)
         if not swarm:
@@ -89,18 +90,24 @@ def evaluate_values(type_):
 
     print('\n')
 
-    fpath = 'res/pso_{0}_{1}.csv'.format(type_, sw_kwargs['npart'])
+    fpath = 'res/ceesa_{0}.csv'.format(type_)
     with open(fpath, 'w') as resfile:
         csv.writer(resfile).writerows(results)
 
 
 # Execution begins here.
 if __name__ == '__main__':
-    # Drop rows with missing values. (Or replace?)
+    # Drop rows with all missing values. Replace with 0, otherwise.
+    # Scale temperature to EU.
     exoplanets.dropna(how='all', inplace=True)
     exoplanets.replace(np.nan, 0, inplace=True)
-    exoplanets.STemp /= 288
 
-    # Remember: Adjust temp; Round pos; Get Elasticity from original file.
+    # Temporary for testing.
+    exoplanets = exoplanets[1:20]
+
+    # Round pos; Get Elasticity from original file.
+    sw_kwargs['ndim'] = 6
     evaluate_values('CRS')
+    
+    sw_kwargs['ndim'] = 7
     evaluate_values('DRS')

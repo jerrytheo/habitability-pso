@@ -15,8 +15,7 @@ exoplanets = exoplanets[[
     'P. Eccentricity',
     'P. Habitable Class',
 ]]
-exoplanets['P. Esc Vel (EU)'] = np.round(
-        exoplanets['P. Esc Vel (EU)'] / 288, 5)
+
 exoplanets.rename(columns={
     'P. Name': 'Name',
     'P. Radius (EU)': 'Radius',
@@ -26,3 +25,4 @@ exoplanets.rename(columns={
     'P. Eccentricity': 'Eccentricity',
     'P. Habitable Class': 'Habitable',
 }, inplace=True)
+exoplanets['STemp'] /= 288
