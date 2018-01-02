@@ -1,13 +1,14 @@
 #!/usr/bin/python
 
+from cdhs import construct_cdhpf
 import csv
-import functools
-import numpy as np
 from exoplanets import exoplanets
+import numpy as np
 from pso import Swarm
+from os import path
 
 # Parameters for the swarm.
-sw_kwargs = {
+SWARM_PARAMS = {
     'npart': 100,                   # Number of particles.
     'ndim': 2,                      # Dimensions of input.
     'min_': 0,                      # Min. value for initial pos.
@@ -18,45 +19,16 @@ sw_kwargs = {
     'max_velocity': .1,             # Max. velocity.
 }
 
-
-# Drop rows with missing values.
-exoplanets.dropna(how='any', inplace=True)
-
-
-def penalty(pos, type_):
-    """The penalty function for the Cobb Douglas function."""
-    e = .1
-    q = np.array((
-        max(-pos[0] + e, 0),                    # pos[0] > 0
-        max(-pos[1] + e, 0),                    # pos[1] > 0
-        max(pos[0]-1 + e, 0),                   # pos[0] < 1
-        max(pos[1]-1 + e, 0),                   # pos[1] < 1
-        0                                       # either CRS or DRS constraint.
-    ), dtype=np.float)
-
-    if type_ == 'CRS':
-        q[4] = np.abs(pos[0]+pos[1]-1)
-    elif type_ == 'DRS':
-        q[4] = max(pos[0]+pos[1]-1 + e, 0)
-
-    theta = np.piecewise(q, [q == 0, q > 0], [0, 1e8])
-    gamma = np.piecewise(q, [q <= 1, q > 1], [1, np.prod(np.exp(pos))])
-    return np.sum(theta*(q**gamma))
+# Miscellaneous Consts.
+MESSAGE = '{:25}{:>5}{:>5}{:>10}{:>5}{:>5}{:>10}{:>10}{:>7.5}'
+ERROR = '{:25}{:^57}'
+PROGRESS_BAR = '[{:72}]  ({:>3}%)'
+HEADERS = ('Name', 'A', 'B', 'CDHSi', 'G', 'D', 'CDHSs', 'CDHS', 'Cls')
+ERR_CDHSi = '** CDHSi convergence failed. **'
+ERR_CDHSs = '** CDHSs convergence failed. **'
 
 
-def construct_cdhs_fn(coeff1, coeff2, type_):
-    """Create the CDHS function by substituting the exoplanet
-    parameters. Type could be CRS or DRS.
-    """
-    penalty_ = functools.partial(penalty, type_=type_)
-
-    def cdhpf(pos):
-        pos = np.round(pos, 1)
-        return (coeff1 ** pos[0]) * (coeff2 ** pos[1]) - penalty_(pos)
-
-    return cdhpf
-
-
+# Function for convergence.
 def converge_by_pso(restarts=3, **kwargs):
     """Wait for convergence by PSO."""
     for _ in range(restarts):
@@ -67,68 +39,61 @@ def converge_by_pso(restarts=3, **kwargs):
     return None
 
 
-# Message text.
-msg = '{:25}{:>5}{:>5}{:>10}{:>5}{:>5}{:>10}{:>10}{:>7.5}'
-err = '{:25}{:^57}'
-bar = '[{:72}]  ({:>3}%)'
-tot = len(exoplanets)
+def evaluate_cdhs_values(exoplanets, fpath):
+    """Evaluates the CDHS values of each exoplanet and stores it in
+    the file given by os.path.join('res', fpath.format(constraint)).
+    """
+    global SWARM_PARAMS
+    total = len(exoplanets)
 
-results = {'CRS': [], 'DRS': []}
-
-
-def evaluate_cdhs_values():
-    global sw_kwargs
-    print('')
     for constraint in ['CRS', 'DRS']:
         results = []
-        results.append(['Name', 'A', 'B', 'CDHSi', 'G', 'D', 'CDHSs',
-                        'CDHS', 'Cls'])
+        results.append(HEADERS)
 
-        print('=' * 82, end='\n\n')
+        print('\n' + ('=' * 82), end='\n\n')
         print('#', constraint, end='\n\n')
-        print(msg.format(*results[-1]))
+        print(MESSAGE.format(*results[-1]))
         print('-' * 82)
 
-        curr = 1
         for _, row in exoplanets.iterrows():
-            # CDHSi
-            cdhpf_i = construct_cdhs_fn(row['Radius'], row['Density'],
-                                        constraint)
-            swarm_i = converge_by_pso(fn=cdhpf_i, **sw_kwargs)
+            name = row['Name']
+            habc = row['Habitable']
+
+            r = row['Radius']
+            d = row['Density']
+            v = row['Escape']
+            t = row['STemp']
+
+            # CDHS interior.
+            cdhpf_i = construct_cdhpf(r, d, constraint)
+            swarm_i = converge_by_pso(fn=cdhpf_i, **SWARM_PARAMS)
             if not swarm_i:
-                print(err.format(row['Name'],
-                                 '** CDHSi convergence failed. **'))
-                curr += 1
+                print(ERROR.format(name, ERR_CDHSi))
                 continue
 
             A, B = np.round(swarm_i.best_particle.best, 2)
             cdhs_i = round(swarm_i.global_best, 4)
 
-            # CDHSs
-            cdhpf_s = construct_cdhs_fn(row['Escape'], row['STemp'],
-                                        constraint)
-            swarm_s = converge_by_pso(fn=cdhpf_s, **sw_kwargs)
+            # CDHS surface.
+            cdhpf_s = construct_cdhpf(v, t, constraint)
+            swarm_s = converge_by_pso(fn=cdhpf_s, **SWARM_PARAMS)
             if not swarm_s:
-                print(err.format(row['Name'],
-                                 '** CDHSs convergence failed. **'))
-                curr += 1
+                print(ERROR.format(name, ERR_CDHSs))
                 continue
 
             G, D = np.round(swarm_s.best_particle.best, 2)
             cdhs_s = round(swarm_s.global_best, 4)
 
             cdhs = np.round(cdhs_i*.99 + cdhs_s*.01, 4)
-            results.append([row['Name'], A, B, cdhs_i, G, D, cdhs_s, cdhs,
-                            row['Habitable']])
-            print(msg.format(*results[-1]))
+            results.append((name, A, B, cdhs_i, G, D, cdhs_s, cdhs, habc))
+            print(MESSAGE.format(*results[-1]))
 
-            progress = (curr*72) // tot
-            print(bar.format('='*progress, (curr*100)//tot), end='\r')
-            curr += 1
+            progress = (_ * 72) // total
+            print(PROGRESS_BAR.format('='*progress, (_*100)//total), end='\r')
+
         print('\n')
 
-        fpath = 'res/pso_{0}_{1}.csv'.format(constraint.lower(),
-                                             sw_kwargs['npart'])
+        fpath = path.join('res', fpath.format(constraint))
         with open(fpath, 'w') as resfile:
             csv.writer(resfile).writerows(results)
 
@@ -137,4 +102,7 @@ def evaluate_cdhs_values():
 
 # Execution begins here.
 if __name__ == '__main__':
-        evaluate_cdhs_values()
+    exoplanets.dropna(how='any', inplace=True)
+    exoplanets = exoplanets[1:20]
+
+    evaluate_cdhs_values(exoplanets, 'pso_{0}.csv')
