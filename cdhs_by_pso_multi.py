@@ -1,26 +1,17 @@
 #!/usr/bin/python
 
+from cdhs import construct_cdhpf
 import csv
-import functools
+from exoplanets import exoplanets
 import logging
 from multiprocessing import Lock, Process
 import numpy as np
-
-from exoplanets import exoplanets
 from pso import Swarm
-
-
-# Constants.
-HEADERS = ('Name', 'A', 'B', 'CDHSi', 'Conv_i',
-           'G', 'D', 'CDHSs', 'Conv_s', 'CDHS', 'Cls')
-
-
-# Setting up logging.
-logging.basicConfig(format='[%(asctime)s]  %(message)s', level=logging.INFO)
+from os import path
 
 
 # Parameters for the swarm.
-sw_kwargs = {
+SWARM_PARAMS = {
     'npart': 100,                   # Number of particles.
     'ndim': 2,                      # Dimensions of input.
     'min_': 0,                      # Min. value for initial pos.
@@ -30,6 +21,14 @@ sw_kwargs = {
     'learn_rate2': 1e-3,            # c2 learning rate.
     'max_velocity': .1,             # Max. velocity.
 }
+
+# Miscellaneous Constants.
+HEADERS = ('Name', 'A', 'B', 'CDHSi', 'Conv_i',
+           'G', 'D', 'CDHSs', 'Conv_s', 'CDHS', 'Cls')
+
+
+# Setting up logging.
+logging.basicConfig(format='[%(asctime)s]  %(message)s', level=logging.INFO)
 
 
 # Drop rows with missing values.
@@ -46,42 +45,7 @@ def safe_log(logfunc, lock, pname, message):
         lock.release()
 
 
-# Functions to set up the penalty.
-def penalty(pos, type_):
-    """The penalty function for the Cobb Douglas function."""
-    e = .1
-    q = np.array((
-        max(-pos[0] + e, 0),                    # pos[0] > 0
-        max(-pos[1] + e, 0),                    # pos[1] > 0
-        max(pos[0]-1 + e, 0),                   # pos[0] < 1
-        max(pos[1]-1 + e, 0),                   # pos[1] < 1
-        0                                       # either CRS or DRS constraint.
-    ), dtype=np.float)
-
-    if type_ == 'CRS':
-        q[4] = np.abs(pos[0]+pos[1]-1)
-    elif type_ == 'DRS':
-        q[4] = max(pos[0]+pos[1]-1 + e, 0)
-
-    theta = np.piecewise(q, [q == 0, q > 0], [0, 1e8])
-    gamma = np.piecewise(q, [q <= 1, q > 1], [1, np.prod(np.exp(pos))])
-    return np.sum(theta*(q**gamma))
-
-
-def construct_cdhs_fn(coeff1, coeff2, type_):
-    """Create the CDHS function by substituting the exoplanet
-    parameters. Type could be CRS or DRS.
-    """
-    penalty_ = functools.partial(penalty, type_=type_)
-
-    def cdhpf(pos):
-        pos = np.round(pos, 1)
-        return (coeff1 ** pos[0]) * (coeff2 ** pos[1]) - penalty_(pos)
-
-    return cdhpf
-
-
-# Functions to evaluate the CDHS values for each exoplanet.
+# Function for convergence.
 def converge_by_pso(restarts=3, **kwargs):
     """Wait for convergence by PSO."""
     for _ in range(restarts):
@@ -92,14 +56,14 @@ def converge_by_pso(restarts=3, **kwargs):
     return (0, None)
 
 
-def evaluate_cdhs_values(lock, pname, **sw_kwargs):
-    """Estimate the CDHS values of each planet for both, the CRS and
-    the DRS constraints.
+def evaluate_cdhs_values(exoplanets, lock, fname):
+    """Evaluates the CDHS values of each exoplanet and stores it in
+    the file given by os.path.join('res', fname.format(constraint)).
     """
-    global exoplanets
-    num_exopl = len(exoplanets)
+    global SWARM_PARAMS
+    total = len(exoplanets)
 
-    for constraint in ['CRS', 'DRS']:
+    for constraint in ('crs', 'drs'):
         safe_log(logging.info, lock, pname,
                  'Commencing '+constraint+' estimation.')
         results = []
@@ -110,7 +74,7 @@ def evaluate_cdhs_values(lock, pname, **sw_kwargs):
             # CDHSi
             cdhpf_i = construct_cdhs_fn(row['Radius'], row['Density'],
                                         constraint)
-            conv_i, swarm_i = converge_by_pso(fn=cdhpf_i, **sw_kwargs)
+            conv_i, swarm_i = converge_by_pso(fn=cdhpf_i, **SWARM_PARAMS)
             if not swarm_i:
                 safe_log(logging.ERROR, lock, pname,
                          row['Name']+'did not converge for CDHSi.')
@@ -123,7 +87,7 @@ def evaluate_cdhs_values(lock, pname, **sw_kwargs):
             # CDHSs
             cdhpf_s = construct_cdhs_fn(row['Escape'], row['STemp'],
                                         constraint)
-            conv_s, swarm_s = converge_by_pso(fn=cdhpf_s, **sw_kwargs)
+            conv_s, swarm_s = converge_by_pso(fn=cdhpf_s, **SWARM_PARAMS)
             if not swarm_s:
                 safe_log(logging.ERROR, lock, pname,
                          row['Name']+'did not converge for CDHSs.')
@@ -137,7 +101,7 @@ def evaluate_cdhs_values(lock, pname, **sw_kwargs):
             results.append([row['Name'], A, B, cdhs_i, conv_i,
                             G, D, cdhs_s, conv_s, cdhs, row['Habitable']])
 
-            q, r = divmod(curr*100 // num_exopl, 10)
+            q, r = divmod(curr*100 // total, 10)
             if r == 0 and q != 0:
                 safe_log(logging.info, lock, pname, str(q*10)+'% complete.')
             curr += 1
@@ -145,7 +109,7 @@ def evaluate_cdhs_values(lock, pname, **sw_kwargs):
         safe_log(logging.info, lock, pname,
                  'Completed '+constraint+' estimation.')
         fpath = 'res/multiple/pso_{0}_{1}.csv'.format(constraint.lower(),
-                                                      sw_kwargs['npart'])
+                                                      SWARM_PARAMS['npart'])
         with open(fpath, 'w') as resfile:
             csv.writer(resfile).writerows(results)
         safe_log(logging.info, lock, pname, 'Written results.')
@@ -157,10 +121,10 @@ if __name__ == '__main__':
 
     logging.info('MAINPROG  Commencing program execution.')
     for npart in range(50, 151, 10):
-        sw_kwargs['npart'] = npart
+        SWARM_PARAMS['npart'] = npart
         pname = 'NPART{:03}'.format(npart)
         processes.append(Process(target=evaluate_cdhs_values,
-                                 args=(lock, pname,), kwargs=sw_kwargs))
+                                 args=(lock, pname,), kwargs=SWARM_PARAMS))
 
     for p in processes:
         p.start()

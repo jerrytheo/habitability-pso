@@ -40,23 +40,24 @@ def converge_by_pso(restarts=3, **kwargs):
     return None
 
 
-def evaluate_cdhs_values(exoplanets, fname):
+def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
     """Evaluates the CDHS values of each exoplanet and stores it in
     the file given by os.path.join('res', fname.format(constraint)).
     """
-    global SWARM_PARAMS
     total = len(exoplanets)
+    if not verbose:
+        def myprint(*args, **kwargs): pass
+    else:
+        myprint = print
 
     for constraint in ['crs', 'drs']:
         results = []
         results.append(HEADERS)
 
-        print('\n' + ('=' * 82), end='')
-        print('\n' + ('=' * 82), end='\n\n')
-
-        print('#', constraint, end='\n\n')
-        print(MESSAGE.format(*results[-1]))
-        print('-' * 82)
+        myprint('\n' + ' '*40 + constraint.upper() + ' '*40)
+        myprint(' '*40 + '-'*len(constraint) + ' '*40 + '\n')
+        myprint(MESSAGE.format(*results[-1]))
+        myprint('-' * 82)
 
         for _, row in exoplanets.iterrows():
             name = row['Name']
@@ -69,9 +70,9 @@ def evaluate_cdhs_values(exoplanets, fname):
 
             # CDHS interior.
             cdhpf_i = construct_cdhpf(r, d, constraint)
-            swarm_i = converge_by_pso(fn=cdhpf_i, **SWARM_PARAMS)
+            swarm_i = converge_by_pso(fn=cdhpf_i, **swkwargs)
             if not swarm_i:
-                print(ERROR.format(name, ERR_CDHSi))
+                myprint(ERROR.format(name, ERR_CDHSi))
                 continue
 
             A, B = np.round(swarm_i.best_particle.best, 2)
@@ -79,9 +80,9 @@ def evaluate_cdhs_values(exoplanets, fname):
 
             # CDHS surface.
             cdhpf_s = construct_cdhpf(v, t, constraint)
-            swarm_s = converge_by_pso(fn=cdhpf_s, **SWARM_PARAMS)
+            swarm_s = converge_by_pso(fn=cdhpf_s, **swkwargs)
             if not swarm_s:
-                print(ERROR.format(name, ERR_CDHSs))
+                myprint(ERROR.format(name, ERR_CDHSs))
                 continue
 
             G, D = np.round(swarm_s.best_particle.best, 2)
@@ -89,26 +90,24 @@ def evaluate_cdhs_values(exoplanets, fname):
 
             cdhs = np.round(cdhs_i*.99 + cdhs_s*.01, 4)
             results.append((name, A, B, cdhs_i, G, D, cdhs_s, cdhs, habc))
-            print(MESSAGE.format(*results[-1]))
+            myprint(MESSAGE.format(*results[-1]))
 
             ii = _ + 1
-            progress = (ii * 72) // total
-            print(PROGRESS_BAR.format('='*progress, (ii*100)//total), end='\r')
+            prog = (ii * 72) // total
+            myprint(PROGRESS_BAR.format('='*prog, (ii*100)//total), end='\r')
 
-        print('\n')
+        myprint('-' * 82 + '\n')
 
         fpath = path.join('res', fname.format(constraint))
         with open(fpath, 'w') as resfile:
             csv.writer(resfile).writerows(results)
 
-    print('=' * 82, end='\n')
-    print('=' * 82, end='\n\n')
+    myprint('')
 
 
 # Execution begins here.
 if __name__ == '__main__':
     exoplanets.dropna(how='any', inplace=True)
     exoplanets.reset_index(drop=True, inplace=True)
-    exoplanets = exoplanets[:20]
-
-    evaluate_cdhs_values(exoplanets, 'cdhs_{0}.csv')
+    exoplanets = exoplanets[:5]
+    evaluate_cdhs_values(exoplanets, 'cdhs_{0}.csv', SWARM_PARAMS, verbose=False)

@@ -1,3 +1,4 @@
+# For python
 __pycache__/
 .ropeproject/
 *.pyc
@@ -10,3 +11,6 @@ __pycache__/
 *.fls
 *.log
 *.synctex.gz
+
+# My project stuff
+res/
