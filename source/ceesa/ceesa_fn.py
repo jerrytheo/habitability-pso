@@ -13,17 +13,17 @@ def _penalty_crs(pos, rho):
             (0 < rho <= 0)) * 1e8
 
 
-def construct_ceesa(planet, type_):
+def construct_ceesa(planet, constraint):
     """Create the CDHS function by substituting the exoplanet
     parameters. Type could be CRS or DRS.
     """
-    if type_ == 'DRS':
+    if constraint == 'drs':
         def ceesa(pos):
             """Calculate CEESA with DRS."""
             return np.sum(planet * (pos[:5]**pos[5])) ** (pos[6]/pos[5]) - \
                 _penalty_drs(pos[:5], pos[5], pos[6])
 
-    elif type_ == 'CRS':
+    elif constraint == 'crs':
         def ceesa(pos):
             """Calculate CEESA with CRS."""
             return np.sum(planet * (pos[:5]**pos[5])) ** (1/pos[5]) - \

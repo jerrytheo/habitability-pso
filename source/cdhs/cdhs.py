@@ -3,21 +3,7 @@ import numpy as np
 from os import path
 
 from .cdhs_fn import construct_cdhpf
-from ..exoplanets import exoplanets
 from ..pso import converge
-
-
-# Parameters for the swarm.
-SWARM_PARAMS = {
-    'npart': 100,                   # Number of particles.
-    'ndim': 2,                      # Dimensions of input.
-    'min_': 0,                      # Min. value for initial pos.
-    'max_': 1,                      # Max. value for initial pos.
-    'friction': .8,                 # Friction coefficient.
-    'learn_rate1': 1e-3,            # c1 learning rate.
-    'learn_rate2': 1e-3,            # c2 learning rate.
-    'max_velocity': .1,             # Max. velocity.
-}
 
 
 # Miscellaneous Consts.
@@ -34,6 +20,9 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
     """Evaluates the CDHS values of each exoplanet and stores it in
     the file given by os.path.join('res', fname.format(constraint)).
     """
+    exoplanets.dropna(how='any', inplace=True)
+    exoplanets.reset_index(drop=True, inplace=True)
+
     total = len(exoplanets)
     if not verbose:
         def myprint(*args, **kwargs): pass
@@ -92,11 +81,3 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
             csv.writer(resfile).writerows(results)
 
     myprint('')
-
-
-# When executed as a script and not a module.
-if __name__ == '__main__':
-    exoplanets.dropna(how='any', inplace=True)
-    exoplanets.reset_index(drop=True, inplace=True)
-    exoplanets = exoplanets[:5]
-    evaluate_cdhs_values(exoplanets, 'cdhs_{0}.csv', SWARM_PARAMS)

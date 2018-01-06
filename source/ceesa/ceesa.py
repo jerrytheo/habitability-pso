@@ -5,21 +5,7 @@ import numpy as np
 from os import path
 
 from .ceesa_fn import construct_ceesa
-from ..exoplanets import exoplanets
 from ..pso import converge
-
-
-# Parameters for the swarm.
-SWARM_PARAMS = {
-    'npart': 100,                   # Number of particles.
-    'ndim': 2,                      # Dimensions of input.
-    'min_': 0,                      # Min. value for initial pos.
-    'max_': 1,                      # Max. value for initial pos.
-    'friction': .8,                 # Friction coefficient.
-    'learn_rate1': 1e-3,            # c1 learning rate.
-    'learn_rate2': 1e-3,            # c2 learning rate.
-    'max_velocity': .1,             # Max. velocity.
-}
 
 
 # Miscellaneous Consts.
@@ -36,6 +22,10 @@ def evaluate_ceesa_values(exoplanets, fname, swkwargs, verbose=True):
     """Evaluates the CDHS values of each exoplanet and stores it in
     the file given by os.path.join('res', fname.format(constraint)).
     """
+    exoplanets.dropna(how='all', inplace=True)
+    exoplanets.fillna(value=0, inplace=True)
+    exoplanets.reset_index(drop=True, inplace=True)
+
     total = len(exoplanets)
     if not verbose:
         def myprint(*args, **kwargs): pass
@@ -43,6 +33,7 @@ def evaluate_ceesa_values(exoplanets, fname, swkwargs, verbose=True):
         myprint = print
 
     for constraint, ndim in (('crs', 6), ('drs', 7)):
+        swkwargs[ndim] = ndim
         results = [HEADERS]
         print('\n' + MESSAGE.format(*results[-1]))
 
@@ -81,12 +72,3 @@ def evaluate_ceesa_values(exoplanets, fname, swkwargs, verbose=True):
             csv.writer(resfile).writerows(results)
 
     myprint('')
-
-
-# When executed as a script and not a module.
-if __name__ == '__main__':
-    exoplanets.dropna(how='all', inplace=True)
-    exoplanets.replace(np.nan, 0, inplace=True)
-    exoplanets.reset_index(drop=True, inplace=True)
-    exoplanets = exoplanets[:5]
-    evaluate_ceesa_values(exoplanets, 'ceesa_{0}.csv', SWARM_PARAMS)
