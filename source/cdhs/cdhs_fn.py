@@ -1,6 +1,5 @@
 import numpy as np
 
-
 ERR = .1
 
 

@@ -13,4 +13,5 @@ __pycache__/
 *.synctex.gz
 
 # My project stuff
+tmp/
 res/

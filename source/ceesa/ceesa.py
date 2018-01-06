@@ -1,8 +1,10 @@
+#!/usr/bin/python
+
 import csv
 import numpy as np
 from os import path
 
-from .cdhs_fn import construct_cdhpf
+from .ceesa_fn import construct_ceesa
 from ..exoplanets import exoplanets
 from ..pso import converge
 
@@ -21,16 +23,16 @@ SWARM_PARAMS = {
 
 
 # Miscellaneous Consts.
-MESSAGE = '{:25}{:>5}{:>5}{:>10}{:>5}{:>5}{:>10}{:>10}{:>7.5}'
-ERROR = '{:25}{:^57}'
+MESSAGE = '{:25}{:>7.5}{:>6}{:>6}{:>6}{:>6}{:>6}{:>6}{:>6}{:>10}'
+ERROR = '{:25}{:^59}'
 PROGRESS_BAR = '[{:72}]  ({:>3}%)'
-HEADERS = ('Name', 'A', 'B', 'CDHSi', 'G', 'D', 'CDHSs', 'CDHS', 'Cls')
-ERR_CDHSi = '** CDHSi convergence failed. **'
-ERR_CDHSs = '** CDHSs convergence failed. **'
+HEADERS = ('Name', 'Cls', 'r', 'd', 't', 'v', 'e', 'Rho', 'Eta', 'Hab')
+TITLE = MESSAGE.format(*HEADERS)
+ERROR_TEXT = '** Convergence failed. **'
 
 
-# Function to evaluate CDHS values.
-def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
+# Function to evaluate CEESA values.
+def evaluate_ceesa_values(exoplanets, fname, swkwargs, verbose=True):
     """Evaluates the CDHS values of each exoplanet and stores it in
     the file given by os.path.join('res', fname.format(constraint)).
     """
@@ -40,8 +42,9 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
     else:
         myprint = print
 
-    for constraint in ['crs', 'drs']:
+    for constraint, ndim in (('crs', 6), ('drs', 7)):
         results = [HEADERS]
+        print('\n' + MESSAGE.format(*results[-1]))
 
         myprint('\n' + ' '*40 + constraint.upper() + ' '*40)
         myprint(' '*40 + '-'*len(constraint) + ' '*40 + '\n')
@@ -51,34 +54,20 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
         for _, row in exoplanets.iterrows():
             name = row['Name']
             habc = row['Habitable']
+            info = row[['Radius', 'Density', 'STemp',
+                        'Escape', 'Eccentricity']]
 
-            r = row['Radius']
-            d = row['Density']
-            v = row['Escape']
-            t = row['STemp']
-
-            # CDHS interior.
-            cdhpf_i = construct_cdhpf(r, d, constraint)
-            swarm_i = converge(fn=cdhpf_i, **swkwargs)
-            if not swarm_i:
-                myprint(ERROR.format(name, ERR_CDHSi))
+            ceesa = construct_ceesa(info, constraint)
+            swarm = converge(fn=ceesa, **swkwargs)
+            if not swarm:
+                myprint(ERROR.format(name, ERROR_TEXT))
                 continue
 
-            A, B = np.round(swarm_i.best_particle.best, 2)
-            cdhs_i = round(swarm_i.global_best, 4)
+            # Calculate the score here.
+            best = swarm.best_particle
+            score = swarm.global_best
 
-            # CDHS surface.
-            cdhpf_s = construct_cdhpf(v, t, constraint)
-            swarm_s = converge(fn=cdhpf_s, **swkwargs)
-            if not swarm_s:
-                myprint(ERROR.format(name, ERR_CDHSs))
-                continue
-
-            G, D = np.round(swarm_s.best_particle.best, 2)
-            cdhs_s = round(swarm_s.global_best, 4)
-
-            cdhs = np.round(cdhs_i*.99 + cdhs_s*.01, 4)
-            results.append((name, A, B, cdhs_i, G, D, cdhs_s, cdhs, habc))
+            results.append([name, habc, best, score])
             myprint(MESSAGE.format(*results[-1]))
 
             ii = _ + 1
@@ -96,7 +85,8 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
 
 # When executed as a script and not a module.
 if __name__ == '__main__':
-    exoplanets.dropna(how='any', inplace=True)
+    exoplanets.dropna(how='all', inplace=True)
+    exoplanets.replace(np.nan, 0, inplace=True)
     exoplanets.reset_index(drop=True, inplace=True)
     exoplanets = exoplanets[:5]
-    evaluate_cdhs_values(exoplanets, 'cdhs_{0}.csv', SWARM_PARAMS)
+    evaluate_ceesa_values(exoplanets, 'ceesa_{0}.csv', SWARM_PARAMS)
