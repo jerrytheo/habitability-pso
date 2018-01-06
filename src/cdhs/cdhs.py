@@ -1,12 +1,10 @@
-#!/usr/bin/python
-
 import csv
-from exoplanets import exoplanets
 import numpy as np
-from pso import Swarm
 from os import path
 
 from .cdhs_fn import construct_cdhpf
+from ..exoplanets import exoplanets
+from ..pso import Swarm
 
 
 # Parameters for the swarm.
