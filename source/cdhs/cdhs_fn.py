@@ -45,7 +45,6 @@ def construct_cdhpf(coeff1, coeff2, constraint):
         raise ValueError('Do not understand constraint: ' + constraint)
 
     def cdhpf(pos):
-        pos = np.round(pos, 1)
         return (coeff1 ** pos[0]) * (coeff2 ** pos[1]) - penalty(pos)
 
     return cdhpf

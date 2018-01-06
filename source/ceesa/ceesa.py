@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import csv
-import numpy as np
 from os import path
 
 from .ceesa_fn import construct_ceesa
@@ -33,14 +32,13 @@ def evaluate_ceesa_values(exoplanets, fname, swkwargs, verbose=True):
         myprint = print
 
     for constraint, ndim in (('crs', 6), ('drs', 7)):
-        swkwargs[ndim] = ndim
+        swkwargs['ndim'] = ndim
         results = [HEADERS]
-        print('\n' + MESSAGE.format(*results[-1]))
 
-        myprint('\n' + ' '*40 + constraint.upper() + ' '*40)
-        myprint(' '*40 + '-'*len(constraint) + ' '*40 + '\n')
-        myprint(MESSAGE.format(*results[-1]))
-        myprint('-' * 82)
+        myprint('\n' + ' '*42 + constraint.upper() + ' '*42)
+        myprint(' '*42 + '-'*len(constraint) + ' '*42 + '\n')
+        myprint('\n' + MESSAGE.format(*results[-1]))
+        myprint('-' * 84)
 
         for _, row in exoplanets.iterrows():
             name = row['Name']
@@ -62,10 +60,10 @@ def evaluate_ceesa_values(exoplanets, fname, swkwargs, verbose=True):
             myprint(MESSAGE.format(*results[-1]))
 
             ii = _ + 1
-            prog = (ii * 72) // total
+            prog = (ii * 74) // total
             myprint(PROGRESS_BAR.format('='*prog, (ii*100)//total), end='\r')
 
-        myprint('-' * 82 + '\n')
+        myprint('-' * 84 + '\n')
 
         fpath = path.join('res', fname.format(constraint))
         with open(fpath, 'w') as resfile:
