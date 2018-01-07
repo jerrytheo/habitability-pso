@@ -1,6 +1,6 @@
 import numpy as np
 
-ERR = .1
+ERR = 1e-6
 
 
 def _penalty_crs(pos):
@@ -21,15 +21,15 @@ def _penalty_crs(pos):
 def _penalty_drs(pos):
     """Calculate the penalty for CDHPF under the DRS constraint."""
     q = np.array((
-        max(-pos[0] + ERR, 0),                    # pos[0] > 0
-        max(-pos[1] + ERR, 0),                    # pos[1] > 0
-        max(pos[0] - 1 + ERR, 0),                 # pos[0] < 1
-        max(pos[1] - 1 + ERR, 0),                 # pos[1] < 1
-        max(pos[0] + pos[1] - 1 + ERR, 0)         # DRS constraint.
+        max(ERR - pos[0], 0),                       # pos[0] > 0
+        max(ERR - pos[1], 0),                       # pos[1] > 0
+        max(ERR + pos[0] - 1, 0),                   # pos[0] < 1
+        max(ERR + pos[1] - 1, 0),                   # pos[1] < 1
+        max(ERR + pos[0] + pos[1] - 1, 0)           # DRS constraint.
     ), dtype=np.float)
 
     theta = np.piecewise(q, [q == 0, q > 0], [0, 1e8])
-    gamma = np.piecewise(q, [q <= 1, q > 1], [1, np.prod(np.exp(pos))])
+    gamma = np.piecewise(q, [q < 1, q >= 1], [.5, 2])
     return np.sum(theta*(q**gamma))
 
 

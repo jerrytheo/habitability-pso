@@ -10,11 +10,11 @@ from source import evaluate_ceesa_values
 
 # Parameters for the swarm.
 pso_args = {
-    'npart': 1000,                   # Number of particles.
+    'npart': 100,                   # Number of particles.
     'ndim': 2,                      # Dimensions of input.
     'min_': 0,                      # Min. value for initial pos.
     'max_': 1,                      # Max. value for initial pos.
-    'friction': .8,                 # Friction coefficient.
+    'friction': .4,                 # Friction coefficient.
     'learn_rate1': 1e-1,            # c1 learning rate.
     'learn_rate2': 1e-1,            # c2 learning rate.
     'max_velocity': .1,             # Max. velocity.

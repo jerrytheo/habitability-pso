@@ -7,12 +7,13 @@ from ..pso import converge
 
 
 # Miscellaneous Consts.
-MESSAGE = '{:25}{:>5}{:>5}{:>10}{:>5}{:>5}{:>10}{:>10}{:>7.5}'
+MESSAGE = '{:25}{:>6}{:>6}{:>10}{:>6}{:>6}{:>10}{:>10}{:>7.5}'
 ERROR = '{:25}{:^57}'
 PROGRESS_BAR = '[{:72}]  ({:>3}%)'
 HEADERS = ('Name', 'A', 'B', 'CDHSi', 'G', 'D', 'CDHSs', 'CDHS', 'Cls')
 ERR_CDHSi = '** CDHSi convergence failed. **'
 ERR_CDHSs = '** CDHSs convergence failed. **'
+TOTAL_CHAR = 86
 
 
 # Function to evaluate CDHS values.
@@ -32,10 +33,11 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
     for constraint in ['crs', 'drs']:
         results = [HEADERS]
 
-        myprint('\n' + ' '*40 + constraint.upper() + ' '*40)
-        myprint(' '*40 + '-'*len(constraint) + ' '*40 + '\n')
+        spaces = (TOTAL_CHAR//2 - len(constraint)//2) * ' '
+        myprint('\n' + spaces + constraint.upper())
+        myprint(spaces + '-'*len(constraint) + '\n')
         myprint(MESSAGE.format(*results[-1]))
-        myprint('-' * 82)
+        myprint('-' * TOTAL_CHAR)
 
         for _, row in exoplanets.iterrows():
             name = row['Name']
@@ -71,10 +73,10 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
             myprint(MESSAGE.format(*results[-1]))
 
             ii = _ + 1
-            prog = (ii * 72) // total
+            prog = (ii * (TOTAL_CHAR - 10)) // total
             myprint(PROGRESS_BAR.format('='*prog, (ii*100)//total), end='\r')
 
-        myprint('-' * 82 + '\n')
+        myprint('-' * TOTAL_CHAR + '\n')
 
         fpath = path.join('res', fname.format(constraint))
         with open(fpath, 'w') as resfile:

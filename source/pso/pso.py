@@ -1,6 +1,8 @@
 import numpy as np
 from numpy.random import uniform
 
+from ..utils import _round
+
 
 class Particle:
 
@@ -13,7 +15,7 @@ class Particle:
         self.fc = friction
 
         self.fitness = lambda: fn(self.position)
-        self.position = np.round(uniform(min_, max_, ndim), 1)
+        self.position = _round(uniform(min_, max_, ndim))
         self.velocity = uniform(-np.abs(max_-min_), np.abs(max_-min_), ndim)
 
         self.best = np.array(self.position)
@@ -22,15 +24,18 @@ class Particle:
 
     def update(self, global_best):
         """Calculate velocity and update current position."""
-        dv_l = self.c1 * uniform(0, 1) * (self.best - self.position)
-        dv_g = self.c2 * uniform(0, 1) * (global_best - self.position)
+        dv_l = _round(self.c1 * uniform(0, 1))
+        dv_l = _round(dv_l * (self.best - self.position))
 
-        self.velocity = self.fc * self.velocity + (dv_l + dv_g)
+        dv_g = _round(self.c2 * uniform(0, 1))
+        dv_g = _round(dv_g * (global_best - self.position))
+
+        self.velocity = _round(self.fc * self.velocity) + dv_l + dv_g
         check = np.abs(self.velocity) >= self.velocity_cap
         self.velocity[check] = np.sign(self.velocity[check]) * \
             self.velocity_cap
 
-        self.position = np.round(self.position + self.velocity, 1)
+        self.position = _round(self.position + self.velocity)
         curr_fitness = self.fitness()
         if curr_fitness > self.best_fitness:
             self.best = np.array(self.position)

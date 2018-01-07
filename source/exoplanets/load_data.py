@@ -1,6 +1,9 @@
 import os
 import pandas as pd
 
+from ..utils import _round
+
+
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
@@ -25,3 +28,5 @@ exoplanets.rename(columns={
     'P. Habitable Class': 'Habitable',
 }, inplace=True)
 exoplanets['STemp'] /= 288
+exoplanets['Eccentricity'] /= 0.017
+exoplanets = _round(exoplanets)
