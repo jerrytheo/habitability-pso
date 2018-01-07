@@ -29,10 +29,8 @@ def construct_ceesa(planet, constraint):
     elif constraint == 'crs':
         def ceesa(pos):
             """Calculate CEESA with CRS."""
-            penalty = _penalty_crs(pos[:5], pos[5])
-            temp = np.sum(pos[:5] * (planet**pos[5])) ** (1/pos[5])
-            print(pos, '\t\t', penalty)
-            return temp - penalty
+            return np.sum(pos[:5] * (planet**pos[5])) ** (1/pos[5]) - \
+                _penalty_crs(pos[:5], pos[5])
 
     else:
         raise ValueError('Do not understand constraint: ' + constraint)
