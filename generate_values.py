@@ -9,20 +9,17 @@ from source import evaluate_ceesa_values
 
 
 # Parameters for the swarm.
-pso_args = {
-    'npart': 100,                   # Number of particles.
-    'ndim': 2,                      # Dimensions of input.
-    'min_': 0,                      # Min. value for initial pos.
-    'max_': 1,                      # Max. value for initial pos.
-    'friction': .4,                 # Friction coefficient.
-    'learn_rate1': .06,             # c1 learning rate.
-    'learn_rate2': .14,             # c2 learning rate.
-    'max_velocity': .1,             # Max. velocity.
+pso_params = {
+    'npart': 25,                # Number of particles.
+    'friction': .4,             # Friction coefficient.
+    'lr1': .06,                 # c1 learning rate.
+    'lr2': .14,                 # c2 learning rate.
+    'max_velocity': .3,         # Max. velocity.
 }
 
 
 # Help text for the script.
-help_text = '''
+help_text = """
 USAGE: ./generate_values.py [-h] [--help] [-v] [--verbose] [--debug]
                             [--score <scorename>]
                             [--multiple <param> <start> <stop> [<step>]]
@@ -36,12 +33,12 @@ OPTIONAL ARGUMENTS:
     --multiple <param> <start> <stop> [<step>]
         Generate the scores over multiple iterations by varying the parameter
         specified by <param> from <start> to <stop> by <step>. <step> is 1 by
-        default. <param> may be "npart", "min_", "max_", "friction",
-        "learn_rate1", "learn_rate2" or "max_velocity".
+        default. <param> may be "npart", "friction", "lr1", "lr2" or
+        "max_velocity".
     --debug
         Run everything on only 10 random exoplanets. (Could include nan that
         will be removed.)
-'''
+"""
 
 evaluate = {
         'cdhs': evaluate_cdhs_values,
@@ -106,12 +103,12 @@ try:
         if single:                                              # Aww...
             fname = '{score}_{{0}}{debug}.csv'.format(score=score,
                                                       debug=fname_debug)
-            fn(fname, pso_args)
+            fn(fname, pso_params)
         else:
-            for pso_args[param] in range(start, stop+step, step):
+            for pso_params[param] in range(start, stop+step, step):
                 fname = '{score}_{{0}}_{param}_{value}{debug}.csv'.format(
-                        score=score, param=param, value=pso_args[param],
+                        score=score, param=param, value=pso_params[param],
                         debug=fname_debug)
-                fn(fname, pso_args)
+                fn(fname, pso_params)
 except KeyboardInterrupt:
     print('\n\nGood bye!')

@@ -14,19 +14,19 @@ class Particle:
 
     """A single particle of the swarm."""
 
-    def __init__(self, ndim, fn, min_=0, max_=1, friction=1.0, learn_rate1=2.0,
-                 learn_rate2=2.0, max_velocity=None):
-        self.c1 = learn_rate1
-        self.c2 = learn_rate2
+    def __init__(self, pos, fn, friction=1.0, lr1=2.0, lr2=2.0,
+                 max_velocity=1.):
+        self.c1 = lr1
+        self.c2 = lr2
         self.fc = friction
+        self.velocity_cap = max_velocity
+
+        self.best = self.position = _round(pos)
+        self.velocity = _uniform(-max_velocity, max_velocity,
+                                 self.position.size)
 
         self.fitness = lambda k=1: fn(self.position, k)
-        self.position = _round(_uniform(min_, max_, ndim))
-        self.velocity = _uniform(-np.abs(max_-min_), np.abs(max_-min_), ndim)
-
-        self.best = np.array(self.position)
         self.best_fitness = self.fitness()
-        self.velocity_cap = max_velocity
 
     def update(self, global_best, iteration=1):
         """Calculate velocity and update current position."""
@@ -52,11 +52,10 @@ class Swarm:
 
     """The swarm for PSO."""
 
-    def __init__(self, npart, *args, **kwargs):
-        self.particles = [Particle(*args, **kwargs) for it in range(npart)]
+    def __init__(self, positions, *args, **kwargs):
+        self.particles = [Particle(pos, *args, **kwargs) for pos in positions]
         self.best_particle = max(self.particles, key=lambda p: p.best_fitness)
         self.global_best = self.best_particle.best_fitness
-        self.prev = self.particles[0].position
 
     def update(self, iteration):
         """Update all particles of the swarm."""
@@ -65,8 +64,11 @@ class Swarm:
             if particle.best_fitness > self.global_best:
                 self.best_particle = particle
                 self.global_best = particle.best_fitness
+        print(self.particles[0].position - self.best_particle.best, end='\t\t')
+        print(self.particles[0].best - self.best_particle.best, end='\t\t')
+        print(self.particles[0].position)
 
-    def converge(self, max_stable=50, max_iter=1000, threshold=1e-5):
+    def converge(self, max_stable=100, max_iter=1000, threshold=1e-5):
         """Find the maxima for the fitness function specified."""
         stable_count = 0
         for it in range(max_iter):
@@ -75,6 +77,7 @@ class Swarm:
             if np.abs(old_best - self.global_best) < threshold:
                 stable_count += 1
                 if stable_count == max_stable:
+                    sys.exit()
                     return it
             else:
                 stable_count = 0
@@ -83,11 +86,11 @@ class Swarm:
 
 
 # Function for convergence.
-def converge(restarts=3, **kwargs):
+def converge(pts, fn, pso_params, restarts=3):
     """Wait for convergence by PSO."""
     for _ in range(restarts):
         try:
-            swarm = Swarm(**kwargs)
+            swarm = Swarm(pts, **pso_params)
             converged = swarm.converge()
             return swarm, converged
         except SwarmConvergeError:

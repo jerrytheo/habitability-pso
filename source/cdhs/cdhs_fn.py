@@ -1,4 +1,5 @@
 import numpy as np
+from ..utils import _uniform
 
 ERR = 1e-6
 
@@ -22,7 +23,8 @@ def _penalty_crs(pos, k):
         max(-pos[1] + ERR, 0),                  # pos[1] > 0
         max(pos[0] - 1 + ERR, 0),               # pos[0] < 1
         max(pos[1] - 1 + ERR, 0),               # pos[1] < 1
-        np.abs(pos[0] + pos[1] - 1),            # CRS constraint.
+        max(pos[0] + pos[1] - ERR - 1, 0),      # pos[0] + pos[1] - d < 1
+        max(1 - ERR - pos[0] - pos[1], 0),      # pos[0] + pos[1] - d < 1
     ), dtype=np.float)
 
     theta, gamma = evaluate_theta_gamma(q)
@@ -36,20 +38,43 @@ def _penalty_drs(pos, k):
         max(ERR - pos[1], 0),                       # pos[1] > 0
         max(ERR + pos[0] - 1, 0),                   # pos[0] < 1
         max(ERR + pos[1] - 1, 0),                   # pos[1] < 1
-        max(ERR + pos[0] + pos[1] - 1, 0)           # DRS constraint.
+        max(ERR + pos[0] + pos[1] - 1, 0)           # pos[0] + pos[1] < 1
     ), dtype=np.float)
 
     theta, gamma = evaluate_theta_gamma(q)
     return (k+1) * np.sqrt(k+1) * np.sum(theta * (q**gamma))
 
 
-def construct_cdhpf(coeff1, coeff2, constraint):
-    """Create the CDHS function by substituting the exoplanet
-    parameters. Constraint could be CRS or DRS.
+def _initialize_crs(npoints):
+    """Initialize npoints points for the CRS constraint."""
+    xvals = _uniform(0, 1, (npoints, 1))
+    condn = (xvals == 0)
+    while condn.any():
+        xvals[condn] = _uniform(0, 1, xvals[condn].shape)
+        condn = (xvals == 0)
+    return np.hstack((xvals, 1-xvals))
+
+
+def _initialize_drs(npoints):
+    """Initialize npoints points for the DRS constraint."""
+    xvals = _uniform(0, 1, (npoints, 2))
+    condn = (xvals.sum(axis=1) >= 1)
+    while condn.any():
+        xvals[condn] = _uniform(0, 1, xvals[condn].shape)
+        condn = (xvals.sum(axis=1) >= 1)
+    return xvals
+
+
+def construct_cdhpf(npoints, coeff1, coeff2, constraint):
+    """Initialize points and create the CDHS function by substituting
+    the exoplanet parameters. Constraint could be CRS or DRS. Returns a
+    2-tuple (points, cdhpf).
     """
     if constraint == 'crs':
+        points = _initialize_crs(npoints)
         penalty = _penalty_crs
     elif constraint == 'drs':
+        points = _initialize_drs(npoints)
         penalty = _penalty_drs
     else:
         raise ValueError('Do not understand constraint: ' + constraint)
@@ -57,4 +82,4 @@ def construct_cdhpf(coeff1, coeff2, constraint):
     def cdhpf(pos, k=1):
         return (coeff1 ** pos[0]) * (coeff2 ** pos[1]) - penalty(pos, k)
 
-    return cdhpf
+    return (points, cdhpf)

@@ -20,14 +20,18 @@ PROGRESS_BAR = '[{:' + str(TOTAL_CHAR - 10) + '}]  ({:>3}%)'
 
 
 # Function to evaluate CDHS values.
-def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
+def evaluate_cdhs_values(exoplanets, fname, pso_params, verbose=True):
     """Evaluates the CDHS values of each exoplanet and stores it in
     the file given by os.path.join('res', fname.format(constraint)).
     """
     exoplanets.dropna(how='any', inplace=True)
     exoplanets.reset_index(drop=True, inplace=True)
 
+    npoints = pso_params['npart']
+    del pso_params['npart']
     total = len(exoplanets)
+
+    # Print only if verbose is True.
     if not verbose:
         def myprint(*args, **kwargs): pass
     else:
@@ -40,7 +44,12 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
         myprint('\n' + spaces + constraint.upper())
         myprint(spaces + '-'*len(constraint) + '\n')
         myprint(TITLE.format(*results[-1]))
-        myprint('-' * TOTAL_CHAR)
+
+        myprint('-' * TOTAL_CHAR, end='\t\t')
+        if constraint == 'crs':
+            myprint('  it  tr : it  tr  ')
+        else:
+            myprint('  it : it  ')
 
         for _, row in exoplanets.iterrows():
             name = row['Name']
@@ -52,10 +61,10 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
             t = row['STemp']
 
             # CDHS interior.
-            cdhpf_i = construct_cdhpf(r, d, constraint)
+            points_i, cdhpf_i = construct_cdhpf(npoints, r, d, constraint)
             try:
                 for ci in itt.count(1):
-                    swarm_i, it_i = converge(fn=cdhpf_i, **swkwargs)
+                    swarm_i, it_i = converge(points_i, cdhpf_i, pso_params)
                     A, B = np.round(swarm_i.best_particle.best, 4)
                     if constraint != 'crs' or np.abs(A+B - 1) < .001:
                         break
@@ -68,10 +77,10 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
             cdhs_i = round((r ** A) * (d ** B), 4)
 
             # CDHS surface.
-            cdhpf_s = construct_cdhpf(v, t, constraint)
+            points_s, cdhpf_s = construct_cdhpf(v, t, constraint)
             try:
                 for cs in itt.count(1):
-                    swarm_s, it_s = converge(fn=cdhpf_s, **swkwargs)
+                    swarm_s, it_s = converge(points_s, cdhpf_s, pso_params)
                     G, D = np.round(swarm_s.best_particle.best, 4)
                     if constraint != 'crs' or np.abs(G+D - 1) < .001:
                         break
@@ -87,10 +96,10 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
             results.append((name, A, B, cdhs_i, G, D, cdhs_s, cdhs, habc))
             myprint(MESSAGE.format(*results[-1]), end='\t\t')
             if constraint == 'crs':
-                myprint('[ {:02}  {:02} : {:02}  {:02} ]'.format(it_i-9, ci,
-                                                                 it_s-9, cs))
+                myprint('[ {:02}  {:02} : {:02}  {:02} ]'.format(it_i-49, ci,
+                                                                 it_s-49, cs))
             else:
-                myprint('[ {:02} : {:02} ]'.format(it_i-9, it_s-9))
+                myprint('[ {:02} : {:02} ]'.format(it_i-49, it_s-49))
 
             ii = _ + 1
             prog = (ii * (TOTAL_CHAR - 10)) // total
