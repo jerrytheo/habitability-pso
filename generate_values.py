@@ -15,8 +15,8 @@ pso_args = {
     'min_': 0,                      # Min. value for initial pos.
     'max_': 1,                      # Max. value for initial pos.
     'friction': .4,                 # Friction coefficient.
-    'learn_rate1': 1e-1,            # c1 learning rate.
-    'learn_rate2': 1e-1,            # c2 learning rate.
+    'learn_rate1': .06,             # c1 learning rate.
+    'learn_rate2': .14,             # c2 learning rate.
     'max_velocity': .1,             # Max. velocity.
 }
 
@@ -91,7 +91,7 @@ try:
 
         # --debug
         elif argname == '--debug':
-            exoplanets = exoplanets.sample(10)
+            exoplanets = exoplanets.sample(30)
             fname_debug = '_sample'
         else:
             print(invalid)

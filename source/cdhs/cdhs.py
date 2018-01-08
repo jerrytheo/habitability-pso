@@ -1,4 +1,5 @@
 import csv
+import itertools as itt
 import numpy as np
 from os import path
 
@@ -10,7 +11,7 @@ from ..pso import converge, SwarmConvergeError
 MESSAGE = '{:25}{:>8.4f}{:>8.4f}{:>10.4f}'\
         '{:>8.4f}{:>8.4f}{:>10.4f}{:>10.4f}{:>7.5}'
 TITLE = '{:25}{:>8}{:>8}{:>10}{:>8}{:>8}{:>10}{:>10}{:>7.5}'
-ERROR = '{:25}{:^57}'
+ERROR = '{:25}{:^69}'
 HEADERS = ('Name', 'A', 'B', 'CDHSi', 'G', 'D', 'CDHSs', 'CDHS', 'Cls')
 ERR_CDHSi = '** CDHSi convergence failed. **'
 ERR_CDHSs = '** CDHSs convergence failed. **'
@@ -32,7 +33,7 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
     else:
         myprint = print
 
-    for constraint in ['drs']:
+    for constraint in ['crs']:
         results = [HEADERS]
 
         spaces = (TOTAL_CHAR//2 - len(constraint)//2) * ' '
@@ -53,11 +54,14 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
             # CDHS interior.
             cdhpf_i = construct_cdhpf(r, d, constraint)
             try:
-                while True:
-                    swarm_i, it = converge(fn=cdhpf_i, **swkwargs)
+                for ci in itt.count(1):
+                    swarm_i, it_i = converge(fn=cdhpf_i, **swkwargs)
                     A, B = np.round(swarm_i.best_particle.best, 4)
                     if constraint != 'crs' or np.abs(A+B - 1) < .001:
                         break
+                else:
+                    myprint(ERROR.format(name, ERR_CDHSi))
+                    continue
             except SwarmConvergeError:
                 myprint(ERROR.format(name, ERR_CDHSi))
                 continue
@@ -66,11 +70,14 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
             # CDHS surface.
             cdhpf_s = construct_cdhpf(v, t, constraint)
             try:
-                while True:
-                    swarm_s, it = converge(fn=cdhpf_s, **swkwargs)
+                for cs in itt.count(1):
+                    swarm_s, it_s = converge(fn=cdhpf_s, **swkwargs)
                     G, D = np.round(swarm_s.best_particle.best, 4)
                     if constraint != 'crs' or np.abs(G+D - 1) < .001:
                         break
+                else:
+                    myprint(ERROR.format(name, ERR_CDHSs))
+                    continue
             except SwarmConvergeError:
                 myprint(ERROR.format(name, ERR_CDHSs))
                 continue
@@ -79,7 +86,11 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
             cdhs = np.round(cdhs_i*.99 + cdhs_s*.01, 4)
             results.append((name, A, B, cdhs_i, G, D, cdhs_s, cdhs, habc))
             myprint(MESSAGE.format(*results[-1]), end='\t\t')
-            myprint('[  {:7.4f}    {:7.4f}  ]'.format(A+B-1, G+D-1))
+            if constraint == 'crs':
+                myprint('[ {:02}  {:02} : {:02}  {:02} ]'.format(it_i-9, ci,
+                                                                 it_s-9, cs))
+            else:
+                myprint('[ {:02} : {:02} ]'.format(it_i-9, it_s-9))
 
             ii = _ + 1
             prog = (ii * (TOTAL_CHAR - 10)) // total

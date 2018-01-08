@@ -1,7 +1,7 @@
 import numpy as np
-from numpy.random import uniform
+import sys
 
-from ..utils import _round
+from ..utils import _round, _uniform
 
 
 # Exception raised when Swarm does not converge.
@@ -21,8 +21,8 @@ class Particle:
         self.fc = friction
 
         self.fitness = lambda k=1: fn(self.position, k)
-        self.position = _round(uniform(min_, max_, ndim))
-        self.velocity = uniform(-np.abs(max_-min_), np.abs(max_-min_), ndim)
+        self.position = _round(_uniform(min_, max_, ndim))
+        self.velocity = _uniform(-np.abs(max_-min_), np.abs(max_-min_), ndim)
 
         self.best = np.array(self.position)
         self.best_fitness = self.fitness()
@@ -30,11 +30,11 @@ class Particle:
 
     def update(self, global_best, iteration=1):
         """Calculate velocity and update current position."""
-        dv_l = _round(self.c1 * uniform(0, 1))
-        dv_l = _round(dv_l * (self.best - self.position))
+        co_l = _round(self.c1 * _uniform(0, 1))
+        dv_l = _round(co_l * (self.best - self.position))
 
-        dv_g = _round(self.c2 * uniform(0, 1))
-        dv_g = _round(dv_g * (global_best - self.position))
+        co_g = _round(self.c2 * _uniform(0, 1))
+        dv_g = _round(co_g * (global_best - self.position))
 
         self.velocity = _round(self.fc * self.velocity) + dv_l + dv_g
         check = np.abs(self.velocity) >= self.velocity_cap
@@ -56,17 +56,17 @@ class Swarm:
         self.particles = [Particle(*args, **kwargs) for it in range(npart)]
         self.best_particle = max(self.particles, key=lambda p: p.best_fitness)
         self.global_best = self.best_particle.best_fitness
+        self.prev = self.particles[0].position
 
     def update(self, iteration):
         """Update all particles of the swarm."""
         for particle in self.particles:
-            particle.update(self.global_best, iteration)
+            particle.update(self.best_particle.best, iteration)
             if particle.best_fitness > self.global_best:
                 self.best_particle = particle
                 self.global_best = particle.best_fitness
 
-    def converge(self, max_stable=50, max_iter=10000, threshold=0.0001,
-                 verbose=True, proglen=20):
+    def converge(self, max_stable=50, max_iter=1000, threshold=1e-5):
         """Find the maxima for the fitness function specified."""
         stable_count = 0
         for it in range(max_iter):
@@ -88,7 +88,7 @@ def converge(restarts=3, **kwargs):
     for _ in range(restarts):
         try:
             swarm = Swarm(**kwargs)
-            converged = swarm.converge(verbose=False)
+            converged = swarm.converge()
             return swarm, converged
         except SwarmConvergeError:
             pass
