@@ -54,6 +54,7 @@ args = argv[1:]
 single = True
 verbose = False
 invalid = 'Invalid usage.\n' + help_text
+fname_debug = ''
 
 try:
     while args:
@@ -91,6 +92,7 @@ try:
         # --debug
         elif argname == '--debug':
             exoplanets = exoplanets.sample(10)
+            fname_debug = '_sample'
         else:
             print(invalid)
 
@@ -99,13 +101,17 @@ except (IndexError, ValueError):
 
 
 try:
-    for k, fn in evaluate.items():
+    for score, fn in evaluate.items():
         fn = partial(fn, exoplanets, verbose=verbose)
-        if single:                                          # Aww...
-            fn(k + '_{0}.csv', pso_args)
+        if single:                                              # Aww...
+            fname = '{score}_{{0}}{debug}.csv'.format(score=score,
+                                                      debug=fname_debug)
+            fn(fname, pso_args)
         else:
             for pso_args[param] in range(start, stop+step, step):
-                fname = k + '_{0}_' + param + str(pso_args[param]) + '.csv'
+                fname = '{score}_{{0}}_{param}_{value}{debug}.csv'.format(
+                        score=score, param=param, value=pso_args[param],
+                        debug=fname_debug)
                 fn(fname, pso_args)
 except KeyboardInterrupt:
     print('\n\nGood bye!')

@@ -7,14 +7,14 @@ from ..pso import converge
 
 
 # Miscellaneous Consts.
-MESSAGE = '{:25}{:>7.4f}{:>7.4f}{:>10.4f}'\
-        '{:>7.4f}{:>7.4f}{:>10.4f}{:>10.4f}{:>7.5}'
-TITLE = '{:25}{:>7}{:>7}{:>10}{:>7}{:>7}{:>10}{:>10}{:>7.5}'
+MESSAGE = '{:25}{:>8.4f}{:>8.4f}{:>10.4f}'\
+        '{:>8.4f}{:>8.4f}{:>10.4f}{:>10.4f}{:>7.5}'
+TITLE = '{:25}{:>8}{:>8}{:>10}{:>8}{:>8}{:>10}{:>10}{:>7.5}'
 ERROR = '{:25}{:^57}'
 HEADERS = ('Name', 'A', 'B', 'CDHSi', 'G', 'D', 'CDHSs', 'CDHS', 'Cls')
 ERR_CDHSi = '** CDHSi convergence failed. **'
 ERR_CDHSs = '** CDHSs convergence failed. **'
-TOTAL_CHAR = 90
+TOTAL_CHAR = 94
 PROGRESS_BAR = '[{:' + str(TOTAL_CHAR - 10) + '}]  ({:>3}%)'
 
 
