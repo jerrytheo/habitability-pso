@@ -64,9 +64,9 @@ class Swarm:
             if particle.best_fitness > self.global_best:
                 self.best_particle = particle
                 self.global_best = particle.best_fitness
-        print(self.particles[0].position - self.best_particle.best, end='\t\t')
-        print(self.particles[0].best - self.best_particle.best, end='\t\t')
-        print(self.particles[0].position)
+        #  print(self.particles[0].position - self.best_particle.best, end='\t\t')
+        #  print(self.particles[0].best - self.best_particle.best, end='\t\t')
+        #  print(self.particles[0].position)
 
     def converge(self, max_stable=100, max_iter=1000, threshold=1e-5):
         """Find the maxima for the fitness function specified."""
@@ -77,7 +77,7 @@ class Swarm:
             if np.abs(old_best - self.global_best) < threshold:
                 stable_count += 1
                 if stable_count == max_stable:
-                    sys.exit()
+                    #  sys.exit()
                     return it
             else:
                 stable_count = 0
@@ -90,7 +90,7 @@ def converge(pts, fn, pso_params, restarts=3):
     """Wait for convergence by PSO."""
     for _ in range(restarts):
         try:
-            swarm = Swarm(pts, **pso_params)
+            swarm = Swarm(pts, fn, **pso_params)
             converged = swarm.converge()
             return swarm, converged
         except SwarmConvergeError:

@@ -77,7 +77,7 @@ def evaluate_cdhs_values(exoplanets, fname, pso_params, verbose=True):
             cdhs_i = round((r ** A) * (d ** B), 4)
 
             # CDHS surface.
-            points_s, cdhpf_s = construct_cdhpf(v, t, constraint)
+            points_s, cdhpf_s = construct_cdhpf(npoints, v, t, constraint)
             try:
                 for cs in itt.count(1):
                     swarm_s, it_s = converge(points_s, cdhpf_s, pso_params)
