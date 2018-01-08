@@ -4,6 +4,12 @@ from numpy.random import uniform
 from ..utils import _round
 
 
+# Exception raised when Swarm does not converge.
+class SwarmConvergeError(Exception):
+    """Error raised when the swarm does not converge."""
+    pass
+
+
 class Particle:
 
     """A single particle of the swarm."""
@@ -66,12 +72,25 @@ class Swarm:
         for it in range(max_iter):
             old_best = self.global_best
             self.update(it)
-
             if np.abs(old_best - self.global_best) < threshold:
                 stable_count += 1
                 if stable_count == max_stable:
                     return it
             else:
                 stable_count = 0
+        raise SwarmConvergeError('swarm did not converge. stable_count='
+                                 + str(stable_count))
 
-        return False
+
+# Function for convergence.
+def converge(restarts=3, **kwargs):
+    """Wait for convergence by PSO."""
+    for _ in range(restarts):
+        try:
+            swarm = Swarm(**kwargs)
+            converged = swarm.converge(verbose=False)
+            return swarm, converged
+        except SwarmConvergeError:
+            pass
+    raise SwarmConvergeError('no convergence after '
+                             + restarts + ' restarts.')

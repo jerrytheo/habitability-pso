@@ -3,7 +3,7 @@ import numpy as np
 from os import path
 
 from .cdhs_fn import construct_cdhpf
-from ..pso import converge
+from ..pso import converge, SwarmConvergeError
 
 
 # Miscellaneous Consts.
@@ -32,7 +32,7 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
     else:
         myprint = print
 
-    for constraint in ['crs']:
+    for constraint in ['drs']:
         results = [HEADERS]
 
         spaces = (TOTAL_CHAR//2 - len(constraint)//2) * ' '
@@ -52,22 +52,28 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
 
             # CDHS interior.
             cdhpf_i = construct_cdhpf(r, d, constraint)
-            swarm_i = converge(fn=cdhpf_i, **swkwargs)
-            if not swarm_i:
+            try:
+                while True:
+                    swarm_i, it = converge(fn=cdhpf_i, **swkwargs)
+                    A, B = np.round(swarm_i.best_particle.best, 4)
+                    if constraint != 'crs' or np.abs(A+B - 1) < .001:
+                        break
+            except SwarmConvergeError:
                 myprint(ERROR.format(name, ERR_CDHSi))
                 continue
-
-            A, B = np.round(swarm_i.best_particle.best, 4)
             cdhs_i = round((r ** A) * (d ** B), 4)
 
             # CDHS surface.
             cdhpf_s = construct_cdhpf(v, t, constraint)
-            swarm_s = converge(fn=cdhpf_s, **swkwargs)
-            if not swarm_s:
+            try:
+                while True:
+                    swarm_s, it = converge(fn=cdhpf_s, **swkwargs)
+                    G, D = np.round(swarm_s.best_particle.best, 4)
+                    if constraint != 'crs' or np.abs(G+D - 1) < .001:
+                        break
+            except SwarmConvergeError:
                 myprint(ERROR.format(name, ERR_CDHSs))
                 continue
-
-            G, D = np.round(swarm_s.best_particle.best, 4)
             cdhs_s = round((v ** G) * (t ** D), 4)
 
             cdhs = np.round(cdhs_i*.99 + cdhs_s*.01, 4)
