@@ -7,13 +7,15 @@ from ..pso import converge
 
 
 # Miscellaneous Consts.
-MESSAGE = '{:25}{:>6}{:>6}{:>10}{:>6}{:>6}{:>10}{:>10}{:>7.5}'
+MESSAGE = '{:25}{:>7.4f}{:>7.4f}{:>10.4f}'\
+        '{:>7.4f}{:>7.4f}{:>10.4f}{:>10.4f}{:>7.5}'
+TITLE = '{:25}{:>7}{:>7}{:>10}{:>7}{:>7}{:>10}{:>10}{:>7.5}'
 ERROR = '{:25}{:^57}'
-PROGRESS_BAR = '[{:72}]  ({:>3}%)'
 HEADERS = ('Name', 'A', 'B', 'CDHSi', 'G', 'D', 'CDHSs', 'CDHS', 'Cls')
 ERR_CDHSi = '** CDHSi convergence failed. **'
 ERR_CDHSs = '** CDHSs convergence failed. **'
-TOTAL_CHAR = 86
+TOTAL_CHAR = 90
+PROGRESS_BAR = '[{:' + str(TOTAL_CHAR - 10) + '}]  ({:>3}%)'
 
 
 # Function to evaluate CDHS values.
@@ -30,13 +32,13 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
     else:
         myprint = print
 
-    for constraint in ['crs', 'drs']:
+    for constraint in ['crs']:
         results = [HEADERS]
 
         spaces = (TOTAL_CHAR//2 - len(constraint)//2) * ' '
         myprint('\n' + spaces + constraint.upper())
         myprint(spaces + '-'*len(constraint) + '\n')
-        myprint(MESSAGE.format(*results[-1]))
+        myprint(TITLE.format(*results[-1]))
         myprint('-' * TOTAL_CHAR)
 
         for _, row in exoplanets.iterrows():
@@ -55,8 +57,8 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
                 myprint(ERROR.format(name, ERR_CDHSi))
                 continue
 
-            A, B = np.round(swarm_i.best_particle.best, 2)
-            cdhs_i = round(swarm_i.global_best, 4)
+            A, B = np.round(swarm_i.best_particle.best, 4)
+            cdhs_i = round((r ** A) * (d ** B), 4)
 
             # CDHS surface.
             cdhpf_s = construct_cdhpf(v, t, constraint)
@@ -65,12 +67,13 @@ def evaluate_cdhs_values(exoplanets, fname, swkwargs, verbose=True):
                 myprint(ERROR.format(name, ERR_CDHSs))
                 continue
 
-            G, D = np.round(swarm_s.best_particle.best, 2)
-            cdhs_s = round(swarm_s.global_best, 4)
+            G, D = np.round(swarm_s.best_particle.best, 4)
+            cdhs_s = round((v ** G) * (t ** D), 4)
 
             cdhs = np.round(cdhs_i*.99 + cdhs_s*.01, 4)
             results.append((name, A, B, cdhs_i, G, D, cdhs_s, cdhs, habc))
-            myprint(MESSAGE.format(*results[-1]))
+            myprint(MESSAGE.format(*results[-1]), end='\t\t')
+            myprint('[  {:7.4f}    {:7.4f}  ]'.format(A+B-1, G+D-1))
 
             ii = _ + 1
             prog = (ii * (TOTAL_CHAR - 10)) // total

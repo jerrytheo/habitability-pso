@@ -98,11 +98,14 @@ except (IndexError, ValueError):
     print(invalid)
 
 
-for k, fn in evaluate.items():
-    fn = partial(fn, exoplanets, verbose=verbose)
-    if single:
-        # Aww...
-        fn(k + '_{0}.csv', pso_args)
-    else:
-        for pso_args[param] in range(start, stop+step, step):
-            fn(k + '_{0}_' + param + str(pso_args[param]) + '.csv', pso_args)
+try:
+    for k, fn in evaluate.items():
+        fn = partial(fn, exoplanets, verbose=verbose)
+        if single:                                          # Aww...
+            fn(k + '_{0}.csv', pso_args)
+        else:
+            for pso_args[param] in range(start, stop+step, step):
+                fname = k + '_{0}_' + param + str(pso_args[param]) + '.csv'
+                fn(fname, pso_args)
+except KeyboardInterrupt:
+    print('\n\nGood bye!')

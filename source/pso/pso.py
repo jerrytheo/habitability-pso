@@ -14,7 +14,7 @@ class Particle:
         self.c2 = learn_rate2
         self.fc = friction
 
-        self.fitness = lambda: fn(self.position)
+        self.fitness = lambda k=1: fn(self.position, k)
         self.position = _round(uniform(min_, max_, ndim))
         self.velocity = uniform(-np.abs(max_-min_), np.abs(max_-min_), ndim)
 
@@ -22,7 +22,7 @@ class Particle:
         self.best_fitness = self.fitness()
         self.velocity_cap = max_velocity
 
-    def update(self, global_best):
+    def update(self, global_best, iteration=1):
         """Calculate velocity and update current position."""
         dv_l = _round(self.c1 * uniform(0, 1))
         dv_l = _round(dv_l * (self.best - self.position))
@@ -36,7 +36,7 @@ class Particle:
             self.velocity_cap
 
         self.position = _round(self.position + self.velocity)
-        curr_fitness = self.fitness()
+        curr_fitness = self.fitness(iteration)
         if curr_fitness > self.best_fitness:
             self.best = np.array(self.position)
             self.best_fitness = curr_fitness
@@ -51,10 +51,10 @@ class Swarm:
         self.best_particle = max(self.particles, key=lambda p: p.best_fitness)
         self.global_best = self.best_particle.best_fitness
 
-    def update(self):
+    def update(self, iteration):
         """Update all particles of the swarm."""
         for particle in self.particles:
-            particle.update(self.global_best)
+            particle.update(self.global_best, iteration)
             if particle.best_fitness > self.global_best:
                 self.best_particle = particle
                 self.global_best = particle.best_fitness
@@ -65,7 +65,7 @@ class Swarm:
         stable_count = 0
         for it in range(max_iter):
             old_best = self.global_best
-            self.update()
+            self.update(it)
 
             if np.abs(old_best - self.global_best) < threshold:
                 stable_count += 1
