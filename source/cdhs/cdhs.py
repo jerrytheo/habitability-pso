@@ -1,9 +1,10 @@
 import csv
-import itertools as itt
+#  import itertools
+import functools
 import numpy as np
 from os import path
 
-from .cdhs_fn import construct_cdhpf
+from .cdhs_fn import initialize_cdhpf, construct_cdhpf, penalize_cdhpf
 from ..pso import converge, SwarmConvergeError
 
 
@@ -19,96 +20,114 @@ TOTAL_CHAR = 94
 PROGRESS_BAR = '[{:' + str(TOTAL_CHAR - 10) + '}]  ({:>3}%)'
 
 
+# Print functions.
+def print_header(constraint, headers):
+    """Print the header of the output table."""
+    spaces = (TOTAL_CHAR//2 - len(constraint)//2) * ' '
+
+    print('\n' + spaces + constraint.upper())
+    print(spaces + '-'*len(constraint) + '\n')
+    print(TITLE.format(headers))
+
+    print('-' * TOTAL_CHAR, end='\t\t')
+    print('  inn : sur  ')
+
+
+def print_error(name, err):
+    """Print the error for exoplanet name when convergence fails."""
+    print(ERROR.format(name, err))
+
+
+def print_results(it, total, values, iters):
+    """Print the results of the estimation for the current planet."""
+    print(MESSAGE.format(*values), end='\t\t')
+    print('[ {:03} : {:03} ]'.format(*iters))
+
+    ii = it + 1
+    prog = (ii * (TOTAL_CHAR - 10)) // total
+    print(PROGRESS_BAR.format('='*prog, (ii*100)//total), end='\r')
+
+
 # Function to evaluate CDHS values.
-def evaluate_cdhs_values(exoplanets, fname, pso_params, verbose=True):
-    """Evaluates the CDHS values of each exoplanet and stores it in
-    the file given by os.path.join('res', fname.format(constraint)).
+def evaluate_cdhs_values(exoplanets, fname='cdhs_{0}.csv', verbose=True,
+                         npart=25, **kwargs):
+    """Evaluates the CDHS values of each exoplanet and stores it in the
+    indicated file.
+
+    Arguments:
+        exoplanets: pandas.DataFrame
+            The exoplanet parameters to operate on. Should contain columns for
+            Radius, Density, Escape (Escape Velocity) and STemp (Surface Temp)
+            in EU (Earth Units).
+        fname: str, default 'cdhs_{0}.csv'
+            A format string indicating where to store the results. The final
+            filename is given by
+                > os.path.join('res', fname.format(constraint))
+            where constraint is either 'crs' or 'drs'.
+        verbose: bool, default True
+            Whether to print output to stdout.
+        npart: int, default 25
+            Number of particles.
+        kwargs:
+            The parameters for the Swarm.
     """
     exoplanets.dropna(how='any', inplace=True)
     exoplanets.reset_index(drop=True, inplace=True)
-
-    npoints = pso_params['npart']
-    del pso_params['npart']
     total = len(exoplanets)
-
-    # Print only if verbose is True.
-    if not verbose:
-        def myprint(*args, **kwargs): pass
-    else:
-        myprint = print
 
     for constraint in ['crs']:
         results = [HEADERS]
 
-        spaces = (TOTAL_CHAR//2 - len(constraint)//2) * ' '
-        myprint('\n' + spaces + constraint.upper())
-        myprint(spaces + '-'*len(constraint) + '\n')
-        myprint(TITLE.format(*results[-1]))
-
-        myprint('-' * TOTAL_CHAR, end='\t\t')
-        if constraint == 'crs':
-            myprint('  it  tr : it  tr  ')
-        else:
-            myprint('  it : it  ')
+        if verbose:
+            print_header(constraint, results[-1])
 
         for _, row in exoplanets.iterrows():
             name = row['Name']
             habc = row['Habitable']
 
-            r = row['Radius']
-            d = row['Density']
-            v = row['Escape']
-            t = row['STemp']
+            rad = row['Radius']
+            den = row['Density']
+            vel = row['Escape']
+            tem = row['STemp']
 
             # CDHS interior.
-            points_i, cdhpf_i = construct_cdhpf(npoints, r, d, constraint)
+            start = initialize_cdhpf(npart, constraint)
+            cdhpf = construct_cdhpf(rad, den, constraint)
+            penal = functools.partial(penalize_cdhpf, constraint=constraint)
             try:
-                for ci in itt.count(1):
-                    swarm_i, it_i = converge(points_i, cdhpf_i, pso_params)
-                    A, B = np.round(swarm_i.best_particle.best, 4)
-                    if constraint != 'crs' or np.abs(A+B - 1) < .001:
-                        break
-                else:
-                    myprint(ERROR.format(name, ERR_CDHSi))
-                    continue
+                swarm, it_i = converge(start, cdhpf, penal, **kwargs)
+                A, B = np.round(swarm.best_particle.best, 4)
             except SwarmConvergeError:
-                myprint(ERROR.format(name, ERR_CDHSi))
+                if verbose:
+                    print_error(name, ERR_CDHSi)
                 continue
-            cdhs_i = round((r ** A) * (d ** B), 4)
+            cdhs_i = round((rad ** A) * (den ** B), 4)
 
             # CDHS surface.
-            points_s, cdhpf_s = construct_cdhpf(npoints, v, t, constraint)
+            start = initialize_cdhpf(npart, constraint)
+            cdhpf = construct_cdhpf(vel, tem, constraint)
+            penal = functools.partial(penalize_cdhpf, constraint=constraint)
             try:
-                for cs in itt.count(1):
-                    swarm_s, it_s = converge(points_s, cdhpf_s, pso_params)
-                    G, D = np.round(swarm_s.best_particle.best, 4)
-                    if constraint != 'crs' or np.abs(G+D - 1) < .001:
-                        break
-                else:
-                    myprint(ERROR.format(name, ERR_CDHSs))
-                    continue
+                swarm, it_s = converge(start, cdhpf, penal, **kwargs)
+                G, D = np.round(swarm.best_particle.best, 4)
             except SwarmConvergeError:
-                myprint(ERROR.format(name, ERR_CDHSs))
+                if verbose:
+                    print_error(name, ERR_CDHSs)
                 continue
-            cdhs_s = round((v ** G) * (t ** D), 4)
+            cdhs_s = round((vel ** G) * (tem ** D), 4)
 
             cdhs = np.round(cdhs_i*.99 + cdhs_s*.01, 4)
             results.append((name, A, B, cdhs_i, G, D, cdhs_s, cdhs, habc))
-            myprint(MESSAGE.format(*results[-1]), end='\t\t')
-            if constraint == 'crs':
-                myprint('[ {:02}  {:02} : {:02}  {:02} ]'.format(it_i-49, ci,
-                                                                 it_s-49, cs))
-            else:
-                myprint('[ {:02} : {:02} ]'.format(it_i-49, it_s-49))
 
-            ii = _ + 1
-            prog = (ii * (TOTAL_CHAR - 10)) // total
-            myprint(PROGRESS_BAR.format('='*prog, (ii*100)//total), end='\r')
+            if verbose:
+                print_results(_+1, total, results[-1], [it_i-99, it_s-99])
 
-        myprint('-' * TOTAL_CHAR + '\n')
+        if verbose:
+            print('-' * TOTAL_CHAR + '\n')
 
         fpath = path.join('res', fname.format(constraint))
         with open(fpath, 'w') as resfile:
             csv.writer(resfile).writerows(results)
 
-    myprint('')
+    if verbose:
+        print('')
