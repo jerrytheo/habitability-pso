@@ -131,14 +131,35 @@ class Swarm:
 
 
 # Function for convergence.
-def converge(pts, fn, pso_params, restarts=3):
-    """Wait for convergence by PSO."""
-    for _ in range(restarts):
-        try:
-            swarm = Swarm(pts, fn, **pso_params)
-            converged = swarm.converge()
-            return swarm, converged
-        except SwarmConvergeError:
-            pass
-    raise SwarmConvergeError('no convergence after '
-                             + restarts + ' restarts.')
+def conmax_by_pso(function, start_points, penalty, friction=.8, learnrate1=.1,
+                  learnrate2=.1, max_velocity=1.):
+    """Perform constrained maximization of the given function using particle
+    swarm optimization.
+
+    Arguments:
+        function: function(positions) -> fitness_values
+            The function to maximize. The function should take as an argument a
+            ndarray of shape (N, D) and return an 1d array of size N.
+        start_points: ndarray of shape (N, D)
+            An array of points to begin PSO from, where N is the number of
+            points, and D the dimensionality of each point.
+        penalty: function(position) -> penalty_value
+            The penalty function corresponding to the constraints. The function
+            should take as an argument a ndarray of shape (N, D) and return an
+            1d array of size N.
+        friction: float, default 0.8
+            The velocity is scaled by friction before updating.
+                    velocity = friction*velocity + dv_g + dv_l
+        learnrate1: float, default 0.1
+            The global learning rate.
+                    dv_g = learnrate1 * random(0, 1) * (gbest - current)
+        learnrate2: float, default 0.1
+            The local learning rate.
+                    dv_l = learnrate2 * random(0, 1) * (lbest - current)
+        max_velocity: float, default 1.0
+            The threshold for velocity.
+    Returns:
+        a 2-tuple (swarm, it), where swarm is the converged particle swarm and
+        it are the number of iterations taken to converge.
+    """
+    pass

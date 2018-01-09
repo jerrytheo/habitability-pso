@@ -91,11 +91,11 @@ def evaluate_cdhs_values(exoplanets, fname='cdhs_{0}.csv', verbose=True,
             tem = row['STemp']
 
             # CDHS interior.
-            start = initialize_cdhpf(npart, constraint)
             cdhpf = construct_cdhpf(rad, den, constraint)
+            start = initialize_cdhpf(npart, constraint)
             penal = functools.partial(penalize_cdhpf, constraint=constraint)
             try:
-                swarm, it_i = converge(start, cdhpf, penal, **kwargs)
+                swarm, it_i = converge(cdhpf, start, penal, **kwargs)
                 A, B = np.round(swarm.best_particle.best, 4)
             except SwarmConvergeError:
                 if verbose:
@@ -104,11 +104,11 @@ def evaluate_cdhs_values(exoplanets, fname='cdhs_{0}.csv', verbose=True,
             cdhs_i = round((rad ** A) * (den ** B), 4)
 
             # CDHS surface.
-            start = initialize_cdhpf(npart, constraint)
             cdhpf = construct_cdhpf(vel, tem, constraint)
+            start = initialize_cdhpf(npart, constraint)
             penal = functools.partial(penalize_cdhpf, constraint=constraint)
             try:
-                swarm, it_s = converge(start, cdhpf, penal, **kwargs)
+                swarm, it_s = converge(cdhpf, start, penal, **kwargs)
                 G, D = np.round(swarm.best_particle.best, 4)
             except SwarmConvergeError:
                 if verbose:
