@@ -10,6 +10,50 @@ class SwarmConvergeError(Exception):
     pass
 
 
+class Swarm2:
+    def __init__(self, start_points, fitness_fn, friction=1.0, learnrate1=0.04,
+                 learnrate2=0.16, max_velocity=.1):
+        self.c1 = learnrate1
+        self.c2 = learnrate2
+        self.fc = friction
+        self.fn = lambda x: _round(fitness_fn(x))
+        self.cap = max_velocity
+
+        self.P = _round(start_points)
+        self.L = self.P.copy()
+        self.V = _uniform(-self.cap, self.cap, self.P.shape)
+        self.C = self.eval_constraints(self.P)
+
+        self.fit_P = self.eval_fitness(self.P)
+        self.fit_L = self.fit_P.copy()
+
+        self.fit_g = self.fit_L[self.fit_L == np.max(self.fit_L)]
+        self.g = self.L[self.fit_L == self.fit_g]
+    
+    def eval_constraints(self, positions):
+        pass
+
+    def eval_fitness(self, positions):
+        pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 class Particle:
 
     """A single particle of the swarm."""
@@ -54,12 +98,13 @@ class Swarm:
 
     def __init__(self, positions, *args, **kwargs):
         self.particles = [Particle(pos, *args, **kwargs) for pos in positions]
+        self.local_bests = np.array([p.best for p in self.particles])
         self.best_particle = max(self.particles, key=lambda p: p.best_fitness)
         self.global_best = self.best_particle.best_fitness
 
     def update(self, iteration):
         """Update all particles of the swarm."""
-        for particle in self.particles:
+        for _, particle in enumerate(self.particles):
             particle.update(self.best_particle.best, iteration)
             if particle.best_fitness > self.global_best:
                 self.best_particle = particle

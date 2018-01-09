@@ -4,82 +4,93 @@ from ..utils import _uniform
 ERR = 1e-6
 
 
-def evaluate_theta_gamma(q):
-    """Returns a 2-tuple (theta, gamma) or numpy arrays of q.size
-    elements. theta and gamma are values assigned by the respective
-    piecewise functions for q.
-    """
-    theta_conditions = [q < 1e-4, q < .001, q < .01, q < .1, q >= .1]
-    theta_assignments = [1e4, 5e4, 1e5, 5e5, 1e6]
-    theta = np.piecewise(q, theta_conditions, theta_assignments)
-    gamma = np.piecewise(q, [q < 1, q >= 1], [.5, 2])
-    return (theta, gamma)
+def initialize_cdhpf(npoints, constraint):
+    """Initialize the points from where the Particle Swarm Optimization
+    begins converging.
 
-
-def _penalty_crs(pos, k):
-    """Calculate the penalty for CDHPF under the CRS constraint."""
-    q = np.array((
-        max(-pos[0] + ERR, 0),                  # pos[0] > 0
-        max(-pos[1] + ERR, 0),                  # pos[1] > 0
-        max(pos[0] - 1 + ERR, 0),               # pos[0] < 1
-        max(pos[1] - 1 + ERR, 0),               # pos[1] < 1
-        max(pos[0] + pos[1] - ERR - 1, 0),      # pos[0] + pos[1] - d < 1
-        max(1 - ERR - pos[0] - pos[1], 0),      # pos[0] + pos[1] - d < 1
-    ), dtype=np.float)
-
-    theta, gamma = evaluate_theta_gamma(q)
-    return (k+1) * np.sqrt(k+1) * np.sum(theta * (q**gamma))
-
-
-def _penalty_drs(pos, k):
-    """Calculate the penalty for CDHPF under the DRS constraint."""
-    q = np.array((
-        max(ERR - pos[0], 0),                       # pos[0] > 0
-        max(ERR - pos[1], 0),                       # pos[1] > 0
-        max(ERR + pos[0] - 1, 0),                   # pos[0] < 1
-        max(ERR + pos[1] - 1, 0),                   # pos[1] < 1
-        max(ERR + pos[0] + pos[1] - 1, 0)           # pos[0] + pos[1] < 1
-    ), dtype=np.float)
-
-    theta, gamma = evaluate_theta_gamma(q)
-    return (k+1) * np.sqrt(k+1) * np.sum(theta * (q**gamma))
-
-
-def _initialize_crs(npoints):
-    """Initialize npoints points for the CRS constraint."""
-    xvals = _uniform(0, 1, (npoints, 1))
-    condn = (xvals == 0)
-    while condn.any():
-        xvals[condn] = _uniform(0, 1, xvals[condn].shape)
-        condn = (xvals == 0)
-    return np.hstack((xvals, 1-xvals))
-
-
-def _initialize_drs(npoints):
-    """Initialize npoints points for the DRS constraint."""
-    xvals = _uniform(0, 1, (npoints, 2))
-    condn = (xvals.sum(axis=1) >= 1)
-    while condn.any():
-        xvals[condn] = _uniform(0, 1, xvals[condn].shape)
-        condn = (xvals.sum(axis=1) >= 1)
-    return xvals
-
-
-def construct_cdhpf(npoints, coeff1, coeff2, constraint):
-    """Initialize points and create the CDHS function by substituting
-    the exoplanet parameters. Constraint could be CRS or DRS. Returns a
-    2-tuple (points, cdhpf).
+    Arguments:
+        npoints: int
+            Number of points to initialize.
+        constraint: 'crs' or 'drs'
+            Constraint to satisfy.
+    Returns:
+        numpy.ndarray of dim (npoints, 2) that satisfy constraint.
     """
     if constraint == 'crs':
-        points = _initialize_crs(npoints)
-        penalty = _penalty_crs
+        xvals = _uniform(0, 1, (npoints, 1))
+        condn = (xvals == 0)
+        while condn.any():
+            xvals[condn] = _uniform(0, 1, xvals[condn].shape)
+            condn = (xvals == 0)
+        points = np.hstack((xvals, 1-xvals))
+
     elif constraint == 'drs':
-        points = _initialize_drs(npoints)
-        penalty = _penalty_drs
+        xvals = _uniform(0, 1, (npoints, 2))
+        condn = (xvals.sum(axis=1) >= 1)
+        while condn.any():
+            xvals[condn] = _uniform(0, 1, xvals[condn].shape)
+            condn = (xvals.sum(axis=1) >= 1)
+        points = xvals
+
     else:
-        raise ValueError('Do not understand constraint: ' + constraint)
+        raise ValueError('invalid constraint: ' + constraint)
 
-    def cdhpf(pos, k=1):
-        return (coeff1 ** pos[0]) * (coeff2 ** pos[1]) - penalty(pos, k)
+    return points
 
-    return (points, cdhpf)
+
+def construct_cdhpf(exo_param1, exo_param2, constraint):
+    """Construct the CDHS function for the given exoplanet parameters.
+
+    Arguments:
+        exo_param1, exo_param2: float
+            The coefficients for the CDHPF.
+        constraint: 'crs' or 'drs'
+            Constraint to satisfy.
+    Returns:
+        function cdhpf(points) -> fitness values for each point.
+            points -- ndarray, each row is a point of size 2.
+    """
+    def cdhpf(points):
+        """Return the CDHPF value for each point in the Swarm."""
+        return (exo_param1 ** points.T[0]) * (exo_param2 ** points.T[1])
+    return cdhpf
+
+
+def penalize_cdhpf(points, constraint):
+    """Evaluate the penalty for each point if it violates constraints.
+    Arguments:
+        points: ndarray of shape (N, 2).
+            The points to evaluate the penalty for.
+        constraint:
+            The constraint to satisfy.
+    Returns:
+        array of size N.
+    """
+    # Common constraints are:
+    # 1. x[0] < 0               2. x[0] > 1
+    # 3. x[1] < 0               4. x[1] > 1
+    if constraint == 'crs':
+        # Constraints are:
+        # 5. x[0]+x[1] < 1          6. x[0]+x[1] > 1
+        q = np.apply_along_axis(lambda x: np.array((
+                    max(ERR - x[0], 0), max(ERR + x[0] - 1, 0),
+                    max(ERR - x[1], 0), max(ERR + x[1] - 1, 0),
+                    max(x[0] + x[1] - ERR - 1, 0),
+                    max(1 - ERR - x[0] - x[1], 0)
+                )), axis=0, arr=points)
+    elif constraint == 'drs':
+        # Constraints are:
+        # 5. x[0]+x[1] < 1
+        q = np.apply_along_axis(lambda x: np.array((
+                    max(ERR - x[0], 0), max(ERR + x[0] - 1, 0),
+                    max(ERR - x[1], 0), max(ERR + x[1] - 1, 0),
+                    max(ERR + x[0] + x[1] - 1, 0)
+                )), axis=0, arr=points)
+    else:
+        raise ValueError('invalid constraint: ' + constraint)
+
+    theta_condns = [q < 1e-4, q < .001, q < .01, q < .1, q >= .1]
+    theta_assign = [1e4, 5e4, 1e5, 5e5, 1e6]
+    theta = np.piecewise(q, theta_condns, theta_assign)
+    gamma = np.piecewise(q, [q < 1, q >= 1], [.5, 2])
+    return (theta * (q ** gamma)).sum(axis=1)
