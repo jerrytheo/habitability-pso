@@ -1,5 +1,5 @@
 import numpy as np
-from ..utils import _uniform
+from numpy.random import uniform
 
 
 def initialize_points(npoints, constraint):
@@ -15,18 +15,18 @@ def initialize_points(npoints, constraint):
         numpy.ndarray of dim (npoints, 2) that satisfy constraint.
     """
     if constraint == 'crs':
-        xvals = _uniform(0, 1, (npoints, 1))
+        xvals = uniform(0, 1, (npoints, 1))
         condn = (xvals == 0)
         while condn.any():
-            xvals[condn] = _uniform(0, 1, xvals[condn].shape)
+            xvals[condn] = uniform(0, 1, xvals[condn].shape)
             condn = (xvals == 0)
         points = np.hstack((xvals, 1-xvals))
 
     elif constraint == 'drs':
-        xvals = _uniform(0, 1, (npoints, 2))
+        xvals = uniform(0, 1, (npoints, 2))
         condn = (xvals.sum(axis=1) >= 1)
         while condn.any():
-            xvals[condn] = _uniform(0, 1, xvals[condn].shape)
+            xvals[condn] = uniform(0, 1, xvals[condn].shape)
             condn = (xvals.sum(axis=1) >= 1)
         points = xvals
 
@@ -50,46 +50,44 @@ def construct_fitness(exo_param1, exo_param2, constraint):
     """
     def cdhpf(points):
         """Return the CDHPF value for each point in the Swarm."""
-        return (exo_param1 ** points.T[0]) * (exo_param2 ** points.T[1])
+        return (exo_param1 ** points.T[0]) * (exo_param1 ** points.T[1])
     return cdhpf
 
 
-def get_constraint_fn(constraint):
+def get_constraint_fn(constraint, err=1e-6, thr=1e-6):
     """Construct the constraint matrix for the points.
 
     Arguments:
-        constraint:
-            The constraint to satisfy.
+        constraint: 'crs' or 'drs'
+            Constraint to satisfy.
+        err: float, default 1e-6
+            Acceptable error in converting strict inequality to non-strict.
+        thr: float, default 1e-5
+            Threshold in converting equality constraint to inequality.
     Returns:
         function check_constraints(points) -> constraint matrix
             points -- darray, each row is a point of size 2.
     """
-    ERR = 1e-6
     if constraint == 'crs':
-        DEL = 1e-5
 
         def check_constraints(points):
             """Return the crs constraint matrix for the points."""
             return np.apply_along_axis(lambda x: np.array((
-                    max(ERR - x[0], 0),                 # x[0] > 0
-                    max(ERR + x[0] - 1, 0),             # x[0] < 1
-                    max(ERR - x[1], 0),                 # x[1] > 0
-                    max(ERR + x[1] - 1, 0),             # x[1] < 1
-                    max(x[0] + x[1] - DEL - 1, 0),      # x[0] + x[1] - del < 1
-                    max(1 - DEL - x[0] - x[1], 0)       # x[0] + x[1] + del > 1
-                )), axis=0, arr=points)
+                    np.max((err - x[0], 0)), np.max((err + x[0] - 1, 0)),
+                    np.max((err - x[1], 0)), np.max((err + x[1] - 1, 0)),
+                    np.max((x[0] + x[1] - thr - 1, 0)),
+                    np.max((1 - thr - x[0] - x[1], 0)),
+                )), axis=1, arr=points)
 
     elif constraint == 'drs':
 
         def check_constraints(points):
             """Return the drs constraint matrix for the points."""
             return np.apply_along_axis(lambda x: np.array((
-                    max(ERR - x[0], 0),                 # x[0] > 0
-                    max(ERR + x[0] - 1, 0),             # x[0] < 1
-                    max(ERR - x[1], 0),                 # x[1] > 0
-                    max(ERR + x[1] - 1, 0),             # x[1] < 1
-                    max(ERR + x[0] + x[1] - 1, 0)       # x[0] + x[1] < 1
-                )), axis=0, arr=points)
+                    np.max((err - x[0], 0)), np.max((err + x[0] - 1, 0)),
+                    np.max((err - x[1], 0)), np.max((err + x[1] - 1, 0)),
+                    np.max((err + x[0] + x[1] - 1, 0)),
+                )), axis=1, arr=points)
 
     else:
         raise ValueError('invalid constraint: ' + constraint)

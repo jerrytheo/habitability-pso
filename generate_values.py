@@ -1,20 +1,20 @@
 #!/usr/bin/python
 
 from functools import partial
-from sys import argv
+import sys
 
 from source import exoplanets
 from source import evaluate_cdhs_values
-from source import evaluate_ceesa_values
+#  from source import evaluate_ceesa_values
 
 
 # Parameters for the swarm.
 pso_params = {
     'npart': 25,                        # Number of particles.
-    'friction': .4,                     # Friction coefficient.
-    'learnrate1': .06,                  # c1 learning rate.
-    'learnrate2': .14,                  # c2 learning rate.
-    'max_velocity': .3,                 # Max. velocity.
+    'friction': .6,                     # Friction coefficient.
+    'learnrate1': .8,                   # c1 learning rate.
+    'learnrate2': .2,                   # c2 learning rate.
+    'max_velocity': 1.,                 # Max. velocity.
 }
 
 
@@ -41,17 +41,17 @@ OPTIONAL ARGUMENTS:
 """
 
 evaluate = {
-        'cdhs': evaluate_cdhs_values,
-        'ceesa': evaluate_ceesa_values,
-        }
+    'cdhs': evaluate_cdhs_values,
+    'ceesa': lambda x: None,
+}
 
 
 # Handle arguments.
-args = argv[1:]
+args = sys.argv[1:]
 single = True
 verbose = False
 invalid = 'Invalid usage.\n' + help_text
-fname_debug = ''
+debug = ''
 
 try:
     while args:
@@ -66,6 +66,7 @@ try:
                 del evaluate['ceesa']
             else:
                 print(invalid)
+                sys.exit(-1)
 
         # --multiple <param> <start> <stop> [<step>]
         elif argname == '--multiple':
@@ -81,6 +82,7 @@ try:
         # --help or -h
         elif argname in ['--help', '-h']:
             print(help_text)
+            sys.exit(0)
 
         # --verbose or -v
         elif argname in ['--verbose', '-v']:
@@ -92,16 +94,18 @@ try:
             debug = '_sample'
         else:
             print(invalid)
+            sys.exit(-1)
 
 except (IndexError, ValueError):
     print(invalid)
+    sys.exit(-1)
 
 
 try:
     for score, fn in evaluate.items():
         fn = partial(fn, exoplanets, verbose=verbose)
         if single:                                              # Aww...
-            fname = '{score}_{{0}}{debug}.csv'.format(sc=score, db=debug)
+            fname = '{sc}_{{0}}{db}.csv'.format(sc=score, db=debug)
             fn(fname=fname, **pso_params)
         else:
             for pso_params[param] in range(start, stop+step, step):

@@ -1,8 +1,10 @@
 import numpy as np
+from numpy.random import uniform
 from scipy.spatial import distance
-#  import sys
+import sys
 
-from ..utils import _round, _uniform
+
+def dprint(*args, **kwargs): print(*args, **kwargs, end='\n\n')
 
 
 # Exception raised when Swarm does not converge.
@@ -25,12 +27,13 @@ def get_leaders(position, lbest):
     Returns:
         ndarray of shape (N, D) with the leaders for each corresponding point.
     """
-    return np.argmin(distance.cdist(position, lbest), axis=1)
+    return np.argmin(distance.cdist(position, lbest, metric='sqeuclidean'),
+                     axis=1)
 
 
 # Function that updates local best. Not all local bests may be updated. Depends
 # on the method used for get_leaders.
-def update_lbest(lbest, positions, constraints):
+def update_lbest(lbest, positions, constraints, err=1e-5):
     """Update local best to positions based on constraints. lbest is updated in
     place.
 
@@ -41,18 +44,20 @@ def update_lbest(lbest, positions, constraints):
             Array of the current position of each point.
         constraints: ndarray of shape (N, S)
             Constraint matrix. S is the number of constraints.
+        err: float, default 1e-6
+            Acceptable error in constraint mismatch.
     Note:
         lbest and position should be such that,
             fitness(position) > fitness(lbest)
     """
-    condn = (constraints.sum(axis=1) == 0)
+    condn = (constraints.sum(axis=1) < err)
     lbest[condn] = positions[condn]
 
 
 # Function for convergence.
 def conmax_by_pso(fitness, start_points, constraints, friction=.8,
                   learnrate1=.1, learnrate2=.1, max_velocity=1.,
-                  max_iter=1000, stable_iter=100, thresh=1e-5):
+                  max_iter=1000, stable_iter=100, thresh=1e-6):
     """Perform constrained maximization of the given fitness using particle
     swarm optimization.
 
@@ -90,44 +95,46 @@ def conmax_by_pso(fitness, start_points, constraints, friction=.8,
     """
     # Initial position and velocity.
     position = start_points
-    velocity = _uniform(-max_velocity, max_velocity, position.shape)
+    velocity = uniform(-max_velocity, max_velocity, position.shape)
 
     # Initial local best for each point and global best.
-    lbest = start_points
+    lbest = position.copy()
     gbest = lbest[np.argmax(fitness(lbest))]
 
     stable_count = 0
     for ii in range(max_iter):
         # Store old for threshold comparison.
-        old_g = gbest
+        gbest_fit = fitness(gbest)
 
-        # Determine the global velocity gradient.
-        co_g = _round(learnrate1 * _uniform(0, 1))
-        dv_g = _round(co_g * (gbest - position))
-
-        # Determine the local velocity gradient.
+        # Determine the velocity gradients.
         leaders = get_leaders(position, lbest)
-        co_l = _round(learnrate2 * _uniform(0, 1))
-        dv_l = _round(co_l * (lbest[leaders] - position))
+        dv_g = learnrate1 * uniform(0, 1) * (gbest - position)
+        dv_l = learnrate2 * uniform(0, 1) * (lbest[leaders] - position)
 
         # Update velocity such that |velocity| <= max_velocity.
-        velocity = _round(friction * velocity) + (dv_g + dv_l)
-        chk = (velocity > max_velocity)
+        velocity *= friction
+        velocity += (dv_g + dv_l)
+        chk = (np.abs(velocity) > max_velocity)
         velocity[chk] = np.sign(velocity[chk]) * max_velocity
 
         # Update the local and global bests.
-        position = _round(position + velocity)
-        improved = (fitness(position) > fitness(lbest))
-        update_lbest(lbest[improved], position[improved],
-                     constraints(position[improved]))
-        gbest = lbest[np.argmax(fitness(lbest))]
+        position += velocity
+        conmatrix = constraints(position)
+        to_update = (fitness(position) > fitness(lbest))
+
+        if to_update.any():
+            to_update &= (conmatrix.sum(axis=1) < thresh)
+            lbest[to_update] = position[to_update]
+            gbest = lbest[np.argmax(fitness(lbest))]
 
         # Termination criteria.
-        if np.abs(old_g - gbest) < thresh:
+        if np.abs(gbest_fit - fitness(gbest)) < thresh:
             stable_count += 1
             if stable_count == stable_iter:
                 return (gbest, ii)
         else:
             stable_count = 0
+
     else:
-        raise SwarmConvergeError('no convergence. stable_count='+stable_count)
+        raise SwarmConvergeError('no convergence. stable_count=' +
+                                 str(stable_count))

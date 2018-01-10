@@ -27,7 +27,7 @@ def print_header(constraint, headers):
 
     print('\n' + spaces + constraint.upper())
     print(spaces + '-'*len(constraint) + '\n')
-    print(TITLE.format(headers))
+    print(TITLE.format(*headers))
 
     print('-' * TOTAL_CHAR, end='\t\t')
     print('  inn : sur  ')
@@ -43,9 +43,8 @@ def print_results(it, total, values, iters):
     print(MESSAGE.format(*values), end='\t\t')
     print('[ {:03} : {:03} ]'.format(*iters))
 
-    ii = it + 1
-    prog = (ii * (TOTAL_CHAR - 10)) // total
-    print(PROGRESS_BAR.format('='*prog, (ii*100)//total), end='\r')
+    prog = (it * (TOTAL_CHAR - 10)) // total
+    print(PROGRESS_BAR.format('='*prog, (it*100)//total), end='\r')
 
 
 # Function to evaluate CDHS values.
