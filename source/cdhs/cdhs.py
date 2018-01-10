@@ -1,11 +1,11 @@
 import csv
-#  import itertools
-import functools
 import numpy as np
 from os import path
 
-from .cdhs_fn import initialize_cdhpf, construct_cdhpf, penalize_cdhpf
-from ..pso import converge, SwarmConvergeError
+from .cdhs_fn import construct_fitness
+from .cdhs_fn import get_constraint_fn
+from .cdhs_fn import initialize_points
+from ..pso import conmax_by_pso, SwarmConvergeError
 
 
 # Miscellaneous Consts.
@@ -77,6 +77,7 @@ def evaluate_cdhs_values(exoplanets, fname='cdhs_{0}.csv', verbose=True,
 
     for constraint in ['crs']:
         results = [HEADERS]
+        check = get_constraint_fn(constraint)
 
         if verbose:
             print_header(constraint, results[-1])
@@ -91,30 +92,30 @@ def evaluate_cdhs_values(exoplanets, fname='cdhs_{0}.csv', verbose=True,
             tem = row['STemp']
 
             # CDHS interior.
-            cdhpf = construct_cdhpf(rad, den, constraint)
-            start = initialize_cdhpf(npart, constraint)
-            penal = functools.partial(penalize_cdhpf, constraint=constraint)
+            cdhpf = construct_fitness(rad, den, constraint)
+            start = initialize_points(npart, constraint)
+
             try:
-                swarm, it_i = converge(cdhpf, start, penal, **kwargs)
-                A, B = np.round(swarm.best_particle.best, 4)
+                gbest, it_i = conmax_by_pso(cdhpf, start, check, **kwargs)
             except SwarmConvergeError:
-                if verbose:
-                    print_error(name, ERR_CDHSi)
+                print_error(name, ERR_CDHSi)
                 continue
-            cdhs_i = round((rad ** A) * (den ** B), 4)
+
+            A, B = np.round(gbest, 4)
+            cdhs_i = np.round(cdhpf(gbest), 4)
 
             # CDHS surface.
-            cdhpf = construct_cdhpf(vel, tem, constraint)
-            start = initialize_cdhpf(npart, constraint)
-            penal = functools.partial(penalize_cdhpf, constraint=constraint)
+            cdhpf = construct_fitness(vel, tem, constraint)
+            start = initialize_points(npart, constraint)
+
             try:
-                swarm, it_s = converge(cdhpf, start, penal, **kwargs)
-                G, D = np.round(swarm.best_particle.best, 4)
+                gbest, it_s = conmax_by_pso(cdhpf, start, check, **kwargs)
             except SwarmConvergeError:
-                if verbose:
-                    print_error(name, ERR_CDHSs)
+                print_error(name, ERR_CDHSs)
                 continue
-            cdhs_s = round((vel ** G) * (tem ** D), 4)
+
+            G, D = np.round(gbest, 4)
+            cdhs_s = np.round(cdhpf(gbest), 4)
 
             cdhs = np.round(cdhs_i*.99 + cdhs_s*.01, 4)
             results.append((name, A, B, cdhs_i, G, D, cdhs_s, cdhs, habc))

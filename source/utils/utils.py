@@ -1,7 +1,9 @@
-from functools import partial
 import numpy as np
+import sys
 
-_round = partial(np.round, decimals=6)
+
+def _round(*args, **kwargs):
+    return np.round(*args, **kwargs, decimals=6)
 
 
 def _uniform(*args, **kwargs):
