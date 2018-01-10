@@ -1,6 +1,6 @@
 import numpy as np
 from numpy.random import uniform
-from scipy.spatial import distance
+from scipy.spatial.distance import cdist
 import sys
 
 
@@ -13,51 +13,10 @@ class SwarmConvergeError(Exception):
     pass
 
 
-# Function that returns the leaders. Implementation may change to include more
-# complex methods.
-def get_leaders(position, lbest):
-    """Return the leaders for each position from lbest.
-
-    Arguments:
-        position: ndarray of shape (N, D)
-            Array of the current position of each point. N is the number of
-            points and D the dimensions.
-        lbest: ndarray of shape (N, D)
-            Array of the local best position of each point.
-    Returns:
-        ndarray of shape (N, D) with the leaders for each corresponding point.
-    """
-    return np.argmin(distance.cdist(position, lbest, metric='sqeuclidean'),
-                     axis=1)
-
-
-# Function that updates local best. Not all local bests may be updated. Depends
-# on the method used for get_leaders.
-def update_lbest(lbest, positions, constraints, err=1e-5):
-    """Update local best to positions based on constraints. lbest is updated in
-    place.
-
-    Arguments:
-        lbest: ndarray of shape (N, D)
-            Array of current local best positions of each point.
-        position: ndarray of shape (N, D)
-            Array of the current position of each point.
-        constraints: ndarray of shape (N, S)
-            Constraint matrix. S is the number of constraints.
-        err: float, default 1e-6
-            Acceptable error in constraint mismatch.
-    Note:
-        lbest and position should be such that,
-            fitness(position) > fitness(lbest)
-    """
-    condn = (constraints.sum(axis=1) < err)
-    lbest[condn] = positions[condn]
-
-
 # Function for convergence.
 def conmax_by_pso(fitness, start_points, constraints, friction=.8,
                   learnrate1=.1, learnrate2=.1, max_velocity=1.,
-                  max_iter=1000, stable_iter=100, thresh=1e-6):
+                  max_iter=1000, stable_iter=100, thresh=1e-8):
     """Perform constrained maximization of the given fitness using particle
     swarm optimization.
 
@@ -107,7 +66,7 @@ def conmax_by_pso(fitness, start_points, constraints, friction=.8,
         gbest_fit = fitness(gbest)
 
         # Determine the velocity gradients.
-        leaders = get_leaders(position, lbest)
+        leaders = np.argmin(cdist(position, lbest, 'sqeuclidean'), axis=1)
         dv_g = learnrate1 * uniform(0, 1) * (gbest - position)
         dv_l = learnrate2 * uniform(0, 1) * (lbest[leaders] - position)
 
@@ -120,10 +79,11 @@ def conmax_by_pso(fitness, start_points, constraints, friction=.8,
         # Update the local and global bests.
         position += velocity
         conmatrix = constraints(position)
+        #  print(conmatrix)
         to_update = (fitness(position) > fitness(lbest))
+        to_update &= (conmatrix.sum(axis=1) < thresh)
 
         if to_update.any():
-            to_update &= (conmatrix.sum(axis=1) < thresh)
             lbest[to_update] = position[to_update]
             gbest = lbest[np.argmax(fitness(lbest))]
 

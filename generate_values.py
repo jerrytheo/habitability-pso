@@ -90,7 +90,7 @@ try:
 
         # --debug
         elif argname == '--debug':
-            exoplanets = exoplanets.sample(30)
+            exoplanets = exoplanets.sample(int(args.pop(0)))
             debug = '_sample'
         else:
             print(invalid)

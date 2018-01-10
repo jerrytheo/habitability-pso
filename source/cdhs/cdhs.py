@@ -74,7 +74,7 @@ def evaluate_cdhs_values(exoplanets, fname='cdhs_{0}.csv', verbose=True,
     exoplanets.reset_index(drop=True, inplace=True)
     total = len(exoplanets)
 
-    for constraint in ['crs']:
+    for constraint in ['crs', 'drs']:
         results = [HEADERS]
         check = get_constraint_fn(constraint)
 
@@ -100,6 +100,7 @@ def evaluate_cdhs_values(exoplanets, fname='cdhs_{0}.csv', verbose=True,
                 print_error(name, ERR_CDHSi)
                 continue
 
+            print(np.round(np.sum(gbest), 6), end='\t\t')
             A, B = np.round(gbest, 4)
             cdhs_i = np.round(cdhpf(gbest), 4)
 
@@ -113,6 +114,7 @@ def evaluate_cdhs_values(exoplanets, fname='cdhs_{0}.csv', verbose=True,
                 print_error(name, ERR_CDHSs)
                 continue
 
+            print(np.round(np.sum(gbest), 6))
             G, D = np.round(gbest, 4)
             cdhs_s = np.round(cdhpf(gbest), 4)
 

@@ -54,7 +54,7 @@ def construct_fitness(exo_param1, exo_param2, constraint):
     return cdhpf
 
 
-def get_constraint_fn(constraint, err=1e-6, thr=1e-6):
+def get_constraint_fn(constraint, err=1e-6, thr=1e-7):
     """Construct the constraint matrix for the points.
 
     Arguments:
@@ -92,9 +92,4 @@ def get_constraint_fn(constraint, err=1e-6, thr=1e-6):
     else:
         raise ValueError('invalid constraint: ' + constraint)
 
-    #  theta_condns = [q < 1e-4, q < .001, q < .01, q < .1, q >= .1]
-    #  theta_assign = [1e4, 5e4, 1e5, 5e5, 1e6]
-    #  theta = np.piecewise(q, theta_condns, theta_assign)
-    #  gamma = np.piecewise(q, [q < 1, q >= 1], [.5, 2])
-    #  return (theta * (q ** gamma)).sum(axis=1)
     return check_constraints
