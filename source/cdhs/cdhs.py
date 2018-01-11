@@ -124,7 +124,7 @@ def evaluate_cdhs_values(exoplanets, fname='cdhs_{0}.csv', verbose=True,
         if verbose:
             print('-' * TOTAL_CHAR + '\n')
 
-        fpath = path.join('res', fname.format(constraint))
+        fpath = path.join('results', fname.format(constraint))
         with open(fpath, 'w') as resfile:
             csv.writer(resfile).writerows(results)
 
