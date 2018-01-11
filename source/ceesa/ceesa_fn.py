@@ -1,5 +1,6 @@
 import numpy as np
 from numpy.random import uniform
+import warnings
 
 
 def initialize_points(npoints, constraint):
@@ -42,7 +43,7 @@ def construct_fitness(ep0, ep1, ep2, ep3, ep4, constraint):
             The coefficients for CEESA.
         constraint: 'crs' or 'drs'
             Constraint to satisfy.
-    
+
     Returns:
         function ceesa(points) -> fitness values for each point.
             points -- ndarray, each row is a point of size 6 (crs) or 7 (drs).
@@ -58,15 +59,18 @@ def construct_fitness(ep0, ep1, ep2, ep3, ep4, constraint):
 
         def ceesa(points):
             """Return the CRS-CEESA score for each point in the Swarm."""
-            P = points.T
-            return (P[:5] * (coeff ** P[5,None])).sum(axis=0) ** (1 / P[5])
+            warnings.simplefilter('ignore')
+            P = points.T if points.ndim == 2 else points[:, None]
+            s = (P[:5] * (coeff ** P[5, None])).sum(axis=0) ** (1 / P[5])
+            return s if s.size > 1 else s[0]
 
     elif constraint == 'drs':
 
         def ceesa(points):
             """Return the DRS-CEESA score for each point in the Swarm."""
-            P = points.T
-            return (P[:5] * (coeff ** P[5,None])).sum(axis=0) ** (P[6] / P[5])
+            P = points.T if points.ndim == 2 else points[:, None]
+            s = (P[:5] * (coeff ** P[5, None])).sum(axis=0) ** (P[6] / P[5])
+            return s if s.size > 1 else s[0]
 
     else:
         raise ValueError('invalid constraint: ' + constraint)
@@ -110,7 +114,7 @@ def get_constraint_fn(constraint, err=1e-6, thr=1e-7):
              3. x[j] >  0;  g(x[j]) =     err - x[5];   x[j]: rho, eta,
             4a. x[5] <= 1;  g(x[5]) =       x[5] - 1;   x[5]: rho,
             4b. x[6] <  1;  g(x[6]) = err + x[6] - 1;   x[6]: eta,
-          
+
             5a. sum(x[i]) <= 1 + del;   g(x[i]) = sum(x[i]) - 1 - del;
             5b. sum(x[i]) >= 1 - del;   g(x[i]) = 1 - del - sum(x[i]);
 

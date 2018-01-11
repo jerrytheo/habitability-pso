@@ -5,7 +5,7 @@ import sys
 
 from source import exoplanets
 from source import evaluate_cdhs_values
-#  from source import evaluate_ceesa_values
+from source import evaluate_ceesa_values
 
 
 # Parameters for the swarm.
@@ -42,7 +42,7 @@ OPTIONAL ARGUMENTS:
 
 evaluate = {
     'cdhs': evaluate_cdhs_values,
-    'ceesa': lambda x: None,
+    'ceesa': evaluate_ceesa_values,
 }
 
 
