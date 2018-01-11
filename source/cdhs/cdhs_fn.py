@@ -4,7 +4,7 @@ from numpy.random import uniform
 
 def initialize_points(npoints, constraint):
     """Initialize the points from where the Particle Swarm Optimization
-    begins converging.
+    begins converging for CDHS.
 
     Arguments:
         npoints: int
@@ -12,7 +12,7 @@ def initialize_points(npoints, constraint):
         constraint: 'crs' or 'drs'
             Constraint to satisfy.
     Returns:
-        numpy.ndarray of dim (npoints, 2) that satisfy constraint.
+        numpy.ndarray of dim (npoints, 2) that satisfy the constraint.
     """
     if constraint == 'crs':
         xvals = uniform(0, 1, (npoints, 1))
@@ -23,12 +23,11 @@ def initialize_points(npoints, constraint):
         points = np.hstack((xvals, 1-xvals))
 
     elif constraint == 'drs':
-        xvals = uniform(0, 1, (npoints, 2))
+        points = uniform(0, 1, (npoints, 2))
         condn = (xvals.sum(axis=1) >= 1)
         while condn.any():
-            xvals[condn] = uniform(0, 1, xvals[condn].shape)
-            condn = (xvals.sum(axis=1) >= 1)
-        points = xvals
+            points[condn] = uniform(0, 1, points[condn].shape)
+            condn = (points.sum(axis=1) >= 1)
 
     else:
         raise ValueError('invalid constraint: ' + constraint)
@@ -55,14 +54,14 @@ def construct_fitness(exo_param1, exo_param2, constraint):
 
 
 def get_constraint_fn(constraint, err=1e-6, thr=1e-7):
-    """Construct the constraint matrix for the points.
+    """Construct the constraint matrix for CDHS.
 
     Arguments:
         constraint: 'crs' or 'drs'
             Constraint to satisfy.
         err: float, default 1e-6
             Acceptable error in converting strict inequality to non-strict.
-        thr: float, default 1e-5
+        thr: float, default 1e-7
             Threshold in converting equality constraint to inequality.
     Returns:
         function check_constraints(points) -> constraint matrix
@@ -71,7 +70,7 @@ def get_constraint_fn(constraint, err=1e-6, thr=1e-7):
     if constraint == 'crs':
 
         def check_constraints(points):
-            """Return the crs constraint matrix for the points."""
+            """Return the CRS constraint matrix for the points."""
             return np.apply_along_axis(lambda x: np.array((
                     np.max((err - x[0], 0)), np.max((err + x[0] - 1, 0)),
                     np.max((err - x[1], 0)), np.max((err + x[1] - 1, 0)),
@@ -82,7 +81,7 @@ def get_constraint_fn(constraint, err=1e-6, thr=1e-7):
     elif constraint == 'drs':
 
         def check_constraints(points):
-            """Return the drs constraint matrix for the points."""
+            """Return the DRS constraint matrix for the points."""
             return np.apply_along_axis(lambda x: np.array((
                     np.max((err - x[0], 0)), np.max((err + x[0] - 1, 0)),
                     np.max((err - x[1], 0)), np.max((err + x[1] - 1, 0)),
