@@ -24,7 +24,7 @@ def initialize_points(npoints, constraint):
 
     elif constraint == 'drs':
         points = uniform(0, 1, (npoints, 2))
-        condn = (xvals.sum(axis=1) >= 1)
+        condn = (points.sum(axis=1) >= 1)
         while condn.any():
             points[condn] = uniform(0, 1, points[condn].shape)
             condn = (points.sum(axis=1) >= 1)
