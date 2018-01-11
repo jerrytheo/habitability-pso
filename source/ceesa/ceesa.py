@@ -92,9 +92,10 @@ def evaluate_ceesa_values(exoplanets, fname='ceesa_{0}.csv', verbose=True,
                 continue
             score = np.round(ceesa(gbest), 4)
             if constraint == 'crs':
-                results.append([name, habc, *np.round(gbest, 4), 1, score, it])
+                results.append([name, habc, *np.round(gbest, 4), 1,
+                                score, it-99])
             else:
-                results.append([name, habc, *np.round(gbest, 4), score, it])
+                results.append([name, habc, *np.round(gbest, 4), score, it-99])
 
             if verbose:
                 print_results(_+1, total, results[-1])
