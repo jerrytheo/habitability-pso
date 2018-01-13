@@ -1,10 +1,6 @@
 import numpy as np
 from numpy.random import uniform
 from scipy.spatial.distance import cdist
-import sys
-
-
-def dprint(*args, **kwargs): print(*args, **kwargs, end='\n\n')
 
 
 # Exception raised when Swarm does not converge.
@@ -79,7 +75,6 @@ def conmax_by_pso(fitness, start_points, constraints, friction=.8,
         # Update the local and global bests.
         position += velocity
         conmatrix = constraints(position)
-        #  print(conmatrix)
         to_update = (fitness(position) > fitness(lbest))
         to_update &= (conmatrix.sum(axis=1) < thresh)
 
