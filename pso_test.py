@@ -1,9 +1,22 @@
 #!/usr/bin/python
 
 import numpy as np
-from pso import Swarm
+from source import conmax_by_pso
 
-swarm = Swarm(10, ndim=1, fn=lambda x: -(x**2), friction=0.7,
-              learn_rate1=.5, learn_rate2=.5, max_velocity=4.0)
-swarm.converge()
-print(np.round(swarm.best_particle.position, 4))
+
+def fun(x):
+    return -((x.T[0]-2)**2 + (x.T[1]-1)**2)
+
+
+def constraints(x):
+    return np.apply_along_axis(lambda x: np.array((
+        np.max((x[0] - 2*x[1] + 1 - 1e-7, 0)),
+        np.max((-x[0] + 2*x[1] - 1 - 1e-7, 0)),
+        np.max((((x[0]**2)/4) + (x[1]**2) - 1), 0)
+    )), axis=1, arr=x)
+
+
+start = np.random.uniform(0, 2, (25, 2))
+gbest, it = conmax_by_pso(fun, start, constraints, learnrate1=.7,
+                          learnrate2=.7, max_velocity=1.)
+print(-1*fun(gbest))
