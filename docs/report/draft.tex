@@ -1,14 +1,17 @@
-\documentclass{article}
+\documentclass[10pt]{article}
 
+\usepackage[margin=1.2in]{geometry}
 \usepackage[utf8]{inputenc}
-\usepackage{mathtools}
+\usepackage[english]{babel}
+
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{enumitem}
+\usepackage{mathtools}
 
 
 % Information for header.
-\title{Optimizing the Cobb Doughlas Habitability Production function using
-Particle Swarm Optimization}
+\title{Estimating Planetary Habitability via Particle Swarm Optimization of CES Production Functions.}
 \author{Abhijit J.\ Theophilus}
 \date{\today}
 
@@ -27,111 +30,199 @@ Particle Swarm Optimization}
 \renewcommand{\algorithmicrequire}{\textbf{Input:}}
 \renewcommand{\algorithmicensure}{\textbf{Output:}}
 
-
+% For math
+\DeclareMathOperator*{\argmin}{arg\,min}
 
 \begin{document}
 \maketitle
 
-\section{Introduction}
+
+\section{Introduction}\label{sec:intro}
 % Note to self, improve the flow of the report.
 % Find citations.
-Under most paradigms, optimization of a continuous function requires the calculation of a gradient. This might not
-always be feasible for non-polynomial functions in high-dimensional search spaces. This is further complicated when the
-optimization must be performed under constraints. \pso\ is a metaheuristic for continuous function optimization that does
-away with the need for a gradient. It employs a large number of particles that traverse the search space converging
-toward a global best solution encountered by at least one of the particles.
+The search for extra-terrestial life and potentially habitable extrasolar planets has been an international venture
+demanding large investments in cost and effort, since Frank Drake's attempt with Project Ozma in the mid-20th century.
+The first exoplanet was officially confirmed in 1992 which marked the start of a trend that has lasted 25 years and
+yielded over 3,700 confirmed exoplanets. There have been attempts to assess the habitability of these planets and to
+assign a score based on their similarity to Earth. Two such habitability scores are the Cobb-Douglas Habitability Score
+(CDHS) and the Constant Elasticity Earth Similarity Approach (CEESA) score. Estimating these scores involves maximizing
+a production function subjected to a set of constraints on its input variables.
 
-\pso\ is a distributed method that requires simple mathematical operators and few lines of code, making it a lucrative
-solution where computation resources are at a premium. Its implementation is highly parallelizable. It scales with the
-dimensionality of the search space. Constrained optimization can be incorporated within the standard algorithm through
-the use of a penalty function.
+Under most paradigms, maximizing a continuous function requires calculating a gradient. This may not always be feasible
+for non-polynomial functions in high-dimensional search spaces. Further, subjecting the input variables to constraints,
+as needed by CDHS and CEESA, are not always be straightforward to represent within the model. This paper presents an
+approach to Constrained Optimzation (CO) using the swarm intelligence metaheuristic. \pso\ (PSO) is a method for
+optimizing a continuous function that does away with the need for a gradient. It employs a large number of particles
+that traverse the search space converging toward a global best solution encountered by at least one of the particles.
+
+\pso\ is a distributed method that requires simple mathematical operators and short segments of code, making it a
+lucrative solution where computational resources are at a premium. Its implementation is highly parallelizable. It
+scales with the dimensionality of the search space. The standard PSO algorithm does not deal with constraints, but
+through variations in initializing and updating particles, constraints are straightforward to represent and adhere to,
+as seen in Section~\ref{subsec:copso}.
 
 % Pull out citations from the Applications paper.
-\pso\ has been successfully adapted to a wide range of design optimization problems, e.g., networks and VLSI design.
-\pso\ has also found applications in machine learning under clustering, feature detection and classification.  As a
-modelling paradigm, it has been used for constructing customer satisfaction models, MIDI music models, friction models,
-etc.
+PSO has been adapted to a wide range of design optimization problems, e.g., networks and VLSI design. It has found
+applications in machine learning under clustering, feature detection and classification. As a modeling paradigm, it has
+been used for constructing customer satisfaction models, modeling MIDI music and chaotic time series modeling.
 
-In this paper, \pso\ has been applied to estimate the Cobb Douglas Habitability Score (CDHS) of an exoplanet. The score
-is estimated by maximizing the Cobb-Douglas Habitability Production Function (CD-HPF). The function considers four
-parameters, radius, mass, escape velocity and surface temperature, taken from the Exoplanets Catalog hosted by the
-Planetary Habitability Laboratory, UPR Arecibo. Since the Cobb-Douglas function is concave under certain constraints,
-the problem can be reduced to a convex optimization over the negative of the production function.
+This paper demonstrates the applicability of \pso\ in estimating CDHS and CEESA scores of an exoplanet by maximizing
+their respective production functions, discussed in Sections~\ref{subsec:cdhs} and~\ref{subsec:ceesa}. CDHS considers
+the planet's Radius, Mass, Escape Velocity and Surface Temperature, while CEESA includes a fifth parameter, the Orbital
+Eccentricity of the planet. The Exoplanets Catalog hosted by the Planetary Habitability Laboratory, UPR Arecibo records
+these parameters for each exoplanet in Earth Units. Section~\ref{sec:results} reports the performance of PSO and
+contrasts it against an earlier effort to estimate these scores using Stochastic Gradient Ascent (SGA).
 
 
-\section{Cobb-Douglas Habitability Score}
+\section{Habitability Scores}
 % Add the citations to Saha's papers.
 
-\subsection{Cobb-Douglas Production Function}
-The general form of the Cobb-Douglas production function (CD-PF) is given by,
-\begin{equation}
-  Y = k\cdot{(x_1)}^\alpha\cdot{(x_2)}^\beta,
-\end{equation}
-where $k$ is a constant that may be set according to requirement, $x_1$ and $x_2$ are the input parameters to the
-function, $Y$ is the total output production value, and $\alpha$ and $\beta$ are called the elasticity coefficients.
-
-The CDHS is estimated by maximizing the CD-PF when the returns to scale are either decreasing or constant. This is
-marked by two constraints on the elasticity coefficients,
-\begin{itemize}
-\setlength\itemsep{0pt}
-\item When $\alpha+\beta < 1$, the CD-PF observes decreasing returns to scale (DRS).
-\item When $\alpha+\beta = 1$, the CD-PF observes constant returns to scale (CRS).
-\end{itemize}
-Further, if $0 < \alpha, \beta < 1$, the CD-PF is concave, and therefore has a maxima. The CD-PF can be adapted as a
-Habitability Production Function by setting the input parameters to the measurable parameters of an exoplanet and using
-these to estimate the elasticity coefficients.
-
-\subsection{Cobb-Douglas Habitability Score Estimation}
-Two types of Habitability Scores are calculated for each planet, the interior CDHS (CDHS\textsubscript{i}) and the
-surface CDHS (CDHS\textsubscript{s}), given by the following equations,
+\subsection{Cobb-Douglas Habitability Score}\label{subsec:cdhs}
+Estimating the Cobb-Douglas Habitability Score (CDHS) requires estimating an interior CDHS (CDHS\textsubscript{i}) and a
+surface CDHS (CDHS\textsubscript{s}) by maximizing the following production functions,
 \begin{subequations}
   \begin{alignat}{4}
-    Y_1 &=\ {CDHS}_i\ &=\ &D^\alpha\ & \cdot\ &R^\beta\ &,\\
-    Y_2 &=\ {CDHS}_s\ &=\ &{V_e}^\gamma\ & \cdot\ &{T_s}^\delta\ &,
+    Y_i\ &=\ {CDHS}_i\ &=&\ R^\alpha.&D^\beta\label{eq:cdhsi}\\
+    Y_s\ &=\ {CDHS}_s\ &=&\ {V_e}^\gamma.&{T_s}^\delta\label{eq:cdhss}
   \end{alignat}
 \end{subequations}
-where, $D$, $R$, $V_e$ and $T_s$ are density, radius, escape velocity and surface temperature respectively. The final
-CDHS score is convex combination of the interior and surface CDHS values as given by,
+where, $R$, $D$, $V_e$ and $T_s$ are density, radius, escape velocity and surface temperature respectively. $\alpha$,
+$\beta$, $\gamma$ and $\delta$ are the elasticity coefficients subject to,
 \begin{equation}
-  Y = w'\cdot Y_1 + w''\cdot Y_2,
+  0 < \alpha,\beta,\gamma,\delta < 1
+\end{equation}
+Equations~\ref{eq:cdhsi} and~\ref{eq:cdhss} are convex when the returns to scale are either constant or decreasing,
+marked by two constraints on the elasticity coefficients,
+\begin{subequations}
+  \begin{align}
+    \alpha+\beta = 1,\quad\gamma+\delta = 1 && \text{for Constant Returns to Scale (CRS),}\\
+    \alpha+\beta < 1,\quad\gamma+\delta < 1 && \text{for Decreasing Returns to Scale (DRS).}
+  \end{align}
+\end{subequations}
+The final CDHS is the convex combination of the interior and surface CDHS values as given by,
+\begin{equation}
+  Y\ =\ w_i.Y_i + w_s.Y_s
 \end{equation}
 
+\subsection{Constant Elasticity Earth Similarity Approach}\label{subsec:ceesa}
+The Constant Elasticity Earth Similarity Approach (CEESA) uses the following production function to estimate the
+habitability score of an exoplanet,
+\begin{equation}\label{eq:ceesa}
+  Y = {(r.R^\rho+d.D^\rho+t.{T_s}^\rho+v.{V_e}^\rho+e.E^\rho)}^{\eta/\rho}
+\end{equation}
+where, $E$ is the fifth parameter denoting Orbital Eccentricity. The value of $\rho$ lies within $0<\rho\leq 1$.
+The coefficients ($r$, $d$, $t$, $v$ and $e$) are constrained by,
+\begin{subequations}
+  \begin{align}
+      0 < r,d,t,v,e < 1\\
+      r+d+t+v+e = 1
+  \end{align}
+\end{subequations}
+The value of $\eta$ is constrained by the scale of production used,
+\begin{subequations}
+  \begin{align}
+    0 < \eta < 1 && \text{for Constant Returns to Scale (CRS),}\\
+    \eta = 1 && \text{for Decreasing Returns to Scale (DRS).}
+  \end{align}
+\end{subequations}
+
+\section{Particle Swarm Optimization}\label{sec:pso}
+Particle Swarm Optimization (PSO) is a biologically inspired metaheuristic for finding the global minima of a function.
+Traditionally designed for unconstrained inputs, it works by iteratively converging a population of randomly initialized
+solutions, called particles, toward a globally optimal solution. Each particle in the population keeps track of its
+current position and the best solution it has encountered so far, called $pbest$. Each particle also has an associated
+randomized velocity used to traverse the search space. The swarm keeps track of the overall best solution, called
+$gbest$. Each iteration of the swarm updates the velocity of the particle towards its $pbest$ and the $gbest$ values.
+
+\subsection{PSO for Unconstrained Optimation}\label{subsec:uopso}
+Let $f(x)$ be the function to be minimized, where $x$ is a $d$-dimensional vector. $f(x)$ is also called the fitness
+function. Algorithm~\ref{alg:unop} outlines the approach to minimizing $f(x)$ using PSO.\@ A set of particles are randomly
+initialized with a position and a velocity, where $l$ and $u$ are the lower and upper boundaries of the search space.
+The position of the particle corresponds to its associated solution. The algorithm initializes each particle's $pbest$
+to its initial position. The $pbest$ position that corresponds to the minimum fitness is selected to be the $gbest$
+position of the swarm.
+
+On each iteration, the algorithm updates the velocity and position of each particle. For each particle, it picks two
+random numbers $u_g, u_p$ from a uniform distribution, $U(0,1)$ and updates the particle velocity as indicated in
+line~\ref{algline:vup}. Here, $\mu$ is the friction coefficient and $\lambda_g,\lambda_p$ are the global and particle
+learning rates. If the new position of the particle corresponds to a better fit than its $pbest$, the algorithm updates
+$pbest$ to the new position. Once the algorithm has updated all particles, it updates $gbest$ to the new overall best
+position. A suitable termination criteria for the swarm, under convex optimization, is  when the $gbest$ position has
+not changed by the end of the iteration.
+
 \begin{algorithm}
-  \begin{algorithmic}
-    \Require A dataset of exoplanets with density, radius, escape velocity and surface temperature in Earth Units.
-    \Ensure The $CDHS$ value for each exoplanet in the input dataset.
-    
-    \State $CDHS \gets \{\}$
-    \ForAll{exoplanets $e$}
-      \State $D \gets$ $e.density$
-      \State $R \gets$ $e.radius$
-      \State $V_e \gets$ $e.escape\_velocity$
-      \State $T_s \gets$ $e.surface\_temperature$
-      \\ 
-      \State $Y_1 \gets \max\ D^\alpha\cdot R^\beta,\quad \text{subject to:}\quad \alpha+\beta<1;\quad 0<\alpha,\beta<1$
-      \State $Y_2 \gets \max\ {V_e}^\gamma\cdot {T_s}^\delta,\quad \text{subject to:}\quad \gamma+\delta<1;\quad
-      0<\gamma,\delta<1$
-      \State $Y.{DRS} \gets w'\cdot Y_1\ +\ w''\cdot Y_2$
-      \\
-      \State $Y_1 \gets \max\ D^\alpha\cdot R^\beta,\quad \text{subject to:}\quad \alpha+\beta=1;\quad 0<\alpha,\beta<1$
-      \State $Y_2 \gets \max\ {V_e}^\gamma\cdot {T_s}^\delta,\quad \text{subject to:}\quad \gamma+\delta=1;\quad
-      0<\gamma,\delta<1$
-      \State $Y.{CRS} \gets w'\cdot Y_1\ +\ w''\cdot Y_2$
-      \\
-      \State append $Y$ to $CDHS$
-    \EndFor
+  \begin{algorithmic}[1]
+    \Require{$f(x)$, the function to minimize.}
+    \Ensure{global minimum of $f(x)$.}
+    \For{each particle $i\gets 1,n$}
+      \State{$p_i \sim U(l,u)$}
+      \State{$v_i \sim U(-|u-l|, |u-l|)$}
+      \State{${pbest}_i \gets p_i$}
+    \EndFor\
+    \State{$gbest \gets \smashoperator{\argmin\limits_{{pbest}_i, i \in {1,n}}} f({pbest}_i)$}
+    \Repeat\
+      \State{$oldbest \gets gbest$}
+      \For{each particle $i \gets 1,n$}
+        \State{$u_p, u_g \sim U(0,1)$}
+        \State{$v_i \gets \mu.v_i + \lambda_g.u_g.({gbest-p_i}) + \lambda_p.u_p.({{pbest}_i-p_i})$}\label{algline:vup}
+        \State{$p_i \gets p_i + v_i$}
+        \If{$f(p_i) < f({pbest}_i)$}
+          \State{${pbest}_i \gets p_i$}
+        \EndIf\
+      \EndFor\
+      \State{$gbest \gets \smashoperator{\argmin\limits_{{pbest}_i, i \in {1,n}}} f({pbest}_i)$}
+    \Until{$|oldbest - gbest| < threshold$}
+    \State{\textbf{return} {$f(gbest)$}}
   \end{algorithmic}
-  \caption{Estimating CDHS values.}
-  \label{estCDHS}
+  \caption{Algorithm for PSO.}\label{alg:unop}
 \end{algorithm}
 
-\section{Particle Swarm Optimization}
-\begin{pointers}
-\item Equations. Modification for max.
-\item Constrained optimization modifications.
-\item Algorithm for PSO\@.
-\end{pointers}
 
+\subsection{PSO with Leaders for Constrained Optimization}\label{subsec:copso}
+Although PSO has eliminated the need to estimate the gradient of a function, as seen in Section~\ref{subsec:uopso}, it
+still is not suitable for constrained optimization. The standard PSO algorithm does not ensure that the initial
+solutions are feasible, and neither does it guarantee that the individual solutions will converge to a feasible global
+solution. Solving the initialization problem is straightforward, resample each random solution from the uniform
+distribution until every initial solution is feasible. To solve the convergence problem, each particle uses another
+particle's $pbest$ value, called $lbest$, instead of its own to update its velocity. Algorithm~\ref{alg:cop} describes
+this process.
+
+On each iteration, for each particle, the algorithm first picks two random numbers $u_g,u_p$ as before. It then selects
+a $pbest$ value from all particles in the swarm that is closest to the position of the particle being updated as its
+$lbest$. The $lbest$ value substitutes ${pbest}_i$ in the velocity update equation. While updating $pbest$ for the
+particle, the algorithm checks if the current fit is better than $pbest$, and performs the update if the current
+position satisfies all constraints.
+
+\begin{algorithm}
+  \begin{algorithmic}[1]
+    \Require{$f(x)$, the function to minimize.}
+    \Ensure{global minimum of $f(x)$.}
+    \For{each particle $i\gets 1,n$}
+      \Repeat
+        \State{$p_i \sim U(l,u)$}
+      \Until{$p_i$ satisfies all constraints}
+      \State{$v_i \sim U(-|u-l|, |u-l|)$}
+      \State{${pbest}_i \gets p_i$}
+    \EndFor\
+    \State{$gbest \gets \smashoperator{\argmin\limits_{{pbest}_i, i \in {1,n}}} f({pbest}_i)$}
+    \Repeat\
+      \State{$oldbest \gets gbest$}
+      \For{each particle $i \gets 1,n$}
+        \State{$u_p, u_g \sim U(0,1)$}
+        \State{$lbest \gets \smashoperator{\argmin\limits_{{pbest}_j, j \in {1,n}}} {\|{pbest}_j -
+            p_i\|}^2$}\label{algline:lbest}
+        \State{$v_i \gets \mu.v_i + \lambda_g.u_g.({gbest-p_i}) + \lambda_p.u_p.({lbest-p_i})$}\label{algline:cvup}
+        \State{$p_i \gets p_i + v_i$}
+        \If{$f(p_i) < f({pbest}_i)$ \textbf{and} $p_i$ satisfies all constraints}
+          \State{${pbest}_i \gets p_i$}
+        \EndIf\
+      \EndFor\
+      \State{$gbest \gets \smashoperator{\argmin\limits_{{pbest}_i, i \in {1,n}}} f({pbest}_i)$}
+    \Until{$|oldbest - gbest| < threshold$}
+    \State{\textbf{return} {$f(gbest)$}}
+  \end{algorithmic}
+  \caption{Algorithm for CO by PSO.}\label{alg:cop}
+\end{algorithm}
 
 \section{Experiment}
 \begin{pointers}
