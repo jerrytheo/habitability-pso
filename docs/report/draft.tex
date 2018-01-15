@@ -8,6 +8,7 @@
 \usepackage{algpseudocode}
 \usepackage{enumitem}
 \usepackage{mathtools}
+\usepackage{bm}
 
 
 % Information for header.
@@ -46,23 +47,23 @@ The first exoplanet was officially confirmed in 1992 which marked the start of a
 yielded over 3,700 confirmed exoplanets. There have been attempts to assess the habitability of these planets and to
 assign a score based on their similarity to Earth. Two such habitability scores are the Cobb-Douglas Habitability Score
 (CDHS) and the Constant Elasticity Earth Similarity Approach (CEESA) score. Estimating these scores involves maximizing
-a production function subjected to a set of constraints on its input variables.
+a production function while observing a set of constraints on the input variables.
 
 Under most paradigms, maximizing a continuous function requires calculating a gradient. This may not always be feasible
 for non-polynomial functions in high-dimensional search spaces. Further, subjecting the input variables to constraints,
-as needed by CDHS and CEESA, are not always be straightforward to represent within the model. This paper presents an
+as needed by CDHS and CEESA, are not always straightforward to represent within the model. This paper presents an
 approach to Constrained Optimzation (CO) using the swarm intelligence metaheuristic. \pso\ (PSO) is a method for
 optimizing a continuous function that does away with the need for a gradient. It employs a large number of particles
 that traverse the search space converging toward a global best solution encountered by at least one of the particles.
 
 \pso\ is a distributed method that requires simple mathematical operators and short segments of code, making it a
 lucrative solution where computational resources are at a premium. Its implementation is highly parallelizable. It
-scales with the dimensionality of the search space. The standard PSO algorithm does not deal with constraints, but
-through variations in initializing and updating particles, constraints are straightforward to represent and adhere to,
-as seen in Section~\ref{subsec:copso}.
+scales with the dimensionality of the search space. The standard PSO algorithm does not deal with constraints but
+through variations in initializing and updating particles constraints are straightforward to represent and adhere to, as
+seen in Section~\ref{subsec:copso}.
 
 % Pull out citations from the Applications paper.
-PSO has been adapted to a wide range of design optimization problems, e.g., networks and VLSI design. It has found
+PSO has been adapted to a wide range of design optimization problems including network and VLSI design. It has found
 applications in machine learning under clustering, feature detection and classification. As a modeling paradigm, it has
 been used for constructing customer satisfaction models, modeling MIDI music and chaotic time series modeling.
 
@@ -91,13 +92,13 @@ $\beta$, $\gamma$ and $\delta$ are the elasticity coefficients subject to,
 \begin{equation}
   0 < \alpha,\beta,\gamma,\delta < 1
 \end{equation}
-Equations~\ref{eq:cdhsi} and~\ref{eq:cdhss} are convex when the returns to scale are either constant or decreasing,
-marked by two constraints on the elasticity coefficients,
+Equations~\ref{eq:cdhsi} and~\ref{eq:cdhss} are convex under either Constant Returns to Scale (CRS) or Decreasing
+Returns to Scale (DRS) marked by two constraints on the elasticity coefficients,
 \begin{subequations}
-  \begin{align}
-    \alpha+\beta = 1,\quad\gamma+\delta = 1 && \text{for Constant Returns to Scale (CRS),}\\
-    \alpha+\beta < 1,\quad\gamma+\delta < 1 && \text{for Decreasing Returns to Scale (DRS).}
-  \end{align}
+  \begin{alignat}{3}
+    \text{CRS:} & \quad\alpha+\beta = 1,&\quad\gamma+\delta = 1,\\
+    \text{DRS:} & \quad\alpha+\beta < 1,&\quad\gamma+\delta < 1.
+  \end{alignat}
 \end{subequations}
 The final CDHS is the convex combination of the interior and surface CDHS values as given by,
 \begin{equation}
@@ -120,10 +121,10 @@ The coefficients ($r$, $d$, $t$, $v$ and $e$) are constrained by,
 \end{subequations}
 The value of $\eta$ is constrained by the scale of production used,
 \begin{subequations}
-  \begin{align}
-    0 < \eta < 1 && \text{for Constant Returns to Scale (CRS),}\\
-    \eta = 1 && \text{for Decreasing Returns to Scale (DRS).}
-  \end{align}
+  \begin{alignat}{3}
+    \text{CRS:} & \quad 0 < \eta \leq 1,\\
+    \text{DRS:} & \quad \eta = 1.
+  \end{alignat}
 \end{subequations}
 
 \section{Particle Swarm Optimization}\label{sec:pso}
@@ -150,7 +151,7 @@ $pbest$ to the new position. Once the algorithm has updated all particles, it up
 position. A suitable termination criteria for the swarm, under convex optimization, is  when the $gbest$ position has
 not changed by the end of the iteration.
 
-\begin{algorithm}
+\begin{algorithm}[t]
   \begin{algorithmic}[1]
     \Require{$f(x)$, the function to minimize.}
     \Ensure{global minimum of $f(x)$.}
@@ -191,14 +192,14 @@ On each iteration, for each particle, the algorithm first picks two random numbe
 a $pbest$ value from all particles in the swarm that is closest to the position of the particle being updated as its
 $lbest$. The $lbest$ value substitutes ${pbest}_i$ in the velocity update equation. While updating $pbest$ for the
 particle, the algorithm checks if the current fit is better than $pbest$, and performs the update if the current
-position satisfies all constraints.
+position satisfies all constraints. The algorithm updates $gbest$ as before.
 
-\begin{algorithm}
+\begin{algorithm}[t]
   \begin{algorithmic}[1]
     \Require{$f(x)$, the function to minimize.}
     \Ensure{global minimum of $f(x)$.}
     \For{each particle $i\gets 1,n$}
-      \Repeat
+      \Repeat\
         \State{$p_i \sim U(l,u)$}
       \Until{$p_i$ satisfies all constraints}
       \State{$v_i \sim U(-|u-l|, |u-l|)$}
@@ -223,6 +224,97 @@ position satisfies all constraints.
   \end{algorithmic}
   \caption{Algorithm for CO by PSO.}\label{alg:cop}
 \end{algorithm}
+
+\section{Representing the Constrained Optimization Problem}\label{sec:rep}
+A Constrained Optimization problem can represented as,
+\begin{equation*}
+  \begin{aligned}
+    & \underset{x}{\text{minimize}}
+    & & f(x) \\
+    & \text{subject to}
+    & & g_k(x) \leq 0,&\; k = 1,\dots,q\\
+    &&& h_l(x) = 0,&\quad l = 1,\dots,r.
+  \end{aligned}
+\end{equation*}
+
+Introducing an error threshold $\epsilon$ can convert strict inequalities of the form ${g_k}^{\prime}(x) < 0$ to
+nonstrict inequalities of the form $g_k(x) = {g_k}^{\prime}(x) + \epsilon \leq 0$. Adding a tolerance $\tau$ transforms
+equality constraints to a pair of inequalities,
+\begin{equation*}
+  \begin{aligned}
+    g_{(q+l)}(x) &= h_l(x) - \tau &\leq 0,&\quad l = 1,\dots,r\\
+    g_{(q+r+l)}(x) &= {-}h_l(x) - \tau &\leq 0,&\quad l = 1,\dots,r
+  \end{aligned}
+\end{equation*}
+Thus, $r$ equality constraints become $2r$ inequality constraints, raising the total number of constraints, denoted by
+$s$, to $s = q + 2r$. For each solution $p_i$, $\bm{c_i}$ denotes the constraint vector where, $c_{ik} = \max\{g_k(p_i),
+0\},~k=1,\dots,s$. When $\bm{c_i} = \bm{0}$, the solution $p_i$ lies within the feasible region. When $c_{ik} > 0$, the
+solution $p_i$ violates the $k$\textsuperscript{th} constraint.
+
+Following these guidelines to represent a CO problem, the CDHS estimation under CRS becomes,
+\begin{center}
+\setlength{\tabcolsep}{30pt}
+\begin{tabular}{l | l}
+\begin{equation*}
+  \begin{aligned}
+    & \underset{\alpha,\beta}{\text{minimize:}}
+    &  Y_i = {-}R^\alpha.D^\beta,\\
+    &  \text{subject to:}
+    &  {-}\alpha + \epsilon \leq 0,\\
+    && \alpha - 1 + \epsilon \leq 0,\\
+    && {-}\beta + \epsilon  \leq 0,\\
+    && \beta - 1 + \epsilon \leq 0,\\
+    && \alpha + \beta - 1 - \tau \leq 0,\\
+    && {-}(\alpha + \beta - 1) - \tau \leq 0.
+  \end{aligned}
+\end{equation*}
+&
+\begin{equation*}
+  \begin{aligned}
+    &  \underset{\gamma,\delta}{\text{minimize:}}
+    &  Y_s = {-}{V_e}^\gamma.{T_s}^\delta\\
+    &  \text{subject to:}
+    &  {-}\gamma + \epsilon \leq 0,\\
+    && \gamma - 1 + \epsilon \leq 0,\\
+    && {-}\delta + \epsilon  \leq 0,\\
+    && \delta - 1 + \epsilon \leq 0,\\
+    && \gamma + \delta - 1 - \tau \leq 0,\\
+    && {-}(\gamma + \delta - 1) - \tau \leq 0,
+  \end{aligned}
+\end{equation*}
+\end{tabular}
+\end{center}
+while for DRS, the last two constraints for $Y_i$ and $Y_s$ are replaced with,
+\begin{center}
+\begin{tabular}{l c r}
+\begin{equation*}
+  \alpha + \beta + \epsilon - 1 \leq 0
+\end{equation*}
+&&
+\begin{equation*}
+  \gamma + \delta + \epsilon - 1 \leq 0
+\end{equation*}
+\end{tabular}
+\end{center}
+
+The CEESA score estimation for DRS is represented as,
+\begin{equation*}
+  \begin{aligned}
+    & \underset{r,d,t,v,e,\rho,\eta}{\text{minimize}}
+    & Y = {-}{(r.R^\rho+d.D^\rho+t.{T_s}^\rho+v.{V_e}^\rho+e.E^\rho)}^{\eta/\rho}\\
+    & \text{subject to}
+    &  {-}\phi + \epsilon \leq 0, &\quad\quad \forall \phi\in\{r,d,t,v,e,\rho,\eta\}\\
+    && \phi - 1 + \epsilon \leq 0, &\quad\quad \forall \phi\in\{r,d,t,v,e,\eta\}\\
+    && \rho - 1 \leq 0,\\
+    && (r+d+t+v+e-1) - \tau \leq 0,\\
+    && (1-r-d-t-v-e) - \tau \leq 0,
+  \end{aligned}
+\end{equation*}
+while for CRS, there is no need for the parameter $\eta$. The objective function for the problem becomes,
+\begin{equation*}
+  \underset{r,d,t,v,e,\rho}{\text{minimize}}\quad
+  Y = {-}{(r.R^\rho+d.D^\rho+t.{T_s}^\rho+v.{V_e}^\rho+e.E^\rho)}^{1/\rho}
+\end{equation*}
 
 \section{Experiment}
 \begin{pointers}
