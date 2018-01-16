@@ -9,13 +9,15 @@ from ..pso import conmax_by_pso, SwarmConvergeError
 
 
 # Miscellaneous Consts.
-MESSAGE = '{:25}{:8.4f}{:8.4f}{:10.4f}{:8.4f}{:8.4f}{:10.4f}{:10.4f}{:>7.5}'
-TITLE = '{:25}{:>8}{:>8}{:>10}{:>8}{:>8}{:>10}{:>10}{:>7.5}'
-ERROR = '{:25}{:^69}'
-HEADERS = ('Name', 'A', 'B', 'CDHSi', 'G', 'D', 'CDHSs', 'CDHS', 'Cls')
+MESSAGE = '{:25}{:>7.5}{:8.4f}{:8.4f}{:10.4f}'\
+          '{:8.4f}{:8.4f}{:10.4f}{:10.4f}{:5}{:5}'
+TITLE = '{:25}{:>7.5}{:>8}{:>8}{:>10}{:>8}{:>8}{:>10}{:>10}{:>5}{:>5}'
+ERROR = '{:25}{:^79}'
+HEADERS = ('Name', 'Cls', 'A', 'B', 'CDHSi',
+           'G', 'D', 'CDHSs', 'CDHS', 'IterI', 'IterS')
 ERR_CDHSi = '** CDHSi convergence failed. **'
 ERR_CDHSs = '** CDHSs convergence failed. **'
-TOTAL_CHAR = 94
+TOTAL_CHAR = 104
 PROGRESS_BAR = '[{:' + str(TOTAL_CHAR - 10) + '}]  ({:>3}%)'
 
 
@@ -23,13 +25,9 @@ PROGRESS_BAR = '[{:' + str(TOTAL_CHAR - 10) + '}]  ({:>3}%)'
 def print_header(constraint, headers):
     """Print the header of the output table."""
     spaces = (TOTAL_CHAR//2 - len(constraint)//2) * ' '
-
     print('\n' + spaces + constraint.upper())
     print(spaces + '-'*len(constraint) + '\n')
-    print(TITLE.format(*headers))
-
-    print('-' * TOTAL_CHAR, end='\t\t')
-    print('  inn : sur  ')
+    print(TITLE.format(*headers), '-' * TOTAL_CHAR, sep='\n')
 
 
 def print_error(name, err):
@@ -37,11 +35,9 @@ def print_error(name, err):
     print(ERROR.format(name, err))
 
 
-def print_results(it, total, values, iters):
+def print_results(it, total, values):
     """Print the results of the estimation for the current planet."""
     print(MESSAGE.format(*values), end='\t\t')
-    print('[ {:03} : {:03} ]'.format(*iters))
-
     prog = (it * (TOTAL_CHAR - 10)) // total
     print(PROGRESS_BAR.format('='*prog, (it*100)//total), end='\r')
 
@@ -114,10 +110,11 @@ def evaluate_cdhs_values(exoplanets, fname='cdhs_{0}.csv', verbose=True,
             cdhs_s = np.round(cdhpf(gbest), 4)
 
             cdhs = np.round(cdhs_i*.99 + cdhs_s*.01, 4)
-            results.append((name, A, B, cdhs_i, G, D, cdhs_s, cdhs, habc))
+            results.append((name, habc, A, B, cdhs_i, G, D, cdhs_s, cdhs,
+                            it_i-99, it_s-99))
 
             if verbose:
-                print_results(_+1, total, results[-1], [it_i-99, it_s-99])
+                print_results(_+1, total, results[-1])
 
         if verbose:
             print('-' * TOTAL_CHAR + '\n')
