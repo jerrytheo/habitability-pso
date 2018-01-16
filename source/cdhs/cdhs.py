@@ -69,8 +69,6 @@ def evaluate_cdhs_values(exoplanets, fname='cdhs_{0}.csv', verbose=True,
         kwargs:
             The parameters for the Swarm.
     """
-    exoplanets.dropna(how='any', inplace=True)
-    exoplanets.reset_index(drop=True, inplace=True)
     total = len(exoplanets)
 
     for constraint in ('crs', 'drs'):

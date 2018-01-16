@@ -66,8 +66,6 @@ def evaluate_ceesa_values(exoplanets, fname='ceesa_{0}.csv', verbose=True,
         kwargs:
             The parameters for the Swarm.
     """
-    exoplanets.fillna(value=0, inplace=True)
-    exoplanets.reset_index(drop=True, inplace=True)
     total = len(exoplanets)
 
     for constraint in ('crs', 'drs'):
