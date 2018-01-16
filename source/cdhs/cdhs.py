@@ -10,14 +10,14 @@ from ..pso import conmax_by_pso, SwarmConvergeError
 
 # Miscellaneous Consts.
 MESSAGE = '{:25}{:>7.5}{:8.4f}{:8.4f}{:10.4f}'\
-          '{:8.4f}{:8.4f}{:10.4f}{:10.4f}{:5}{:5}'
-TITLE = '{:25}{:>7.5}{:>8}{:>8}{:>10}{:>8}{:>8}{:>10}{:>10}{:>5}{:>5}'
+          '{:8.4f}{:8.4f}{:10.4f}{:10.4f}{:7}{:7}'
+TITLE = '{:25}{:>7.5}{:>8}{:>8}{:>10}{:>8}{:>8}{:>10}{:>10}{:>7}{:>7}'
 ERROR = '{:25}{:^79}'
 HEADERS = ('Name', 'Cls', 'A', 'B', 'CDHSi',
-           'G', 'D', 'CDHSs', 'CDHS', 'IterI', 'IterS')
+           'G', 'D', 'CDHSs', 'CDHS', 'Inn', 'Sur')
 ERR_CDHSi = '** CDHSi convergence failed. **'
 ERR_CDHSs = '** CDHSs convergence failed. **'
-TOTAL_CHAR = 104
+TOTAL_CHAR = 108
 PROGRESS_BAR = '[{:' + str(TOTAL_CHAR - 10) + '}]  ({:>3}%)'
 
 
@@ -37,7 +37,7 @@ def print_error(name, err):
 
 def print_results(it, total, values):
     """Print the results of the estimation for the current planet."""
-    print(MESSAGE.format(*values), end='\t\t')
+    print(MESSAGE.format(*values))
     prog = (it * (TOTAL_CHAR - 10)) // total
     print(PROGRESS_BAR.format('='*prog, (it*100)//total), end='\r')
 

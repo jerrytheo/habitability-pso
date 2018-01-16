@@ -10,7 +10,7 @@ from ..pso import conmax_by_pso, SwarmConvergeError
 
 # Miscellaneous Consts.
 MESSAGE = '{:25}{:>7.5}{:8.4f}{:8.4f}{:8.4f}{:8.4f}{:8.4f}'\
-        '{:8.4f}{:8.4f}{:10.4f}   {:03}'
+        '{:8.4f}{:8.4f}{:10.4f}{:6}'
 TITLE = '{:25}{:>7}{:>8}{:>8}{:>8}{:>8}{:>8}{:>8}{:>8}{:>10}{:>6}'
 ERROR = '{:25}{:^79}'
 HEADERS = ('Name', 'Cls', 'r', 'd', 't', 'v', 'e', 'Rho', 'Eta', 'Hab', 'Iter')

@@ -91,6 +91,7 @@ try:
         # --debug
         elif argname == '--debug':
             exoplanets = exoplanets.sample(int(args.pop(0)))
+            exoplanets.reset_index(drop=True, inplace=True)
             debug = '_sample'
         else:
             print(invalid)

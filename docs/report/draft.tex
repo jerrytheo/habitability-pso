@@ -333,23 +333,74 @@ tolerance of $\tau=\num{1e-7}$ when transforming an equality constraint to a pai
 implementation details are discussed in Appendix~\ref{app:imp}.
 
 Tables~\ref{tab:cdhscrs} and~\ref{tab:cdhsdrs} record the CDHS values for a sample of exoplanets under CRS and DRS
-respectively. Tables~\ref{tab:ceesacrs} and~\ref{tab:ceesadrs} record the same for the CEESA scores. All tables also
+respectively at $w_i=0.99$ and $w_s=0.01$. Each of these tables record the parameters of Equations~\ref{eq:cdhscrs}
+and~\ref{eq:cdhsdrs} and the objective function values. Columns $i_i$ and $i_s$ specify the number of iterations taken
+to converge to a stable $\gbest$ value. Under the Class column there are four categories for the planets ---
+Psychroplanets (psy), Mesoplanets (mes), Non-Habitable planets (non) and Hypopsychroplanets (hyp).
+
+
+Tables~\ref{tab:ceesacrs} and~\ref{tab:ceesadrs} record the same for the CEESA scores. All tables also
 record the number of iterations taken to converge to a stable $\gbest$ value.
 
-% GJ 667C e
-% GJ 667C f
-% GJ 832 c
-% HD 40307 g
-% Kapteyn’s b
-% Kepler-61 b
-% Kepler-62 e
-% Kepler-62 f
-% Kepler-174 d
-% Kepler-186 f
-% Kepler-283 c
-% Kepler-296 f
-% GJ 667C c
-% GJ 163 c
+\begin{table}
+  \centering
+  \begin{tabular}{l r r r r r r r r r r}
+    \toprule
+    Name & Class & $\alpha$ & $\beta$ & $\mathit{Y}_i$ & ${i}_i$ & 
+    $\gamma$ & $\delta$ & $\mathit{Y}_s$ & ${i}_s$ & $\mathit{CDHS}$\\
+    \midrule
+    GJ 176 b & non & 0.46 & 0.54 & 1.90 & 50 & 0.11 & 0.89 & 2.11 & 61 & 1.90\\
+    GJ 667 C b & non & 0.42 & 0.58 & 1.71 & 58 & 0.69 & 0.31 & 1.81 & 54 & 1.71\\
+    GJ 667 C e & psy & 0.13 & 0.87 & 1.40 & 50 & 0.26 & 0.74 & 1.39 & 55 & 1.40\\
+    GJ 667 C f & psy & 0.53 & 0.47 & 1.40 & 48 & 0.87 & 0.13 & 1.39 & 47 & 1.40\\
+    GJ 3634 b & non & 0.41 & 0.59 & 1.89 & 58 & 0.72 & 0.28 & 2.09 & 48 & 1.89\\
+    HD 20794 c & non & 0.26 & 0.74 & 1.35 & 50 & 0.10 & 0.90 & 1.34 & 58 & 1.35\\
+    HD 40307 e & non & 0.17 & 0.83 & 1.50 & 49 & 0.64 & 0.36 & 1.53 & 63 & 1.50\\
+    HD 40307 f & non & 0.70 & 0.30 & 1.52 & 68 & 0.30 & 0.70 & 1.55 & 45 & 1.52\\
+    Kepler-186 f & hyp & 0.34 & 0.66 & 1.17 & 50 & 0.98 & 0.02 & 1.12 & 40 & 1.17\\
+    Proxima Cen b & psy & 0.52 & 0.48 & 1.12 & 37 & 0.76 & 0.24 & 1.07 & 00 & 1.12\\
+    TRAPPIST-1 b & non & 0.32 & 0.68 & 1.09 & 00 & 0.80 & 0.20 & 0.89 & 00 & 1.09\\
+    TRAPPIST-1 c & non & 0.47 & 0.53 & 1.06 & 00 & 0.94 & 0.06 & 1.14 & 26 & 1.06\\
+    TRAPPIST-1 d & mes & 0.63 & 0.37 & 0.77 & 34 & 0.48 & 0.52 & 0.73 & 47 & 0.77\\
+    TRAPPIST-1 e & psy & 0.14 & 0.86 & 0.92 & 00 & 0.90 & 0.10 & 0.83 & 55 & 0.92\\
+    TRAPPIST-1 g & hyp & 0.23 & 0.77 & 1.13 & 43 & 0.88 & 0.12 & 1.09 & 00 & 1.13\\
+    \bottomrule
+  \end{tabular}
+  \caption{Estimated values of CDHS under CRS by PSO.\\
+    \footnotesize This table records the parameters of Equation~\ref{eq:cdhscrs} under the columns
+    $\alpha$, $\beta$, $\gamma$ and $\delta$. $Y_i$ and $Y_s$ record the maxima for the objective functions. Columns $i_i$
+    and $i_s$ specify the number of iterations taken to converge to a stable $\gbest$ value. Under the Class column
+    there are four categories for the planets --- Psychroplanets (psy), Mesoplanets (mes), Non-Habitable planets (non)
+    and Hypopsychroplanets (hyp). $\mathit{CDHS}$ is the final scores with $w_i=0.99$ and
+    $w_s=0.01$.}\label{tab:cdhscrs}
+\end{table}
+
+\begin{table}
+  \centering
+  \begin{tabular}{l r r r r r r r r r r}
+    \toprule
+    Name & Class & $\alpha$ & $\beta$ & $\mathit{Y}_i$ & $i_i$ &
+    $\gamma$ & $\delta$ & $\mathit{Y}_s$ & $i_s$ & $\mathit{CDHS}$\\
+    \midrule
+    GJ 176 b & non & 0.40 & 0.60 & 1.90 & 59 & 0.37 & 0.63 & 2.11 & 56 & 1.90\\
+    GJ 667 C b & non & 0.78 & 0.22 & 1.71 & 58 & 0.90 & 0.10 & 1.81 & 57 & 1.71\\
+    GJ 667 C e & psy & 0.18 & 0.82 & 1.40 & 49 & 0.23 & 0.77 & 1.39 & 60 & 1.40\\
+    GJ 667 C f & psy & 0.70 & 0.30 & 1.40 & 64 & 0.40 & 0.60 & 1.39 & 61 & 1.40\\
+    GJ 3634 b & non & 0.60 & 0.40 & 1.89 & 59 & 0.43 & 0.57 & 2.09 & 77 & 1.89\\
+    HD 20794 c & non & 0.01 & 0.99 & 1.35 & 50 & 0.12 & 0.88 & 1.34 & 45 & 1.35\\
+    HD 40307 e & non & 0.75 & 0.25 & 1.50 & 60 & 0.68 & 0.32 & 1.53 & 50 & 1.50\\
+    HD 40307 f & non & 0.89 & 0.11 & 1.52 & 51 & 0.26 & 0.74 & 1.55 & 60 & 1.52\\
+    Kepler-186 f & hyp & 0.07 & 0.93 & 1.17 & 46 & 0.74 & 0.26 & 1.12 & 51 & 1.17\\
+    Proxima Cen b & psy & 0.05 & 0.95 & 1.12 & 57 & 0.22 & 0.78 & 1.07 & 53 & 1.12\\
+    TRAPPIST-1 b & non & 0.10 & 0.90 & 1.09 & 41 & 0.00 & 0.00 & 1.00 & 65 & 1.09\\
+    TRAPPIST-1 c & non & 0.47 & 0.53 & 1.06 & 44 & 0.23 & 0.77 & 1.14 & 57 & 1.06\\
+    TRAPPIST-1 d & mes & 0.00 & 0.00 & 1.00 & 67 & 0.00 & 0.00 & 1.00 & 59 & 1.00\\
+    TRAPPIST-1 e & psy & 0.00 & 0.00 & 1.00 & 55 & 0.00 & 0.00 & 1.00 & 57 & 1.00\\
+    TRAPPIST-1 g & hyp & 0.89 & 0.11 & 1.13 & 47 & 0.95 & 0.05 & 1.09 & 46 & 1.13\\
+    \bottomrule
+  \end{tabular}
+
+\end{table}
 
 
 
