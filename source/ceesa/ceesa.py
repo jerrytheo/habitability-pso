@@ -13,7 +13,7 @@ MESSAGE = '{:25}{:>7.5}{:8.4f}{:8.4f}{:8.4f}{:8.4f}{:8.4f}'\
         '{:8.4f}{:8.4f}{:10.4f}{:6}'
 TITLE = '{:25}{:>7}{:>8}{:>8}{:>8}{:>8}{:>8}{:>8}{:>8}{:>10}{:>6}'
 ERROR = '{:25}{:^79}'
-HEADERS = ('Name', 'Cls', 'r', 'd', 't', 'v', 'e', 'Rho', 'Eta', 'Hab', 'Iter')
+HEADERS = ('Name', 'Cls', 'r', 'd', 't', 'v', 'e', 'Rho', 'Eta', 'CEESA', 'Iter')
 ERR_TEXT = '** Convergence failed. **'
 TOTAL_CHAR = 104
 PROGRESS_BAR = '[{:' + str(TOTAL_CHAR - 10) + '}]  ({:>3}%)'

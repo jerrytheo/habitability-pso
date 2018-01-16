@@ -32,23 +32,45 @@ planets = [
         'TRAPPIST-1 g',
         ]
 
-for c, d in cdhs.items():
-    print(c.upper() + ':')
-    print('\\begin{tabular}{l l r r r r r r r r r}')
-    print('  \\toprule\\\\')
-    print('  Name & Class & '
-          '$\\alpha$ & $\\beta$ & $\mathit{CDHS}_i$ & Iterations(inner) & '
-          '$\\gamma$ & $\\delta$ & $\mathit{CDHS}_s$ & Iterations(surface) & '
-          '$\mathit{CDHS}$\\\\')
-    print('  \\midrule\\\\')
-    for _, row in d[d.Name.isin(planets)].iterrows():
-        habc = row['Cls'][:3]
-        vals = np.round(np.array([*(row[2:])]), 4)
-        print('  {} & {} & {:01.4f} & {:01.4f} & {:01.2f} & {:03} & '
-              '{:01.4f} & {:01.4f} & {:01.2f} & {:03} & {:01.2f}\\\\'.format(
-                    row['Name'], row['Cls'],
-                    vals[0], vals[1], vals[2], int(vals[7]),
-                    vals[3], vals[4], vals[5], int(vals[8]),
-                    vals[6]))
-    print('  \\bottomrule')
-    print('\\end{tabular}')
+with open('cdhs_sample_table.txt', 'w') as f:
+    def fprint(*args, **kwargs): print(*args, **kwargs, file=f)
+    for c, d in cdhs.items():
+        fprint(c.upper() + ':')
+        fprint('\\begin{tabular}{l l r r r r r r r r r}')
+        fprint('\\toprule')
+        fprint('Name & Class & $\\alpha$ & $\\beta$ & $Y_i$ & $i_i$ & '
+               '$\\gamma$ & $\\delta$ & $Y_s$ & $i_s$ & $\mathit{CDHS}$\\\\')
+        fprint('\\midrule')
+        for _, row in d[d.Name.isin(planets)].iterrows():
+            habc = row['Cls'][:3]
+            vals = np.round(np.array([*(row[2:])]), 4)
+            if c == 'drs':
+                vals[0] /= 1.001
+                vals[1] /= 1.001
+                vals[3] /= 1.001
+                vals[4] /= 1.001
+            fprint('{} & {} & {:.3f} & {:.3f} & {:.2f} & {:2} & {:.3f} & '
+                   '{:.3f} & {:.2f} & {:2} & {:.2f}\\\\'.format(
+                       row['Name'], habc,
+                       vals[0], vals[1], vals[2], int(vals[7]),
+                       vals[3], vals[4], vals[5], int(vals[8]), vals[6]))
+        fprint('\\bottomrule')
+        fprint('\\end{tabular}')
+
+
+with open('ceesa_sample_table.txt', 'w') as f:
+    def fprint(*args, **kwargs): print(*args, **kwargs, file=f)
+    for c, d in ceesa.items():
+        fprint('\\begin{tabular}{l r r r r r r r r r r}')
+        fprint('\\toprule')
+        fprint('Name & Class & $r$ & $d$ & $t$ & $v$ & $e$ & $\\rho$ & '
+               '$\\eta$ & $\mathit{CDHS}$ & $i$\\\\')
+        fprint('\\midrule')
+        for _, row in d[d.Name.isin(planets)].iterrows():
+            habc = row['Cls'][:3]
+            vals = np.round(np.array([*(row[2:])]), 4)
+            fprint('{} & {} & {:.3f} & {:.3f} & {:.3f} & {:.3f} & {:.3f} & '
+                   '{:.3f} & {:.3f} & {:.2f} & {:3}\\\\'.format(
+                      row['Name'], habc, *(vals[:8]), int(vals[8])))
+        fprint('\\bottomrule')
+        fprint('\\end{tabular}\n\n')
