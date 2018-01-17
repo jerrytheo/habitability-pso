@@ -5,6 +5,7 @@ __pycache__/
 *.swp
 
 # For latex
+docs/report/figs/
 *.aux
 *.dvi
 *.fdb_latexmk

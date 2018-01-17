@@ -2,8 +2,8 @@
 
 # import matplotlib as mpl
 from matplotlib import pyplot as plt
-import numpy as np
 import pandas as pd
+from shutil import copyfile
 import sys
 
 
@@ -22,6 +22,8 @@ OPTIONAL ARGUMENTS:
     --type <plottype>
         Construct plots only for the specified type. <plottype> could be either
         'dist' or 'iter'.
+    --dpi <dpi>
+        Specify the dpi for the images. Default 400.
 """
 invalid = 'Invalid usage.\n' + help_text
 
@@ -39,7 +41,7 @@ scores = {
 
 
 # Score distributions.
-def plot_score_distributions(scores, display=True, save=False):
+def plot_score_distributions(scores, display=True, save=False, dpi=400):
     for sc in scores:
         for cn, res in scores[sc].items():
             print('Plotting %s-%s distribution.' % (sc, cn))
@@ -49,12 +51,14 @@ def plot_score_distributions(scores, display=True, save=False):
             plt.ylabel('Number of occurences')
             if save:
                 sl, cn = sc.lower(), cn.lower()
-                plt.savefig('plots/' + sl + '_' + cn + '.png', dpi=1000)
+                fname = 'plots/dist_%s_%s_%ddpi.png' % (sl, cn, dpi)
+                plt.savefig(fname, dpi=dpi)
+                copyfile(fname, 'docs/report/figs/d%s%s.png' % (sl, cn))
             plt.show() if display else plt.close()
 
 
 # Iterations distributions.
-def plot_iter_distributions(scores, display=True, save=False):
+def plot_iter_distributions(scores, display=True, save=False, dpi=400):
     params = dict(bins=50, histtype='bar', edgecolor='k')
     title = 'Distribution of Iterations to Maxima for {} under {}\n'
     for sc in scores:
@@ -73,15 +77,19 @@ def plot_iter_distributions(scores, display=True, save=False):
             plt.ylabel('Number of occurences')
             if save:
                 sl, cn = sc.lower(), cn.lower()
-                plt.savefig('plots/Iter_' + sl + '_' + cn + '.png', dpi=1000)
+                fname = 'plots/iter_%s_%s_%ddpi.png' % (sl, cn, dpi)
+                plt.savefig(fname, dpi=dpi)
+                copyfile(fname, 'docs/report/figs/i%s%s.png' % (sl, cn))
             plt.show() if display else plt.close()
 
 
 if __name__ == '__main__':
-    args = sys.argv[1:]
+    dpi = 400
     disp = False
     save = False
     plots = []
+
+    args = sys.argv[1:]
     try:
         while args:
             arg = args.pop(0)
@@ -98,10 +106,12 @@ if __name__ == '__main__':
                     plots.append(plot_score_distributions)
                 elif ptype == 'iter':
                     plots.append(plot_iter_distributions)
+            elif arg == '--dpi':
+                dpi = int(args.pop(0))
             else:
                 print(invalid)
                 sys.exit(-1)
-    except IndexError:
+    except (IndexError, ValueError):
         print(invalid)
         sys.exit(-1)
 
@@ -109,4 +119,4 @@ if __name__ == '__main__':
         plots = [plot_score_distributions, plot_iter_distributions]
 
     for p in plots:
-        p(scores, disp, save)
+        p(scores, disp, save, dpi)

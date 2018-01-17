@@ -6,12 +6,18 @@
 
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+
 \usepackage{booktabs}
 \usepackage{enumitem}
+
+\usepackage{graphicx}
+\usepackage{subcaption}
+
 \usepackage{mathtools}
 \usepackage{bm}
 \usepackage{siunitx}
 
+\graphicspath{{figs/}}
 \sisetup{output-exponent-marker=\ensuremath{\mathrm{e}}}
 
 % Information for header.
@@ -459,6 +465,65 @@ CEESA scores. All tables also record the number of iterations taken to converge 
     under the CRS constraint $\eta=1$, there is no need for the parameter in the problem.
   }\label{tab:ceesacrs}
 \end{table}
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{cdhs_crs.png}
+    \caption{CDHS-CRS}\label{fig:distcdc}
+  \end{subfigure}
+  \qquad
+  \begin{subfigure}[b]{0.3\textwidth}
+    \includegraphics[width=\textwidth]{cdhs_drs.png}
+    \caption{CDHS-DRS}\label{fig:distcdd}
+  \end{subfigure}
+  \caption{CDHS Distribution Plots}\label{fig:animals}
+\end{figure}
+
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{ceesa_crs.png}
+    \caption{CEESA-CRS}\label{fig:distcdc}
+  \end{subfigure}
+  \qquad
+  \begin{subfigure}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{ceesa_drs.png}
+    \caption{CEESA-DRS}\label{fig:distcdd}
+  \end{subfigure}
+  \caption{CEESA Distribution Plots}\label{fig:animals}
+\end{figure}
+
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{iter_cdhs_crs.png}
+    \caption{CDHS-CRS}\label{fig:distcdc}
+  \end{subfigure}
+  \qquad
+  \begin{subfigure}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{iter_cdhs_drs.png}
+    \caption{CDHS-DRS}\label{fig:distcdd}
+  \end{subfigure}
+  \caption{CDHS Iterations Distribution Plots}\label{fig:animals}
+\end{figure}
+
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{iter_ceesa_crs.png}
+    \caption{CEESA-CRS}\label{fig:distcdc}
+  \end{subfigure}
+  \qquad
+  \begin{subfigure}[b]{0.4\textwidth}
+    \includegraphics[width=\textwidth]{iter_ceesa_drs.png}
+    \caption{CEESA-DRS}\label{fig:distcdd}
+  \end{subfigure}
+  \caption{CEESA Iterations Distribution Plots}\label{fig:animals}
+\end{figure}
 
 
 % \begin{pointers}
