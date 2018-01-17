@@ -20,13 +20,13 @@ pso_params = {
 
 # Help text for the script.
 help_text = """
-USAGE: ./generate_values.py [-h] [--help] [-v] [--verbose] [--debug]
+USAGE: ./generate_values.py [-h] [--help] [-q] [--quiet] [--debug <it>]
                             [--score <scorename>]
                             [--multiple <param> <start> <stop> [<step>]]
 Generate the CDHS and CEESA score for exoplanets from the PHL-EC dataset.
 
 OPTIONAL ARGUMENTS:
-    --help
+    -h --help
         Display this help message.
     --score <scorename>
         Generate score only for <scorename>. Can be either "cdhs" or "ceesa".
@@ -35,9 +35,11 @@ OPTIONAL ARGUMENTS:
         specified by <param> from <start> to <stop> by <step>. <step> is 1 by
         default. <param> may be "npart", "friction", "learnrate1", "learnrate2"
         or "max_velocity".
-    --debug
-        Run everything on only 10 random exoplanets. (Could include nan that
-        will be removed.)
+    --debug <it>
+        Run everything on <it> random exoplanets. (Could include nan that will
+        be removed.)
+    -q --quiet
+        If specified, nothing will be printed to STDOUT.
 """
 
 evaluate = {
@@ -49,7 +51,7 @@ evaluate = {
 # Handle arguments.
 args = sys.argv[1:]
 single = True
-verbose = False
+verbose = True
 invalid = 'Invalid usage.\n' + help_text
 debug = ''
 
@@ -85,8 +87,8 @@ try:
             sys.exit(0)
 
         # --verbose or -v
-        elif argname in ['--verbose', '-v']:
-            verbose = True
+        elif argname in ['--quiet', '-q']:
+            verbose = False
 
         # --debug
         elif argname == '--debug':
