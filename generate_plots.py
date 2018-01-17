@@ -46,8 +46,8 @@ def plot_score_distributions(scores, display=True, save=False, dpi=400):
         for cn, res in scores[sc].items():
             print('Plotting %s-%s distribution.' % (sc, cn))
             plt.hist(res[sc], bins=60, range=(0, 6), edgecolor='k')
-            plt.title('Distribution of %s under %s\n' % (sc, cn))
-            plt.xlabel('{0} values'.format(sc))
+            #  plt.title('Distribution of %s under %s\n' % (sc, cn))
+            plt.xlabel('Habitability Score')
             plt.ylabel('Number of occurences')
             if save:
                 sl, cn = sc.lower(), cn.lower()
@@ -60,19 +60,22 @@ def plot_score_distributions(scores, display=True, save=False, dpi=400):
 # Iterations distributions.
 def plot_iter_distributions(scores, display=True, save=False, dpi=400):
     params = dict(bins=50, histtype='bar', edgecolor='k')
-    title = 'Distribution of Iterations to Maxima for {} under {}\n'
+    color1 = 'tab:orange'
+    color2 = 'tab:red'
+    #  title = 'Distribution of Iterations to Maxima for {} under {}\n'
     for sc in scores:
         for cn, res in scores[sc].items():
             print('Plotting %s-%s iterations.' % (sc, cn))
             if sc == 'CDHS':
-                #  plt.hist(np.array((res['Inn'], res['Sur'])).T, **params)
-                plt.hist(res['Inn'], label='inner', range=(0, 100), **params)
+                plt.hist(res['Inn'], label='inner', range=(0, 100),
+                         color=color2, **params)
                 plt.hist(res['Sur'], label='surface', range=(0, 100),
-                         alpha=.75, **params)
+                         color=color1, alpha=.75, **params)
                 plt.legend()
             elif sc == 'CEESA':
-                plt.hist(res['Iter'], range=(70, 120), **params)
-            plt.title(title.format(sc, cn))
+                plt.hist(res['Iter'], range=(70, 120), color=color1,
+                         **params)
+            #  plt.title(title.format(sc, cn))
             plt.xlabel('Iterations')
             plt.ylabel('Number of occurences')
             if save:
@@ -85,7 +88,7 @@ def plot_iter_distributions(scores, display=True, save=False, dpi=400):
 
 if __name__ == '__main__':
     dpi = 400
-    disp = False
+    disp = True
     save = False
     plots = []
 
@@ -93,8 +96,8 @@ if __name__ == '__main__':
     try:
         while args:
             arg = args.pop(0)
-            if arg in ['-d', '--display']:
-                disp = True
+            if arg in ['-n', '--nodisplay']:
+                disp = False
             elif arg in ['-s', '--save']:
                 save = True
             elif arg in ['-h', '--help']:
