@@ -1,6 +1,6 @@
-\documentclass[9pt]{article}
+\documentclass[10pt]{article}
 
-\usepackage[margin=1in]{geometry}
+\usepackage[margin=1.2in]{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage[english]{babel}
 
@@ -18,19 +18,13 @@
 \usepackage{siunitx}
 
 \graphicspath{{figs/}}
-\sisetup{output-exponent-marker=\ensuremath{\mathrm{e}}}
+% \sisetup{output-exponent-marker=\ensuremath{\mathrm{e}}}
 
 % Information for header.
 \title{Estimating Planetary Habitability via Particle Swarm Optimization of CES Production Functions.}
 \author{Abhijit J.\ Theophilus}
 \date{\today}
 
-% Useful for initial drafts.
-\newenvironment{pointers}{%
-  \noindent Should include,
-  \begin{itemize}
-    \setlength{\itemsep}{-1pt}}{%
-\end{itemize}}
 
 % Useful replacements.
 \newcommand{\pso}{Particle Swarm Optimization}
@@ -308,14 +302,6 @@ Under CRS there is no need for the parameter $\eta$. The objective function for 
 
 \section{Experiment and Results}\label{sec:results}
 
-The data set used for estimating the Habitability Scores of exoplanets, described in Section~\ref{sec:habscore}, was the
-Confirmed Exoplanets Catalog maintained by the Planetary Habitability Laboratory (PHL). The catalog records observed and
-modeled parameters for exoplanets confirmed by the Extrasolar Planets Encyclopedia. Table~\ref{tab:param} describes the
-parameters from the PHL Exoplanets Catalog (PHL-EC) used for the experiment. Since surface temperature and eccentricity
-are not recorded in Earth Units, we normalized these values by dividing them with Earth's surface temperature (288K) and
-eccentricity (0.017). PHL-EC assumes an Eccentricity of 0 when unavailable. The PHL-EC records empty values for planets
-whose surface temperature is not known. We chose to drop these records from the experiment.
-
 \begin{table}
   \begin{center}
     \begin{tabular}{l l l}
@@ -333,19 +319,71 @@ whose surface temperature is not known. We chose to drop these records from the 
   \caption{Parameters from the PHL-EC used for the experiment.}\label{tab:param}
 \end{table}
 
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{dcdhscrs.png}
+    \caption{CRS Score Distribution}\label{fig:distcdcrs}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{dcdhsdrs.png}
+    \caption{DRS Score Distribution}\label{fig:distcddrs}
+  \end{subfigure}
+
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{icdhscrs.png}
+    \caption{CRS Iterations Distribution}\label{fig:itercdcrs}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{icdhsdrs.png}
+    \caption{DRS Iterations Distribution}\label{fig:itercddrs}
+  \end{subfigure}
+  \caption{Plots for the Cobb-Douglas Habitability Score.}\label{fig:cdhs}
+\end{figure}
+
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{dceesacrs.png}
+    \caption{CRS Score Distribution}\label{fig:distcecrs}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{dceesadrs.png}
+    \caption{DRS Score Distribution}\label{fig:distcedrs}
+  \end{subfigure}
+
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{iceesacrs.png}
+    \caption{CRS Iterations Distribution}\label{fig:itercecrs}
+  \end{subfigure}
+  \quad
+  \begin{subfigure}[b]{0.38\textwidth}
+    \includegraphics[width=\textwidth]{iceesadrs.png}
+    \caption{DRS Iterations Distribution}\label{fig:itercedrs}
+  \end{subfigure}
+  \caption{Plots for the Constant Elasticity Earth Similarity Approach.}\label{fig:ceesa}
+\end{figure}
+
+
+The data set used for estimating the Habitability Scores of exoplanets, described in Section~\ref{sec:habscore}, was the
+Confirmed Exoplanets Catalog maintained by the Planetary Habitability Laboratory (PHL). The catalog records observed and
+modeled parameters for exoplanets confirmed by the Extrasolar Planets Encyclopedia. Table~\ref{tab:param} describes the
+parameters from the PHL Exoplanets Catalog (PHL-EC) used for the experiment. Since surface temperature and eccentricity
+are not recorded in Earth Units, we normalized these values by dividing them with Earth's surface temperature
+(\SI{288}{\kelvin}) and eccentricity (\num{0.017}). PHL-EC assumes an Eccentricity of 0 when unavailable. The PHL-EC
+records empty values for planets whose surface temperature is not known. We chose to drop these records from the
+experiment.
+
 Our implemenation used $n=25$ particles to traverse the search space, with learning rates $\lambda_g=0.8$ and
 $\lambda_p=0.2$. It regulated velocity through a friction coefficient of $\mu=0.6$ and upper and lower bounds $\pm1.0$.
 It used an error threshold of $\epsilon=\num{1e-6}$ to convert strict inequalities to non-strict inequalities, and a
 tolerance of $\tau=\num{1e-7}$ to transform an equality constraint to a pair of inequalities. Further implementation
 details are discussed in Appendix~\ref{app:imp}.
-
-Tables~\ref{tab:cdhscrs} and~\ref{tab:cdhsdrs} record the CDHS values for a sample of exoplanets under CRS and DRS
-respectively at $w_i=0.99$ and $w_s=0.01$. Tables~\ref{tab:ceesacrs} and~\ref{tab:ceesadrs} record the same for the
-CEESA scores. All tables also record the number of iterations taken to converge to a stable $\gbest$ value. As seen in
-the tables, although CEESA has 7 parameters and 16 constraints under DRS, PSO takes just over twice the number of
-iterations to converge as in each step of CDHS, which has 2 parameters and 5 constraints. This is a promising result as
-it indicates that the iterations required for converging increases sub-linearly with the number of parameters in the
-model.
 
 The plots in Figures~\ref{fig:distcdcrs} and~\ref{fig:distcddrs} describe the distribution of the CDHS across exoplanets
 tested from the PHL-EC.\@ Figures~\ref{fig:itercdcrs} and~\ref{fig:itercddrs} show the distribution of iterations
@@ -357,112 +395,37 @@ graphs aggregate the results of optimizing the Habitability Production Functions
 (Equations~\ref{eq:cdhscrs},~\ref{eq:cdhsdrs},~\ref{eq:ceesadrs} and~\ref{eq:ceesacrs}) for each exoplanet in the PHL-EC
 by the method described in Algorithm~\ref{alg:cop}.
 
+Tables~\ref{tab:cdhscrs} and~\ref{tab:cdhsdrs} record the CDHS values for a sample of exoplanets under CRS and DRS
+respectively at $w_i=0.99$ and $w_s=0.01$. Tables~\ref{tab:ceesacrs} and~\ref{tab:ceesadrs} record the same for the
+CEESA scores. All tables also record the number of iterations taken to converge to a stable $\gbest$ value. As seen in
+the tables, although CEESA has 7 parameters and 16 constraints under DRS, PSO takes just over twice the number of
+iterations to converge as in each step of CDHS, which has 2 parameters and 5 constraints. This is a promising result as
+it indicates that the iterations required for converging increases sub-linearly with the number of parameters in the
+model.
 
-\begin{figure}
-  \centering
-  \begin{subfigure}[b]{0.4\textwidth}
-    \includegraphics[width=\textwidth]{dcdhscrs.png}
-    \caption{CRS Score Distribution}\label{fig:distcdcrs}
-  \end{subfigure}
-  \quad
-  \begin{subfigure}[b]{0.4\textwidth}
-    \includegraphics[width=\textwidth]{dcdhsdrs.png}
-    \caption{DRS Score Distribution}\label{fig:distcddrs}
-  \end{subfigure}
-
-  \begin{subfigure}[b]{0.4\textwidth}
-    \includegraphics[width=\textwidth]{icdhscrs.png}
-    \caption{CRS Iterations Distribution}\label{fig:itercdcrs}
-  \end{subfigure}
-  \quad
-  \begin{subfigure}[b]{0.4\textwidth}
-    \includegraphics[width=\textwidth]{icdhsdrs.png}
-    \caption{DRS Iterations Distribution}\label{fig:itercddrs}
-  \end{subfigure}
-  \caption{Plots for the Cobb-Douglas Habitability Score.}\label{fig:cdhs}
-\end{figure}
-
-
-\begin{figure}
-  \centering
-  \begin{subfigure}[b]{0.4\textwidth}
-    \includegraphics[width=\textwidth]{dceesacrs.png}
-    \caption{CRS Score Distribution}\label{fig:distcecrs}
-  \end{subfigure}
-  \quad
-  \begin{subfigure}[b]{0.4\textwidth}
-    \includegraphics[width=\textwidth]{dceesadrs.png}
-    \caption{DRS Score Distribution}\label{fig:distcedrs}
-  \end{subfigure}
-
-  \begin{subfigure}[b]{0.4\textwidth}
-    \includegraphics[width=\textwidth]{iceesacrs.png}
-    \caption{CRS Iterations Distribution}\label{fig:itercecrs}
-  \end{subfigure}
-  \quad
-  \begin{subfigure}[b]{0.4\textwidth}
-    \includegraphics[width=\textwidth]{iceesadrs.png}
-    \caption{DRS Iterations Distribution}\label{fig:itercedrs}
-  \end{subfigure}
-  \caption{Plots for the Constant Elasticity Earth Similarity Approach.}\label{fig:ceesa}
-\end{figure}
+As for real time taken to converge, PSO took \SI{666.85}{\second} ($\approx\SI{11}{\minute}\ \SI{7}{\second}$) to
+estimate the CDHS under CRS for \num{1683} exoplanets, at an average of \SI{198.11}{\milli\second} for each planet for
+each part of the CDHS.\@ For CDHS under DRS, it took \SI{638.69}{\second} ($\approx\SI{10}{\minute}\ \SI{39}{\second}$)
+at an average of \SI{189.75}{\milli\second} for each part of the CDHS.\@ The CEESA estimates, requiring one calculation,
+took a little over half the total time to execute. Under DRS it took a total of \SI{370.86}{\second}
+($\approx\SI{6}{\minute}\ \SI{11}{\second}$) at \SI{220.36}{\milli\second} per planet, while under CRS it took
+\SI{356.92}{\second} ($\approx\SI{5}{\minute}\ \SI{57}{\second}$) at \SI{212.07}{\milli\second} per planet. This is
+considerably fast considering the number of parameters and constraints for the problem.
 
 
 \begin{table}
   \centering
   \begin{subtable}{\textwidth}
     \centering
-    \begin{tabular}{l r r r r r r r r r r}
-      \toprule
-      Name & Class & $\alpha$ & $\beta$ & $Y_i$ & $i_i$ & $\gamma$ & $\delta$ & $Y_s$ & $i_s$ & $\mathit{CDHS}$\\
-      \midrule
-      GJ 176 b & non & 0.460 & 0.540 & 1.90 & 50 & 0.107 & 0.893 & 2.11 & 61 & 1.90\\
-      GJ 667 C b & non & 0.423 & 0.577 & 1.71 & 58 & 0.692 & 0.308 & 1.81 & 54 & 1.71\\
-      GJ 667 C e & psy & 0.129 & 0.871 & 1.40 & 50 & 0.258 & 0.742 & 1.39 & 55 & 1.40\\
-      GJ 667 C f & psy & 0.534 & 0.466 & 1.40 & 48 & 0.865 & 0.135 & 1.39 & 47 & 1.40\\
-      GJ 3634 b & non & 0.409 & 0.591 & 1.89 & 58 & 0.724 & 0.276 & 2.09 & 48 & 1.89\\
-      HD 20794 c & non & 0.260 & 0.740 & 1.35 & 50 & 0.096 & 0.904 & 1.34 & 58 & 1.35\\
-      HD 40307 e & non & 0.168 & 0.832 & 1.50 & 49 & 0.636 & 0.364 & 1.53 & 63 & 1.50\\
-      HD 40307 f & non & 0.702 & 0.298 & 1.52 & 68 & 0.303 & 0.697 & 1.55 & 45 & 1.52\\
-      HD 40307 g & psy & 0.964 & 0.036 & 1.82 & 51 & 0.083 & 0.917 & 1.98 & 55 & 1.82\\
-      Kepler-186 f & hyp & 0.338 & 0.662 & 1.17 & 50 & 0.979 & 0.021 & 1.12 & 40 & 1.17\\
-      Proxima Cen b & psy & 0.515 & 0.484 & 1.12 & 37 & 0.755 & 0.245 & 1.07 & 00 & 1.12\\
-      TRAPPIST-1 b & non & 0.319 & 0.681 & 1.09 & 00 & 0.801 & 0.199 & 0.89 & 00 & 1.09\\
-      TRAPPIST-1 c & non & 0.465 & 0.535 & 1.06 & 00 & 0.935 & 0.065 & 1.14 & 26 & 1.06\\
-      TRAPPIST-1 d & mes & 0.635 & 0.365 & 0.77 & 34 & 0.475 & 0.525 & 0.73 & 47 & 0.77\\
-      TRAPPIST-1 e & psy & 0.145 & 0.855 & 0.92 & 00 & 0.897 & 0.103 & 0.83 & 55 & 0.92\\
-      TRAPPIST-1 g & hyp & 0.226 & 0.774 & 1.13 & 43 & 0.876 & 0.124 & 1.09 & 00 & 1.13\\
-      \bottomrule
-    \end{tabular}
+    \include{./tabs/cdhscrs}
     \caption{Estimated habitability scores under CRS.}\label{tab:cdhscrs}
   \end{subtable}
 
   \vspace{4em}
-  
+
   \begin{subtable}{\textwidth}
     \centering
-    \begin{tabular}{l r r r r r r r r r r}
-      \toprule
-      Name & Class & $\alpha$ & $\beta$ & $Y_i$ & $i_i$ & $\gamma$ & $\delta$ & $Y_s$ & $i_s$ & $\mathit{CDHS}$\\
-      \midrule
-      GJ 176 b & non & 0.395 & 0.604 & 1.90 & 59 & 0.372 & 0.627 & 2.11 & 56 & 1.90\\
-      GJ 667 C b & non & 0.781 & 0.218 & 1.71 & 58 & 0.902 & 0.097 & 1.81 & 57 & 1.71\\
-      GJ 667 C e & psy & 0.179 & 0.820 & 1.40 & 49 & 0.234 & 0.765 & 1.39 & 60 & 1.40\\
-      GJ 667 C f & psy & 0.704 & 0.295 & 1.40 & 64 & 0.398 & 0.601 & 1.39 & 61 & 1.40\\
-      GJ 3634 b & non & 0.602 & 0.397 & 1.89 & 59 & 0.429 & 0.570 & 2.09 & 77 & 1.89\\
-      HD 20794 c & non & 0.014 & 0.985 & 1.35 & 50 & 0.116 & 0.883 & 1.34 & 45 & 1.35\\
-      HD 40307 e & non & 0.752 & 0.247 & 1.50 & 60 & 0.677 & 0.322 & 1.53 & 50 & 1.50\\
-      HD 40307 f & non & 0.887 & 0.112 & 1.52 & 51 & 0.261 & 0.738 & 1.55 & 60 & 1.52\\
-      HD 40307 g & psy & 0.300 & 0.699 & 1.82 & 62 & 0.785 & 0.214 & 1.98 & 56 & 1.82\\
-      Kepler-186 f & hyp & 0.073 & 0.926 & 1.17 & 46 & 0.740 & 0.259 & 1.12 & 51 & 1.17\\
-      Proxima Cen b & psy & 0.045 & 0.954 & 1.12 & 57 & 0.216 & 0.783 & 1.07 & 53 & 1.12\\
-      TRAPPIST-1 b & non & 0.102 & 0.897 & 1.09 & 41 & 0.000 & 0.000 & 1.00 & 65 & 1.09\\
-      TRAPPIST-1 c & non & 0.471 & 0.528 & 1.06 & 44 & 0.227 & 0.772 & 1.14 & 57 & 1.06\\
-      TRAPPIST-1 d & mes & 0.000 & 0.000 & 1.00 & 67 & 0.000 & 0.000 & 1.00 & 59 & 1.00\\
-      TRAPPIST-1 e & psy & 0.000 & 0.000 & 1.00 & 55 & 0.000 & 0.000 & 1.00 & 57 & 1.00\\
-      TRAPPIST-1 g & hyp & 0.888 & 0.111 & 1.13 & 47 & 0.949 & 0.050 & 1.09 & 46 & 1.13\\
-      \bottomrule
-    \end{tabular}
+    \include{./tabs/cdhsdrs}
     \caption{Estimated habitability scores under DRS.}\label{tab:cdhsdrs}
   \end{subtable}
   \caption{Cobb-Douglas Habitability Scores as estimated by \pso.\\
@@ -480,57 +443,15 @@ by the method described in Algorithm~\ref{alg:cop}.
   \centering
   \begin{subtable}{\textwidth}
     \centering
-    \begin{tabular}{l r r r r r r r r r r}
-      \toprule
-      Name & Class & $r$ & $d$ & $t$ & $v$ & $e$ & $\rho$ & $\eta$ & $\mathit{CEESA}$ & $i$\\
-      \midrule
-      GJ 176 b & non & 0.304 & 0.001 & 0.375 & 0.271 & 0.050 & 0.467 & 0.808 & 1.52 &  85\\
-      GJ 667 C b & non & 0.297 & 0.010 & 0.318 & 0.052 & 0.322 & 0.682 & 0.730 & 2.36 &  90\\
-      GJ 667 C e & psy & 0.230 & 0.286 & 0.137 & 0.199 & 0.148 & 0.551 & 0.906 & 1.14 &  85\\
-      GJ 667 C f & psy & 0.397 & 0.035 & 0.152 & 0.402 & 0.014 & 0.793 & 0.999 & 1.31 & 100\\
-      GJ 3634 b & non & 0.178 & 0.175 & 0.005 & 0.194 & 0.447 & 0.894 & 0.657 & 2.07 &  94\\
-      HD 20794 c & non & 0.073 & 0.142 & 0.452 & 0.190 & 0.144 & 0.953 & 0.635 & 1.20 &  78\\
-      HD 40307 e & non & 0.156 & 0.307 & 0.185 & 0.033 & 0.319 & 0.428 & 0.939 & 2.69 &  88\\
-      HD 40307 f & non & 0.272 & 0.231 & 0.064 & 0.305 & 0.127 & 0.676 & 0.802 & 1.28 &  77\\
-      HD 40307 g & psy & 0.113 & 0.219 & 0.066 & 0.454 & 0.148 & 0.711 & 0.991 & 3.26 &  92\\
-      Kepler-186 f & hyp & 0.039 & 0.159 & 0.116 & 0.329 & 0.357 & 0.253 & 0.919 & 1.35 &  70\\
-      Proxima Cen b & psy & 0.272 & 0.173 & 0.284 & 0.193 & 0.079 & 0.615 & 0.114 & 0.99 &  75\\
-      TRAPPIST-1 b & non & 0.488 & 0.151 & 0.039 & 0.193 & 0.129 & 0.151 & 0.014 & 0.99 &  87\\
-      TRAPPIST-1 c & non & 0.172 & 0.236 & 0.275 & 0.242 & 0.075 & 0.969 & 0.962 & 1.06 &  80\\
-      TRAPPIST-1 d & mes & 0.106 & 0.308 & 0.075 & 0.218 & 0.293 & 0.844 & 0.017 & 0.99 &  93\\
-      TRAPPIST-1 e & psy & 0.189 & 0.266 & 0.192 & 0.094 & 0.260 & 0.371 & 0.006 & 0.99 &  84\\
-      TRAPPIST-1 g & hyp & 0.326 & 0.186 & 0.143 & 0.278 & 0.067 & 0.315 & 0.021 & 1.00 &  76\\
-      \bottomrule
-    \end{tabular}
+    \include{./tabs/ceesadrs}
     \caption{Estimated habitability scores under DRS.}\label{tab:ceesadrs}
   \end{subtable}
-  
+
   \vspace{4em}
-  
+
   \begin{subtable}{\textwidth}
     \centering
-    \begin{tabular}{l r r r r r r r r r}
-      \toprule
-      Name & Class & $r$ & $d$ & $t$ & $v$ & $e$ & $\rho$ & $\mathit{CEESA}$ & $i$\\
-      \midrule
-      GJ 176 b & non & 0.194 & 0.020 & 0.315 & 0.465 & 0.006 & 0.398 & 1.88 &  86\\
-      GJ 667 C b & non & 0.162 & 0.289 & 0.090 & 0.087 & 0.372 & 0.836 & 3.54 & 107\\
-      GJ 667 C e & psy & 0.373 & 0.032 & 0.134 & 0.304 & 0.157 & 0.217 & 1.25 &  71\\
-      GJ 667 C f & psy & 0.394 & 0.006 & 0.043 & 0.360 & 0.196 & 0.490 & 1.44 &  81\\
-      GJ 3634 b & non & 0.351 & 0.122 & 0.006 & 0.069 & 0.453 & 0.439 & 2.89 &  96\\
-      HD 20794 c & non & 0.101 & 0.077 & 0.691 & 0.071 & 0.059 & 0.756 & 1.58 &  94\\
-      HD 40307 e & non & 0.069 & 0.091 & 0.097 & 0.173 & 0.569 & 0.768 & 5.29 &  94\\
-      HD 40307 f & non & 0.285 & 0.161 & 0.053 & 0.443 & 0.058 & 0.342 & 1.42 &  73\\
-      HD 40307 g & psy & 0.156 & 0.010 & 0.081 & 0.302 & 0.451 & 0.612 & 7.15 &  94\\
-      Kepler-186 f & hyp & 0.036 & 0.017 & 0.082 & 0.383 & 0.483 & 0.929 & 1.68 &  85\\
-      Proxima Cen b & psy & 0.352 & 0.383 & 0.103 & 0.059 & 0.103 & 0.936 & 0.89 &  83\\
-      TRAPPIST-1 b & non & 0.148 & 0.147 & 0.344 & 0.269 & 0.093 & 0.767 & 0.94 &  81\\
-      TRAPPIST-1 c & non & 0.038 & 0.060 & 0.575 & 0.321 & 0.005 & 0.602 & 1.17 &  86\\
-      TRAPPIST-1 d & mes & 0.023 & 0.065 & 0.475 & 0.391 & 0.045 & 0.830 & 0.84 &  79\\
-      TRAPPIST-1 e & psy & 0.176 & 0.464 & 0.253 & 0.103 & 0.004 & 0.920 & 0.86 &  81\\
-      TRAPPIST-1 g & hyp & 0.060 & 0.086 & 0.310 & 0.540 & 0.004 & 0.848 & 0.97 &  86\\
-      \bottomrule
-    \end{tabular}
+    \include{./tabs/ceesacrs}
     \caption{Estimated habitability scores under CRS.}\label{tab:ceesacrs}
   \end{subtable}
   \caption{Constant Elasticity Earth Similarity Approach scores as estimated by \pso.\\
@@ -544,10 +465,8 @@ by the method described in Algorithm~\ref{alg:cop}.
 
 
 \section{Conclusions}
-\begin{pointers}
-\item Why is the speed so important?
-\item Parallelizable.
-\end{pointers}
+% - Why is the speed so important?
+% - Parallelizable.
 
 
 \appendix
