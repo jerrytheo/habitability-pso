@@ -2,6 +2,7 @@
 
 # import matplotlib as mpl
 from matplotlib import pyplot as plt
+import numpy as np
 import pandas as pd
 import sys
 
@@ -54,16 +55,19 @@ def plot_score_distributions(scores, display=True, save=False):
 
 # Iterations distributions.
 def plot_iter_distributions(scores, display=True, save=False):
-    params = dict(bins=25, histtype='step', linewidth=2)
+    params = dict(bins=50, histtype='bar', edgecolor='k')
     title = 'Distribution of Iterations to Maxima for {} under {}\n'
     for sc in scores:
         for cn, res in scores[sc].items():
             print('Plotting %s-%s iterations.' % (sc, cn))
             if sc == 'CDHS':
-                plt.hist(res['Inn'], **params)
-                plt.hist(res['Sur'], **params)
+                #  plt.hist(np.array((res['Inn'], res['Sur'])).T, **params)
+                plt.hist(res['Inn'], label='inner', range=(0, 100), **params)
+                plt.hist(res['Sur'], label='surface', range=(0, 100),
+                         alpha=.75, **params)
+                plt.legend()
             elif sc == 'CEESA':
-                plt.hist(res['Iter'], **params)
+                plt.hist(res['Iter'], range=(70, 120), **params)
             plt.title(title.format(sc, cn))
             plt.xlabel('Iterations')
             plt.ylabel('Number of occurences')
