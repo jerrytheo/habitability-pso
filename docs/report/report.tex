@@ -1,4 +1,4 @@
-\documentclass[10pt,draft]{article}
+\documentclass[10pt]{article}
 
 \usepackage[
   citestyle=numeric-comp,
@@ -12,6 +12,7 @@
 
 \usepackage[title]{appendix}
 \usepackage{booktabs}
+\usepackage{csquotes}
 \usepackage{enumitem}
 
 \usepackage{graphicx}
@@ -276,7 +277,6 @@ transform equality constraints to a pair of inequalities,
     g_{(q+r+l)}(x) &= {-}h_l(x) - \tau \leq 0,&&\quad l = 1\dots r\,.
   \end{aligned}
 \end{equation*}
-% Cite: PSO Constraints paper.
 Thus, $r$ equality constraints become $2r$ inequality constraints, raising the total number of constraints to $s = q +
 2r$. For each solution $p_i$, $c_i$ denotes the constraint vector where, $c_{ik} = \max\{g_k(p_i), 0\},~k=1\dots s$.
 When $c_{ik} = 0,~\forall k=1\dots s$, the solution $p_i$ lies within the feasible region. When $c_{ik} > 0$, the
@@ -389,15 +389,14 @@ Under CRS there is no need for the parameter $\eta$ (since $\eta=1$). Thus, the 
 \end{figure}
 
 
-% Cite data set.
 The data set used for estimating the Habitability Scores of exoplanets, described in Section~\ref{sec:habscore}, was the
-Confirmed Exoplanets Catalog maintained by the Planetary Habitability Laboratory (PHL). The catalog records observed and
-modeled parameters for exoplanets confirmed by the Extrasolar Planets Encyclopedia. Table~\ref{tab:param} describes the
-parameters from the PHL Exoplanets Catalog (PHL-EC) used for the experiment. Since surface temperature and eccentricity
-are not recorded in Earth Units, we normalized these values by dividing them with Earth's surface temperature
-(\SI{288}{\kelvin}) and eccentricity (\num{0.017}). PHL-EC assumes an Eccentricity of 0 when unavailable. The PHL-EC
-records empty values for planets whose surface temperature is not known. We chose to drop these records from the
-experiment.
+Confirmed Exoplanets Catalog maintained by the Planetary Habitability Laboratory (PHL)~\cite{PHL}. The catalog records
+observed and modeled parameters for exoplanets confirmed by the Extrasolar Planets Encyclopedia. Table~\ref{tab:param}
+describes the parameters from the PHL Exoplanets Catalog (PHL-EC) used for the experiment. Since surface temperature and
+eccentricity are not recorded in Earth Units, we normalized these values by dividing them with Earth's surface
+temperature (\SI{288}{\kelvin}) and eccentricity (\num{0.017}). PHL-EC assumes an Eccentricity of 0 when unavailable.
+The PHL-EC records empty values for planets whose surface temperature is not known. We chose to drop these records from
+the experiment.
 
 Our implementation used $n=25$ particles to traverse the search space, with learning rates $\lambda_g=0.8$ and
 $\lambda_p=0.2$. It used an inertial weight of $\omega=0.6$ and upper and lower bounds $\pm1.0$. It used an error
@@ -533,26 +532,27 @@ resulting in a model too infeasible for traditional optimization methods.
   most entities as either matrices or vectors. 
 
   Matrices $P$ and $V$ represent current position and velocity of all particles in the swarm.
-  \begin{alignat}{2}
+  \begin{alignat*}{2}
     P &= [\ p_{ij}\ &&\mid\ \forall i=1\dots n,\;\forall j=1\dots d\ ]\,,\\
     V &= [\ v_{ij}\ &&\mid\ \forall i=1\dots n,\;\forall j=1\dots d\ ]\,.
-  \end{alignat}
+  \end{alignat*}
   $p_{ij}$ and $v_{ij}$ denote position and velocity of particle $i$ in dimension $d$. Matrices $B$ and $L$ represent
   the $\pbest$ and $\lbest$ values for the swarm, where,
-  \begin{align}
+  \begin{align*}
     B &= [\ {\pbest}_i\ \mid\ \forall i=1\dots n\ ]\,,\\
     L &= [\ \argmin_{B_j,\ j = 1\dots n} {\|B_j - P_i\|}^2\ \mid\ \forall i=1\dots n\ ]\,.
-  \end{align}
+  \end{align*}
   Section~\ref{sec:rep} outlined the use of a constraint vector for describing the feasibility of a solution. This
   concept generalizes to a matrix $C$, where,
-  \begin{equation}
+  \begin{equation*}
     C = [\ c_{ij}\ \mid\ \forall i=1\dots n,\;\forall j=1\dots s\ ]\,.
-  \end{equation}
+  \end{equation*}
   Let $r',r''$ be two random vectors of length $n$ drawn from the uniform distribution ${U(0,1)}^n$. We use the
   shorthand notation of $X_i$ to denote the $i$\tsup{th} row of some matrix $X$. If $f(X_i)$ is the fitness function and
   $\mathit{constraints}(X)$ constructs $C$ for solutions $X$, the implementation of each iteration while updating
   particles in Algorithm~\ref{alg:cop} reduces to,
-  \begin{align}
+
+  \begin{align*}
     V  =&\ \omega.V + \lambda_g\begin{bmatrix}
       {r_1}'(\gbest - P_1)\\
       {r_2}'(\gbest - P_2)\\
@@ -570,7 +570,7 @@ resulting in a model too infeasible for traditional optimization methods.
     B  =&\ [\ X_i\ \mid\ (\textstyle\sum_{j=1}^s c_{ij} = 0 \to X_i = \argmax\{f(P_i), f(B_i)\})\ \wedge\\
         &\qquad(\textstyle\sum_{j=1}^s c_{ij} \neq 0 \to X_i = B_i),\ \forall i=1\dots n\ ]\\
     \gbest =&\ \argmax_{{B}_i} \{\ {f(B_i)}\ \mid\ \forall i=\dots n\ \}
-  \end{align}
+  \end{align*}
 
 \end{appendices}
 
