@@ -65,30 +65,30 @@
 
 The search for extra-terrestrial life~\cite{Seth1,Biosig} and potentially habitable extrasolar
 planets~\cite{Kepler,Presto} has been an international venture since Frank Drake's attempt with Project Ozma in the
-mid-20th century~\cite{Ozma}, demanding large investments in cost and effort. \textcite{Exo1} confirmed the first
-exoplanet in 1991. This marked the start of a trend that has lasted 25 years and yielded over 3,700 confirmed
-exoplanets. There have been attempts to assess the habitability of these planets and to assign a score based on their
-similarity to Earth. Two such habitability scores are the Cobb-Douglas Habitability Score (CDHS)~\cite{Bora,Saha} and
-the Constant Elasticity Earth Similarity Approach (CEESA) score. Estimating these scores involves maximizing a
-production function while observing a set of constraints on the input variables.
+mid-20th century~\cite{Ozma}. \textcite{Exo1} confirmed the first exoplanet in 1991. This marked the start of a trend
+that has lasted 25 years and yielded over 3,700 confirmed exoplanets. There have been attempts to assess the
+habitability of these planets and to assign a score based on their similarity to Earth. Two such habitability scores are
+the Cobb-Douglas Habitability Score (CDHS)~\cite{Bora,Saha} and the Constant Elasticity Earth Similarity Approach
+(CEESA) score. Estimating these scores involves maximizing a production function while observing a set of constraints on
+the input variables.
 
 Under most paradigms, maximizing a continuous function requires calculating a gradient. This may not always be feasible
 for non-polynomial functions in high-dimensional search spaces. Further, subjecting the input variables to constraints,
-as needed by CDHS and CEESA, are not always straightforward to represent within the model. This paper presents an
+as needed by CDHS and CEESA, are not always straightforward to represent within the model. This paper details an
 approach to Constrained Optimization (CO) using the swarm intelligence metaheuristic. \pso\ (PSO) is a method for
-optimizing a continuous function that does away with the need for a gradient. It employs a large number of particles
-that traverse the search space converging toward a global best solution encountered by at least one of the
-particles~\cite{PSO1,PSO2}.
+optimizing a continuous function that does away with the need for calculating the gradient. It employs a large number of
+randomly initialized particles that traverse the search space, eventually converging at a global best solution
+encountered by at least one particle~\cite{PSO1,PSO2}.
 
 \pso\ is a distributed method that requires simple mathematical operators and short segments of code, making it a
 lucrative solution where computational resources are at a premium. Its implementation is highly parallelizable. It
-scales with the dimensionality of the search space. The standard PSO algorithm does not deal with constraints but
-through variations in initializing and updating particles constraints are straightforward to represent and adhere to, as
-seen in Section~\ref{subsec:copso}. \textcite{Poli1,Poli2} carried out extensive surveys on the applications of PSO
+scales with the dimensionality of the search space. The standard PSO algorithm does not deal with constraints but,
+through variations in initializing and updating particles, constraints are straightforward to represent and adhere to,
+as seen in Section~\ref{subsec:copso}. \textcite{Poli1,Poli2} carried out extensive surveys on the applications of PSO,
 reporting uses in Communication Networks, Machine Learning, Design, Combinatorial Optimization and Modeling, among
 others.
 
-This paper demonstrates the applicability of \pso\ in estimating CDHS and CEESA scores of an exoplanet by maximizing
+This paper demonstrates the applicability of \pso\ in estimating the CDHS and CEESA scores of an exoplanet by maximizing
 their respective production functions (discussed in Sections~\ref{subsec:cdhs} and~\ref{subsec:ceesa}). CDHS considers
 the planet's Radius, Mass, Escape Velocity and Surface Temperature, while CEESA includes a fifth parameter, the Orbital
 Eccentricity of the planet. The Exoplanets Catalog hosted by the Planetary Habitability Laboratory, UPR Arecibo records
@@ -108,19 +108,10 @@ Estimating the Cobb-Douglas Habitability Score (CDHS)~\cite{Bora} requires estim
   \end{alignat}
 \end{subequations}
 where, $R$, $D$, $V_e$ and $T_s$ are density, radius, escape velocity and surface temperature respectively. $\alpha$,
-$\beta$, $\gamma$ and $\delta$ are the elasticity coefficients subject to,
-\begin{equation}
-  0 < \alpha,\beta,\gamma,\delta < 1\,.
-\end{equation}
-Equations~\ref{eq:cdhsi} and~\ref{eq:cdhss} are convex under either Constant Returns to Scale (CRS) or Decreasing
-Returns to Scale (DRS) marked by two constraints on the elasticity coefficients,
-\begin{subequations}
-  \begin{alignat}{3}
-    \text{CRS:} & \quad\alpha+\beta = 1,&\quad\gamma+\delta = 1\,,\\
-    \text{DRS:} & \quad\alpha+\beta < 1,&\quad\gamma+\delta < 1\,.
-  \end{alignat}
-\end{subequations}
-The final CDHS is the convex combination of the interior and surface CDHS values as given by,
+$\beta$, $\gamma$ and $\delta$ are the elasticity coefficients subject to $0 < \alpha,\beta,\gamma,\delta < 1$.
+Equations~\ref{eq:cdhsi} and~\ref{eq:cdhss} are convex under either Constant Returns to Scale (CRS), when
+$\alpha+\beta=1$ and $\gamma+\delta=1$, or Decreasing Returns to Scale (DRS), when $\alpha+\beta<1$ and
+$\gamma+\delta<1$. The final CDHS is the convex combination of the interior and surface scores as given by,
 \begin{equation}
   Y\ =\ w_i.Y_i + w_s.Y_s\,.
 \end{equation}
@@ -132,33 +123,19 @@ habitability score of an exoplanet,
 \begin{equation}\label{eq:ceesa}
   Y = {(r.R^\rho+d.D^\rho+t.{T_s}^\rho+v.{V_e}^\rho+e.E^\rho)}^{\frac{\eta}{\rho}}\,,
 \end{equation}
-where, $E$ is the fifth parameter denoting Orbital Eccentricity. The value of $\rho$ lies within $0<\rho\leq 1$.
-The coefficients ($r$, $d$, $t$, $v$ and $e$) are constrained by,
-\begin{subequations}
-  \begin{align}
-      0 < r,d,t,v,e < 1\,,\\
-      r+d+t+v+e = 1\,.
-  \end{align}
-\end{subequations}
-The value of $\eta$ is constrained by the scale of production used,
-\begin{subequations}
-  \begin{alignat}{3}
-    \text{CRS:} & \quad 0 < \eta \leq 1\,,\\
-    \text{DRS:} & \quad \eta = 1\,.
-  \end{alignat}
-\end{subequations}
+where, $E$ is the fifth parameter denoting Orbital Eccentricity. The value of $\rho$ lies within $0<\rho\leq 1$. The
+coefficients $r$, $d$, $t$, $v$ and $e$ lie in $(0,1)$ and sum to \num{1}, $r+d+t+v+e = 1$. The value of $\eta$ is
+constrained by the scale of production used, $0 < \eta < 1$ under DRS and $\eta=1$ under CRS.
 
 
 \section{Particle Swarm Optimization}\label{sec:pso}
 
-% Cite: PSO paper.
 Particle Swarm Optimization (PSO)~\cite{PSO1} is a biologically inspired metaheuristic for finding the global minima of
-a function.  Traditionally designed for unconstrained inputs, it works by iteratively converging a population of
-randomly initialized solutions, called particles, toward a globally optimal solution. Each particle in the population
-keeps track of its current position and the best solution it has encountered so far, called $\pbest$. Each particle also
-has an associated randomized velocity used to traverse the search space. The swarm keeps track of the overall best
-solution, called $\gbest$. Each iteration of the swarm updates the velocity of the particle towards its $\pbest$ and the
-$\gbest$ values.
+a function. Traditionally designed for unconstrained inputs, it works by iteratively converging a population of randomly
+initialized solutions, called particles, toward a globally optimal solution. Each particle in the population keeps track
+of its current position and the best solution it has encountered, called $\pbest$. Each particle also has an associated
+velocity used to traverse the search space. The swarm keeps track of the overall best solution, called $\gbest$. Each
+iteration of the swarm updates the velocity of the particle towards its $\pbest$ and the $\gbest$ values.
 
 \subsection{PSO for Unconstrained Optimization}\label{subsec:uopso}
 Let $f(x)$ be the function to be minimized, where $x$ is a $d$-dimensional vector. $f(x)$ is also called the fitness
@@ -174,8 +151,8 @@ random numbers $u_g, u_p$ from a uniform distribution, $U(0,1)$ and updates the 
 line~\ref{algline:vup}. Here, $\omega$ is the inertial weight and $\lambda_g,\lambda_p$ are the global and particle
 learning rates. If the new position of the particle corresponds to a better fit than its $\pbest$, the algorithm updates
 $\pbest$ to the new position. Once the algorithm has updated all particles, it updates $\gbest$ to the new overall best
-position. A suitable termination criteria for the swarm, under convex optimization, is  when the $\gbest$ position has
-not changed by the end of the iteration.
+position. A suitable termination criteria for the swarm, under convex optimization, is to terminate when $\gbest$ has
+not changed by the end of an iteration.
 
 \begin{algorithm}[t]
   \begin{algorithmic}[1]
@@ -282,7 +259,9 @@ Thus, $r$ equality constraints become $2r$ inequality constraints, raising the t
 When $c_{ik} = 0,~\forall k=1\dots s$, the solution $p_i$ lies within the feasible region. When $c_{ik} > 0$, the
 solution $p_i$ violates the $k$\tsup{th} constraint.
 
-Under these guidelines, the following equations represent the CDHS estimation under CRS as a Constrained Optimization problem,
+Under these guidelines, the representation of CDHS estimation (described in Section~\ref{subsec:cdhs}) under CRS as a
+CO problem is given by,
+
 \begin{equation}\label{eq:cdhscrs}
   \begin{aligned}
     & \underset{\alpha,\beta,\gamma,\delta}{\text{minimize:}}
@@ -300,7 +279,9 @@ Under DRS the last two constraints for $Y_i$ and $Y_s$ are replaced with,
     \gamma + \delta + \epsilon - 1 &\leq 0\,.
   \end{aligned}
 \end{equation}
-The CEESA score estimation under DRS is represented as,
+
+The representation of CEESA score estimation (described in Section~\ref{subsec:ceesa}) under DRS as a CO problem is
+given by,
 \begin{equation}\label{eq:ceesadrs}
   \begin{aligned}
     & \underset{r,d,t,v,e,\rho,\eta}{\text{minimize}}
@@ -389,20 +370,19 @@ Under CRS there is no need for the parameter $\eta$ (since $\eta=1$). Thus, the 
 \end{figure}
 
 
-The data set used for estimating the Habitability Scores of exoplanets, described in Section~\ref{sec:habscore}, was the
-Confirmed Exoplanets Catalog maintained by the Planetary Habitability Laboratory (PHL)~\cite{PHL}. The catalog records
-observed and modeled parameters for exoplanets confirmed by the Extrasolar Planets Encyclopedia. Table~\ref{tab:param}
-describes the parameters from the PHL Exoplanets Catalog (PHL-EC) used for the experiment. Since surface temperature and
-eccentricity are not recorded in Earth Units, we normalized these values by dividing them with Earth's surface
-temperature (\SI{288}{\kelvin}) and eccentricity (\num{0.017}). PHL-EC assumes an Eccentricity of 0 when unavailable.
-The PHL-EC records empty values for planets whose surface temperature is not known. We chose to drop these records from
-the experiment.
+The data set used for estimating the Habitability Scores of exoplanets was the Confirmed Exoplanets Catalog maintained
+by the Planetary Habitability Laboratory (PHL)~\cite{PHL}. The catalog records observed and modeled parameters for
+exoplanets confirmed by the Extrasolar Planets Encyclopedia. Table~\ref{tab:param} describes the parameters from the PHL
+Exoplanets' Catalog (PHL-EC) used for the experiment. Since surface temperature and eccentricity are not recorded in
+Earth Units, we normalized these values by dividing them with Earth's surface temperature (\SI{288}{\kelvin}) and
+eccentricity (\num{0.017}). PHL-EC assumes an Eccentricity of 0 when unavailable. The PHL-EC records empty values for
+planets whose surface temperature is not known. We chose to drop these records from the experiment.
 
 Our implementation used $n=25$ particles to traverse the search space, with learning rates $\lambda_g=0.8$ and
-$\lambda_p=0.2$. It used an inertial weight of $\omega=0.6$ and upper and lower bounds $\pm1.0$. It used an error
+$\lambda_p=0.2$. It used an inertial weight of $\omega=0.6$ and upper and lower bounds $\pm1.0$. We used an error
 threshold of $\epsilon=\num{1e-6}$ to convert strict inequalities to non-strict inequalities, and a tolerance of
 $\tau=\num{1e-7}$ to transform an equality constraint to a pair of inequalities. Further implementation details are
-discussed in Appendix~\ref{app:imp}.
+discussed in the Appendix.
 
 The plots in Figures~\ref{fig:distcdcrs} and~\ref{fig:distcddrs} describe the distribution of the CDHS across exoplanets
 tested from the PHL-EC.\@ Figures~\ref{fig:itercdcrs} and~\ref{fig:itercddrs} show the distribution of iterations
@@ -424,11 +404,12 @@ model.
 
 As for real time taken to converge, PSO took \SI{666.85}{\second} ($\approx\SI{11}{\minute}\ \SI{7}{\second}$) to
 estimate the CDHS under CRS for \num{1683} exoplanets, at an average of \SI{198.11}{\milli\second} for each planet for
-each part of the CDHS.\@ For CDHS under DRS, it took \SI{638.69}{\second} ($\approx\SI{10}{\minute}\ \SI{39}{\second}$)
-at an average of \SI{189.75}{\milli\second} for each part of the CDHS.\@ The CEESA estimates, requiring one calculation,
-took a little over half the total time to execute. Under DRS it took a total of \SI{370.86}{\second}
-($\approx\SI{6}{\minute}\ \SI{11}{\second}$) at \SI{220.36}{\milli\second} per planet, while under CRS it took
-\SI{356.92}{\second} ($\approx\SI{5}{\minute}\ \SI{57}{\second}$) at \SI{212.07}{\milli\second} per planet.
+each individual score (interior and surface) of the CDHS.\@ For CDHS under DRS, it took \SI{638.69}{\second}
+($\approx\SI{10}{\minute}\ \SI{39}{\second}$) at an average of \SI{189.75}{\milli\second} for each part of the CDHS.\@
+The CEESA calculations, requiring a single estimate, took a little over half the CDHS execution time to run. Under DRS
+it took a total of \SI{370.86}{\second} ($\approx\SI{6}{\minute}\ \SI{11}{\second}$) at \SI{220.36}{\milli\second} per
+planet, while under CRS it took \SI{356.92}{\second} ($\approx\SI{5}{\minute}\ \SI{57}{\second}$) at
+\SI{212.07}{\milli\second} per planet.
 
 \begin{table}
   \centering
@@ -450,7 +431,7 @@ took a little over half the total time to execute. Under DRS it took a total of 
     Table~\ref{tab:cdhscrs} and the parameters of Equation~\ref{eq:cdhsdrs} in Table~\ref{tab:cdhsdrs}. $Y_i$ and $Y_s$
     record the maxima for the objective functions. $i_i$ and $i_s$ specify the number of iterations taken to converge to
     a stable $\gbest$ value. Under the Class column there are four categories for the planets --- Psychroplanets (psy),
-    Mesoplanets (mes), Non-Habitable planets (non) and Hypopsychroplanets (hyp).  $\mathit{CDHS}$ is the final score
+    Mesoplanets (mes), Non-Habitable planets (non) and Hypopsychroplanets (hyp). $\mathit{CDHS}$ is the final score
     with $w_i=0.99$ and $w_s=0.01$.
   }
 \end{table}
@@ -485,13 +466,14 @@ took a little over half the total time to execute. Under DRS it took a total of 
 
 \pso\ mainly draws its advantages from being easy to implement and highly parallelizable. The algorithms described in
 Section~\ref{sec:pso} use simple operators and straightforward logic. What is especially noticeable is the lack of the
-need for a gradient, allowing PSO to work in high dimensional search spaces with a large number of constraints.
-Particles of the swarm, in most implementations operate independently during each iteration, their updates can occur
-simultaneously and even asynchronously, yielding much faster execution times than those outlined in
-Section~\ref{sec:results}. However, since strict inequalities and equality constraints are not exactly represented, the
-resulting solution may not be as accurate as direct methods. Despite this, using PSO to calculate the habitability
-scores is beneficial when the number of input parameters are large, which further increases the number of constraints,
-resulting in a model too infeasible for traditional optimization methods.
+need for a gradient, allowing PSO to work in high dimensional search spaces with a large number of constraints,
+precisely what is needed in a potential Habitability score estimate. Further, particles of the swarm, in most
+implementations operate independently during each iteration, their updates can occur simultaneously and even
+asynchronously, yielding much faster execution times than those outlined in Section~\ref{sec:results}. However, since
+strict inequalities and equality constraints are not exactly represented, the resulting solution may not be as accurate
+as direct methods. Despite this, using PSO to calculate the habitability scores is beneficial when the number of input
+parameters are large, which further increases the number of constraints, resulting in a model too infeasible for
+traditional optimization methods.
 
 
 \printbibliography
@@ -499,7 +481,6 @@ resulting in a model too infeasible for traditional optimization methods.
 
 \begin{appendices}
 
-  \pagebreak
   \section{Ensuring Convergence}\label{app:con}
 
   Although the termination criteria illustrated in Algorithm~\ref{alg:unop}, $|\oldbest-\gbest| < \mathit{threshold}$,
@@ -509,20 +490,19 @@ resulting in a model too infeasible for traditional optimization methods.
   $\pbest$s, leading to no change in $\gbest$. Thus, although the swarm has not yet converged to the global optima, it
   terminates and reports the current $\gbest$ as the optima.
 
-  To prevent this from happening our implementation maintained a counter that was incremented very time $\gbest$ changed
-  by a value less than the threshold it incremented the counter. If the counter reached \num{100}, the algorithm
-  terminated and reported the current value of $\gbest$ as the global optima. If the value of $\gbest$ changed by more
-  than the threshold, it reset the counter to $\num{0}$. Since the function is convex, and all points are initialized to
-  feasible solutions (thus, ensuring that a feasible $\gbest$ exists) there was no need to restrict the total number of
-  possible iterations.
+  To prevent this from happening our implementation maintained a counter that it incremented every time $\gbest$ changed
+  by a value less than the threshold. When the counter reached \num{100}, the algorithm terminated and reported the
+  current value of $\gbest$ as the global optima. If the value of $\gbest$ changed by more than the threshold, it reset
+  the counter to $\num{0}$. Since the function is convex, and all points are initialized to feasible solutions (thus,
+  ensuring that a feasible $\gbest$ has been encountered) there was no need to restrict the total number of possible
+  iterations.
 
   This explains the spike at \num{0} in Figure~\ref{fig:itercdcrs}. For every exoplanet, the implementation waits a
   \num{100} iterations for declaring convergence, thus overstating the total iterations by \num{100}. To adjust for this
   offset, we subtracted \num{100} from the total iterations before constructing the histogram plots in
   Figures~\ref{fig:itercdcrs},~\ref{fig:itercddrs},~\ref{fig:itercecrs} and~\ref{fig:itercedrs}. Therefore, although the
-  graphs report iterations to convergence for a significant number of planets, only the global best has not shifted
-  locations, but the particles have actually converged to a common point around a region within the threshold of the
-  global best.
+  graphs report iterations to convergence for a significant number of planets, only $\gbest$ has not shifted, the
+  particles have actually converged to a common point around a region within the threshold of the global best.
 
   \section{Improving Performance}\label{app:imp}
 
@@ -549,9 +529,8 @@ resulting in a model too infeasible for traditional optimization methods.
   \end{equation*}
   Let $r',r''$ be two random vectors of length $n$ drawn from the uniform distribution ${U(0,1)}^n$. We use the
   shorthand notation of $X_i$ to denote the $i$\tsup{th} row of some matrix $X$. If $f(X_i)$ is the fitness function and
-  $\mathit{constraints}(X)$ constructs $C$ for solutions $X$, the implementation of each iteration while updating
-  particles in Algorithm~\ref{alg:cop} reduces to,
-
+  $\mathit{constraints}(X)$ constructs $C$ for solutions $X$, the update of each particle in Algorithm~\ref{alg:cop} is
+  implemented as,
   \begin{align*}
     V  =&\ \omega.V + \lambda_g\begin{bmatrix}
       {r_1}'(\gbest - P_1)\\
@@ -569,8 +548,11 @@ resulting in a model too infeasible for traditional optimization methods.
     C  =&\ \mathit{constraints}(P)\\
     B  =&\ [\ X_i\ \mid\ (\textstyle\sum_{j=1}^s c_{ij} = 0 \to X_i = \argmax\{f(P_i), f(B_i)\})\ \wedge\\
         &\qquad(\textstyle\sum_{j=1}^s c_{ij} \neq 0 \to X_i = B_i),\ \forall i=1\dots n\ ]\\
-    \gbest =&\ \argmax_{{B}_i} \{\ {f(B_i)}\ \mid\ \forall i=\dots n\ \}
   \end{align*}
+  Finally, after all particles are updated, $\gbest$ is updated according to,
+  \begin{equation*}
+    \gbest = \argmax_{{B}_i} \{\ {f(B_i)}\ \mid\ \forall i=\dots n\ \}\,.
+  \end{equation*}
 
 \end{appendices}
 
