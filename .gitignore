@@ -52,5 +52,6 @@ docs/report/figs/
 *.aux
 
 
-# My project stuff
+## My project stuff
 results/*_sample.csv
+.vs/
