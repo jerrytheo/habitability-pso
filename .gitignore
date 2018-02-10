@@ -55,3 +55,4 @@ docs/report/figs/
 ## My project stuff
 results/*_sample.csv
 .vs/
+.vscode/
