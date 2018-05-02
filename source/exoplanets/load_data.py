@@ -7,7 +7,7 @@ from ..utils import _round
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
-exoplanets = pd.read_csv(os.path.join(__location__, 'phl_hec-confirmed.csv'))
+exoplanets = pd.read_csv(os.path.join(__location__, 'exoplanets.csv'))
 exoplanets = exoplanets[[
     'P. Name',
     'P. Radius (EU)',
