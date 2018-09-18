@@ -84,6 +84,9 @@ def evaluate_ceesa_values(exoplanets, fname='ceesa_{0}.csv', verbose=True,
 
             ceesa = construct_fitness(*info, constraint)
             start = initialize_points(npart, constraint)
+
+            kwargs['dumpfile'] = path.join(
+                'temp', '{0}-{1}.txt'.format(name, constraint))
             try:
                 gbest, it = conmax_by_pso(ceesa, start, check, **kwargs)
             except SwarmConvergeError:
@@ -103,7 +106,7 @@ def evaluate_ceesa_values(exoplanets, fname='ceesa_{0}.csv', verbose=True,
             print('-' * TOTAL_CHAR + '\n')
 
         fpath = path.join('results', fname.format(constraint))
-        with open(fpath, 'w') as resfile:
+        with open(fpath, 'w', newline='') as resfile:
             csv.writer(resfile).writerows(results)
 
     if verbose:

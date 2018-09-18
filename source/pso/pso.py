@@ -12,7 +12,7 @@ class SwarmConvergeError(Exception):
 # Function for convergence.
 def conmax_by_pso(fitness, start_points, constraints, friction=.8,
                   learnrate1=.1, learnrate2=.1, max_velocity=1.,
-                  max_iter=1000, stable_iter=100, thresh=1e-8):
+                  max_iter=1000, stable_iter=100, thresh=1e-8, dumpfile=None):
     """Perform constrained maximization of the given fitness using particle
     swarm optimization.
 
@@ -56,10 +56,15 @@ def conmax_by_pso(fitness, start_points, constraints, friction=.8,
     lbest = position.copy()
     gbest = lbest[np.argmax(fitness(lbest))]
 
+    if dumpfile is not None:
+        dfptr = open(dumpfile, 'w')
+
     stable_count = 0
     for ii in range(max_iter):
         # Store old for threshold comparison.
         gbest_fit = fitness(gbest)
+        if dumpfile is not None:
+            dfptr.write(str(gbest_fit) + '\n')
 
         # Determine the velocity gradients.
         leaders = np.argmin(cdist(position, lbest, 'sqeuclidean'), axis=1)
@@ -91,5 +96,10 @@ def conmax_by_pso(fitness, start_points, constraints, friction=.8,
             stable_count = 0
 
     else:
+        if dumpfile is not None:
+            dfptr.close()
         raise SwarmConvergeError('no convergence. stable_count=' +
                                  str(stable_count))
+
+    if dumpfile is not None:
+        dfptr.close()
