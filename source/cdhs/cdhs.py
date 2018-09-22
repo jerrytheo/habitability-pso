@@ -44,7 +44,7 @@ def print_results(it, total, values):
 
 # Function to evaluate CDHS values.
 def evaluate_cdhs_values(exoplanets, fname='cdhs_{0}.csv', verbose=True,
-                         npart=25, **kwargs):
+                         gendump=False, npart=25, **kwargs):
     """Evaluates the CDHS values of each exoplanet and stores it in the
     indicated file.
 
@@ -60,6 +60,8 @@ def evaluate_cdhs_values(exoplanets, fname='cdhs_{0}.csv', verbose=True,
             where constraint is either 'crs' or 'drs'.
         verbose: bool, default True
             Whether to print output to stdout.
+        gendump: bool, default False
+            Whether to generate dump files of gbest score.
         npart: int, default 25
             Number of particles.
         kwargs:
@@ -86,6 +88,14 @@ def evaluate_cdhs_values(exoplanets, fname='cdhs_{0}.csv', verbose=True,
             # CDHS interior.
             cdhpf = construct_fitness(rad, den, constraint)
             start = initialize_points(npart, constraint)
+
+            if gendump:
+                dumpdir = path.join('temp', constraint)
+                if not path.isdir(dumpdir):
+                    mkdir(dumpdir)
+
+                kwargs['dumpfile'] = path.join(
+                    dumpdir, '{0}-{1}.txt'.format(name, constraint))
 
             try:
                 gbest, it_i = conmax_by_pso(cdhpf, start, check, **kwargs)

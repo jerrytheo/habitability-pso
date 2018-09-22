@@ -44,6 +44,8 @@ def conmax_by_pso(fitness, start_points, constraints, friction=.8,
             Number of iterations to wait before Swarm is declared stable.
         thresh: int, default 1e-5
             Threshold within which the Swarm is stable.
+        dumpfile: str or None, default None
+            File to write gbest values per iteration. None if no dump required.
     Returns:
         a 2-tuple (swarm, it), where swarm is the converged particle swarm and
         it are the number of iterations taken to converge.
@@ -57,14 +59,15 @@ def conmax_by_pso(fitness, start_points, constraints, friction=.8,
     gbest = lbest[np.argmax(fitness(lbest))]
 
     if dumpfile is not None:
-        dfptr = open(dumpfile, 'w')
+        dumpdata = []
 
     stable_count = 0
+
     for ii in range(max_iter):
         # Store old for threshold comparison.
         gbest_fit = fitness(gbest)
         if dumpfile is not None:
-            dfptr.write(str(gbest_fit) + '\n')
+            dumpdata.append(gbest_fit)
 
         # Determine the velocity gradients.
         leaders = np.argmin(cdist(position, lbest, 'sqeuclidean'), axis=1)
@@ -91,15 +94,17 @@ def conmax_by_pso(fitness, start_points, constraints, friction=.8,
         if np.abs(gbest_fit - fitness(gbest)) < thresh:
             stable_count += 1
             if stable_count == stable_iter:
-                return (gbest, ii)
+                break
         else:
             stable_count = 0
 
-    else:
-        if dumpfile is not None:
-            dfptr.close()
-        raise SwarmConvergeError('no convergence. stable_count=' +
-                                 str(stable_count))
-
     if dumpfile is not None:
-        dfptr.close()
+        with open(dumpfile, 'w') as dfptr:
+            for line in dumpdata:
+                dfptr.write(line)
+
+    if stable_count != stable_iter:
+        raise SwarmConvergeError(
+            'no convergence. stable_count=' + str(stable_count))
+
+    return (gbest, ii)

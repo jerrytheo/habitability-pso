@@ -40,6 +40,8 @@ OPTIONAL ARGUMENTS:
         be removed.)
     -q --quiet
         If specified, nothing will be printed to STDOUT.
+    -d --dump
+        Generates dump files of gbest values for every planet.
 """
 
 evaluate = {
@@ -52,6 +54,7 @@ evaluate = {
 args = sys.argv[1:]
 single = True
 verbose = True
+gendump = False
 invalid = 'Invalid usage.\n' + help_text
 debug = ''
 
@@ -95,6 +98,10 @@ try:
             exoplanets = exoplanets.sample(int(args.pop(0)))
             exoplanets.reset_index(drop=True, inplace=True)
             debug = '_sample'
+
+        elif argname in ['--dump', '-d']:
+            gendump = True
+
         else:
             print(invalid)
             sys.exit(-1)
@@ -106,7 +113,7 @@ except (IndexError, ValueError):
 
 try:
     for score, fn in evaluate.items():
-        fn = partial(fn, exoplanets, verbose=verbose)
+        fn = partial(fn, exoplanets, verbose=verbose, gendump=gendump)
         if single:                                              # Aww...
             fname = '{sc}_{{0}}{db}.csv'.format(sc=score, db=debug)
             fn(fname=fname, **pso_params)

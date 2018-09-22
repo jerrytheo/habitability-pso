@@ -1,6 +1,6 @@
 import csv
 import numpy as np
-from os import path
+from os import path, mkdir
 
 from .ceesa_fn import construct_fitness
 from .ceesa_fn import get_constraint_fn
@@ -46,7 +46,7 @@ def print_results(it, total, values):
 
 # Function to evaluate CEESA values.
 def evaluate_ceesa_values(exoplanets, fname='ceesa_{0}.csv', verbose=True,
-                          npart=25, **kwargs):
+                          gendump=False, npart=25, **kwargs):
     """Evaluates the CEESA scores of each exoplanet and stores it in the
     indicated file.
 
@@ -62,6 +62,8 @@ def evaluate_ceesa_values(exoplanets, fname='ceesa_{0}.csv', verbose=True,
             where constraint is either 'crs' or 'drs'.
         verbose: bool, default True
             Whether to print output to stdout.
+        gendump: bool, default False
+            Whether to generate dump files of gbest score.
         npart: int, default 25
             Number of particles.
         kwargs:
@@ -85,13 +87,20 @@ def evaluate_ceesa_values(exoplanets, fname='ceesa_{0}.csv', verbose=True,
             ceesa = construct_fitness(*info, constraint)
             start = initialize_points(npart, constraint)
 
-            kwargs['dumpfile'] = path.join(
-                'temp', '{0}-{1}.txt'.format(name, constraint))
+            if gendump:
+                dumpdir = path.join('temp', constraint)
+                if not path.isdir(dumpdir):
+                    mkdir(dumpdir)
+
+                kwargs['dumpfile'] = path.join(
+                    dumpdir, '{0}-{1}.txt'.format(name, constraint))
             try:
                 gbest, it = conmax_by_pso(ceesa, start, check, **kwargs)
+
             except SwarmConvergeError:
                 print_error(name)
                 continue
+
             score = np.round(ceesa(gbest), 4)
             if constraint == 'crs':
                 results.append([name, habc, *np.round(gbest, 4), 1,
