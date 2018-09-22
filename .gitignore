@@ -56,3 +56,4 @@ docs/report/figs/
 results/*_sample.csv
 .vs/
 .vscode/
+temp/

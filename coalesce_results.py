@@ -46,14 +46,9 @@ COLORS = {
 def extract_range(planet_info, constraint):
     for planet, habc in planet_info:
         fname = 'temp/{1}/{0}-{1}.txt'.format(planet, constraint)
-        hab_range = np.genfromtxt(fname)
-
-        if planet in PLANETS_TO_PLOT:
-            plt.plot(np.arange(len(hab_range)), hab_range, color=COLORS[habc])
-
-    plt.show()
-
-    return None
+        hab_range = np.round(np.genfromtxt(fname), 4)
+        print(hab_range)
+        return
 
 
 def write_range(hab_interval, constraint):
