@@ -1,7 +1,8 @@
-from glob import glob
+import sys
 import matplotlib.pyplot as plt
 import numpy as np
-import re
+from os import path
+import pandas as pd
 
 
 PRECISION = 1e-5
@@ -42,26 +43,33 @@ COLORS = {
 #     sys.exit(0)
 
 
+def extract_range(planets, constraint):
+    hab_intervals = []
 
-def extract_range(planet_info, constraint):
-    for planet, habc in planet_info:
-        fname = 'temp/{1}/{0}-{1}.txt'.format(planet, constraint)
-        hab_range = np.round(np.genfromtxt(fname), 4)
-        print(hab_range)
-        return
+    for planet in planets:
+        fname = path.join(
+            'temp', constraint, '{0}-{1}.txt'.format(planet, constraint))
+        hab_range = np.genfromtxt(fname)[:-99]
+        if hab_range.shape[0] > 50:
+            hab_range = hab_range[-50:]
+        hab_intervals.append([hab_range.min(), hab_range.max()])
+
+    return np.array(hab_intervals)
 
 
 def write_range(hab_interval, constraint):
-    pass
+    df = pd.read_csv(path.join('results', 'ceesa_{}.csv'.format(constraint)))
+    df['ScoreMin'] = hab_intervals[:, 0]
+    df['ScoreMax'] = hab_intervals[:, 1]
+    df.to_csv('results/ceesa_{}_app.csv'.format(constraint), index=False)
 
 
 if __name__ == '__main__':
 
     # First row has headers, first column is planet name.
-    planet_info = np.genfromtxt(
-        'results/ceesa_crs.csv', dtype=str, delimiter=',')[1:, 0:2]
+    planets = np.genfromtxt(
+        'results/ceesa_crs.csv', dtype=str, delimiter=',')[1:, 0]
 
     for constraint in ('crs', 'drs'):
-        hab_interval = extract_range(planet_info, constraint)
-        write_range(hab_interval, constraint)
-        break
+        hab_intervals = extract_range(planets, constraint)
+        write_range(hab_intervals, constraint)

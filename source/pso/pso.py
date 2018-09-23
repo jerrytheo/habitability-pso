@@ -101,7 +101,7 @@ def conmax_by_pso(fitness, start_points, constraints, friction=.8,
     if dumpfile is not None:
         with open(dumpfile, 'w') as dfptr:
             for line in dumpdata:
-                dfptr.write(line)
+                dfptr.write(str(line) + '\n')
 
     if stable_count != stable_iter:
         raise SwarmConvergeError(
